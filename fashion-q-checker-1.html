@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F0F12">
+<title>Fashion Q 검수</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap');
+  :root{--bg:#0F0F12;--card:#1A1A22;--accent:#E8A838;--success:#34D399;--danger:#F87171;--warning:#FBBF24;--text:#F5F5F7;--dim:#8B8B9E;--border:#2A2A38;--inputBg:#14141C}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:72px}
+  @keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .header{background:linear-gradient(135deg,#1A1A22,#22222E);padding:14px 16px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+  .header-top{display:flex;justify-content:space-between;align-items:center}
+  .header h1{font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-.5px}
+  .header-sub{font-size:11px;color:var(--dim);margin-top:1px}
+  .badges{display:flex;gap:6px}
+  .badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+  .badge-green{background:#34D39922;color:var(--success)}.badge-gold{background:#E8A83822;color:var(--accent)}
+  .session-bar{margin-top:8px}
+  .session-input{width:100%;background:var(--inputBg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:inherit}
+  .content{padding:14px 14px 16px}
+  .tab-content{display:none}.tab-content.active{display:block}
+  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+  .card-title{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+  .card-title-between{justify-content:space-between}
+  .input-row{display:flex;gap:6px;margin-bottom:8px}
+  input[type="text"],input[type="number"]{background:var(--inputBg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit;width:100%}
+  input::placeholder{color:#8B8B9E66}
+  .input-label{font-size:10px;color:var(--dim);margin-bottom:3px;font-weight:600}
+  .input-group{display:flex;flex-direction:column}
+  .btn{background:var(--accent);color:#0F0F12;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;justify-content:center;font-family:inherit;white-space:nowrap}
+  .btn-full{width:100%;padding:12px}.btn-danger{background:var(--danger);color:#fff}.btn-gray{background:var(--border);color:#fff}.btn-sm{padding:5px 10px;font-size:13px;border-radius:6px}.btn-camera{padding:14px;font-size:15px}
+  .list-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #2A2A3822}.list-item:last-child{border-bottom:none}
+  .style-num{font-size:13px;font-weight:700;color:var(--accent)}.item-sub{font-size:11px;color:var(--dim);margin-top:1px}
+  .item-vendor{font-size:10px;color:var(--dim);background:#2A2A3855;padding:1px 6px;border-radius:4px;display:inline-block}
+  .item-color{font-size:11px;color:var(--warning);font-weight:600}
+  .qty-controls{display:flex;align-items:center;gap:4px}.qty-num{min-width:24px;text-align:center;font-weight:800;font-size:15px}
+  .del-btn{background:none;border:none;color:var(--danger);cursor:pointer;padding:4px;margin-left:6px}
+  .camera-box{position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:10px}.camera-box video{width:100%;display:block}
+  .scan-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;height:80px;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35),inset 0 0 20px #E8A83833;pointer-events:none}
+  .scan-label{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0F0F12;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:800;white-space:nowrap}
+  .live-badge{animation:pulse 1.5s infinite}
+  .detected-msg{margin-top:8px;padding:8px 12px;background:#34D39915;border-radius:8px;font-size:13px;color:var(--success);font-weight:700;text-align:center}
+  .error-msg{margin-top:8px;padding:8px 12px;background:#F8717115;border-radius:8px;font-size:12px;color:var(--danger)}
+  .empty{text-align:center;padding:36px 16px;color:var(--dim)}.empty-icon{font-size:36px;margin-bottom:8px}
+  .match-card{padding:10px 12px;margin-bottom:6px;border-radius:0 10px 10px 0}
+  .match-ok{background:#34D39912;border-left:3px solid var(--success)}.match-warn{background:#FBBF2412;border-left:3px solid var(--warning)}.match-miss{background:#F8717112;border-left:3px solid var(--danger)}
+  .stat-row{display:flex;gap:8px;margin-bottom:12px}.stat-box{flex:1;border-radius:12px;padding:12px 8px;text-align:center}.stat-num{font-size:22px;font-weight:800}.stat-label{font-size:10px;color:var(--dim);margin-top:2px}
+  .progress-bar{background:var(--inputBg);border-radius:6px;height:8px;overflow:hidden}.progress-fill{height:100%;border-radius:6px;transition:width .5s ease}
+  .tip-card{background:#E8A83810;border-color:#E8A83830}.tip-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px}.tip-text{font-size:11px;color:var(--dim);line-height:1.6}
+  .tab-bar{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);z-index:100}
+  .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 7px;background:none;border:none;color:var(--dim);font-size:10px;font-weight:500;cursor:pointer;border-top:2px solid transparent;font-family:inherit}.tab-btn.active{color:var(--accent);font-weight:700;border-top-color:var(--accent)}.tab-btn svg{width:20px;height:20px}
+  .tab-count{background:var(--accent);color:#0F0F12;border-radius:8px;padding:0 5px;font-size:9px;font-weight:800;line-height:15px}
+  .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:12px;font-size:12px;font-weight:700;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:slideDown .3s ease;color:#0F0F12;max-width:88%;text-align:center}
+  .toast-success{background:var(--success)}.toast-warning{background:var(--warning)}.toast-danger{background:var(--danger)}.toast-info{background:var(--accent)}
+  .search-wrap{position:relative;display:flex;align-items:center;flex:1}.search-wrap svg{position:absolute;left:10px;color:var(--dim);width:16px;height:16px}.search-wrap input{padding-left:32px}
+  .db-list{max-height:360px;overflow-y:auto}
+  .wait-card{background:#FBBF2410;border-color:#FBBF2430}.success-card{background:#34D39915;border-color:#34D39940;text-align:center;padding:28px}
+  .hidden{display:none}
+  .fast-entry{display:grid;grid-template-columns:1fr 1.2fr;gap:6px;margin-bottom:8px}.fast-entry input{font-size:13px;padding:9px 10px}
+  .recent-vendor{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+  .recent-tag{background:var(--border);color:var(--dim);border:none;padding:3px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit}.recent-tag:active{background:var(--accent);color:#0F0F12}
+  .inv-table{width:100%;border-collapse:collapse;font-size:12px}.inv-table th{text-align:left;padding:6px 4px;color:var(--dim);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)}.inv-table td{padding:6px 4px;border-bottom:1px solid #2A2A3822}
+  .inv-table .vendor-col{color:var(--dim);font-size:11px}.inv-table .style-col{color:var(--accent);font-weight:700}.inv-table .color-col{color:var(--warning);font-size:11px}.inv-table .qty-col{text-align:right;font-weight:700}
+</style>
+</head>
+<body>
+<div id="toast" class="toast hidden"></div>
+<div class="header">
+  <div class="header-top">
+    <div><h1>Fashion Q 검수</h1><div class="header-sub">매장 7747 · 입고 확인</div></div>
+    <div class="badges"><span id="scanBadge" class="badge badge-green">스캔 0</span><span id="invBadge" class="badge badge-gold">인보이스 0</span></div>
+  </div>
+  <div class="session-bar"><input class="session-input" id="sessionName" placeholder="세션 이름..."></div>
+</div>
+<div class="content">
+  <!-- SCAN TAB -->
+  <div id="tab-scan" class="tab-content active">
+    <div class="card">
+      <div class="card-title card-title-between">
+        <span style="display:flex;align-items:center;gap:7px"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> 카메라 바코드 스캔</span>
+        <span id="liveBadge" class="badge badge-green live-badge hidden">● LIVE</span>
+      </div>
+      <div id="cameraOff"><button class="btn btn-full btn-camera" onclick="startCamera()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg> 카메라로 바코드 스캔하기</button></div>
+      <div id="cameraOn" class="hidden"><div class="camera-box"><video id="video" playsinline muted autoplay></video><div class="scan-guide"><div class="scan-label">바코드를 여기에 맞추세요</div></div></div><button class="btn btn-danger btn-full" onclick="stopCamera()">카메라 끄기</button><div id="detectedMsg" class="detected-msg hidden"></div></div>
+      <div id="cameraError" class="error-msg hidden"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke-linecap="round"/></svg> 바코드 수동 / 블루투스</div>
+      <div class="input-row"><input type="text" id="barcodeInput" placeholder="바코드 번호..." inputmode="numeric" style="flex:1"><button class="btn" onclick="handleBarcodeScan()">조회</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Style # 직접 입력</div>
+      <div class="input-row"><input type="text" id="scanStyleInput" placeholder="Style #" style="flex:1.5"><input type="text" id="scanColorInput" placeholder="색상(선택)" style="flex:1"><button class="btn" onclick="handleManualScanAdd()">추가</button></div>
+    </div>
+    <div class="card"><div class="card-title card-title-between"><span>📦 스캔 목록</span><span id="scanCount" class="badge badge-gold">0종 / 0개</span></div><div id="scanList"></div></div>
+  </div>
+
+  <!-- INVOICE TAB -->
+  <div id="tab-invoice" class="tab-content">
+    <div class="card">
+      <div class="card-title"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg> 인보이스 빠른 입력</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">종이 인보이스 보면서 한 줄씩 입력. 수량 입력 후 Enter → 다음 줄로 자동 이동</div>
+      <div class="input-label">최근 Vendor (터치로 자동입력)</div>
+      <div id="recentVendors" class="recent-vendor"></div>
+      <div class="fast-entry">
+        <div class="input-group"><div class="input-label">Vendor</div><input type="text" id="invVendor" placeholder="REFLEX" autocapitalize="characters"></div>
+        <div class="input-group"><div class="input-label">Style #</div><input type="text" id="invStyle" placeholder="PA080" autocapitalize="characters"></div>
+        <div class="input-group"><div class="input-label">색상</div><input type="text" id="invColor" placeholder="BLK" autocapitalize="characters"></div>
+        <div class="input-group"><div class="input-label">수량 (7747)</div><input type="text" id="invQty" placeholder="0" inputmode="numeric"></div>
+      </div>
+      <button class="btn btn-full" onclick="addInvoiceItem()">추가 (Enter)</button>
+      <div id="lastAdded" style="margin-top:6px;font-size:11px;color:var(--success);text-align:center;min-height:16px"></div>
+    </div>
+    <div id="invoiceListCard" class="card hidden">
+      <div class="card-title card-title-between"><span>📋 인보이스 목록</span><span id="invCount" class="badge badge-gold">0</span></div>
+      <div id="invoiceList" style="overflow-x:auto"></div>
+      <button class="btn btn-danger btn-full" style="margin-top:10px;opacity:.85" onclick="if(confirm('전체 삭제?')){invoiceItems=[];renderInvoice();}">전체 삭제</button>
+    </div>
+    <div class="card tip-card"><div class="tip-title">💡 빠른 입력 팁</div><div class="tip-text">• 같은 Vendor 연속 시 Vendor는 자동 유지<br>• 색상 없으면 비워두기<br>• 수량 0이면 건너뜀 (해당 매장 배정 없음)</div></div>
+  </div>
+
+  <!-- MATCH TAB -->
+  <div id="tab-match" class="tab-content"><div id="matchContent"></div></div>
+
+  <!-- DB TAB -->
+  <div id="tab-db" class="tab-content">
+    <div class="card">
+      <div class="card-title card-title-between"><span style="display:flex;align-items:center;gap:7px"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg> 바코드 DB</span><span id="dbCount" class="badge badge-gold">0</span></div>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
+      <button class="btn btn-full" style="margin-bottom:10px" onclick="document.getElementById('csvFile').click()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> CSV 업로드</button>
+      <div style="font-size:10px;color:var(--dim);margin-bottom:10px">barcode, style 필수 (vendor, color, name, price 선택)</div>
+      <div class="input-row" style="margin-bottom:10px"><div class="search-wrap"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dbSearch" placeholder="검색..." oninput="renderDB()"></div></div>
+      <div id="dbList" class="db-list"></div>
+    </div>
+    <div class="card tip-card"><div id="dbNotice" class="tip-text"></div></div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="scan" onclick="switchTab('scan')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke-linecap="round"/></svg><span>스캔</span><span id="tabScanCount" class="tab-count hidden">0</span></button>
+  <button class="tab-btn" data-tab="invoice" onclick="switchTab('invoice')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg><span>인보이스</span><span id="tabInvCount" class="tab-count hidden">0</span></button>
+  <button class="tab-btn" data-tab="match" onclick="switchTab('match')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round"/></svg><span>대조</span></button>
+  <button class="tab-btn" data-tab="db" onclick="switchTab('db')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg><span>DB관리</span></button>
+</div>
+
+<script>
+let db=[
+  {barcode:"8801234567890",style:"75952",name:"",price:7.75,color:"",vendor:"AMBIANCE"},
+  {barcode:"8801234567891",style:"52125",name:"",price:5.80,color:"",vendor:"ANWND"},
+  {barcode:"8801234567892",style:"55051",name:"",price:4.75,color:"",vendor:"ANWND"},
+  {barcode:"8801234567893",style:"52247",name:"",price:4.50,color:"",vendor:"ANWND"},
+  {barcode:"8801234567894",style:"D5526X-2",name:"DRESS",price:19.75,color:"",vendor:"BLUSH"},
+  {barcode:"8801234567895",style:"RKS7097",name:"",price:3.50,color:"",vendor:"HEART&HIPS"},
+  {barcode:"8801234567896",style:"PA080",name:"",price:7.50,color:"BLK",vendor:"REFLEX"},
+  {barcode:"8801234567897",style:"PA080",name:"",price:7.50,color:"DEEP NAVY",vendor:"REFLEX"},
+];
+let invoiceItems=[],scannedItems=[],recentVendors=[],cameraStream=null,scanInterval=null,lastDetected="";
+const d=new Date();document.getElementById('sessionName').value=`입고 ${d.getMonth()+1}/${d.getDate()}`;
+
+function showToast(m,t='info'){const e=document.getElementById('toast');e.className='toast toast-'+t;e.textContent=m;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),2400);}
+
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${id}"]`).classList.add('active');
+  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db')renderDB();
+  if(id==='invoice')setTimeout(()=>document.getElementById('invVendor').focus(),100);
+}
+
+function lookupBarcode(code){return db.find(i=>i.barcode===code.trim())||null;}
+function mKey(s,c){return(s+'||'+(c||'')).toUpperCase();}
+
+// SCAN
+function addScannedItem(style,color,vendor,name,barcode,qty=1){
+  const k=mKey(style,color);const ex=scannedItems.find(i=>mKey(i.style,i.color)===k);
+  if(ex){ex.qty+=qty;showToast(`${style}${color?' '+color:''} +${qty} (총${ex.qty})`,'success');}
+  else{scannedItems.push({style:style.toUpperCase(),color:(color||'').toUpperCase(),vendor:(vendor||'').toUpperCase(),name:name||'',barcode:barcode||'',qty});showToast(`${style}${color?' '+color:''} 추가`,'success');}
+  renderScan();
+}
+function handleBarcodeScan(){const inp=document.getElementById('barcodeInput');const c=inp.value.trim();if(!c)return;const f=lookupBarcode(c);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`바코드 ${c} - DB에 없음`,'warning');inp.value='';inp.focus();}
+function handleManualScanAdd(){const s=document.getElementById('scanStyleInput').value.trim().toUpperCase();const c=document.getElementById('scanColorInput').value.trim().toUpperCase();if(!s)return;addScannedItem(s,c,'','','');document.getElementById('scanStyleInput').value='';document.getElementById('scanColorInput').value='';document.getElementById('scanStyleInput').focus();}
+function renderScan(){
+  const tq=scannedItems.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('scanCount').textContent=`${scannedItems.length}종 / ${tq}개`;
+  document.getElementById('scanBadge').textContent=`스캔 ${tq}`;
+  const tc=document.getElementById('tabScanCount');if(scannedItems.length>0){tc.textContent=scannedItems.length;tc.classList.remove('hidden');}else tc.classList.add('hidden');
+  const el=document.getElementById('scanList');
+  if(!scannedItems.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div style="font-size:13px">스캔한 항목이 없습니다</div></div>';return;}
+  let h='';scannedItems.forEach((item,i)=>{
+    h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${item.style}</span>${item.color?` <span class="item-color">${item.color}</span>`:''}</div><div class="item-sub">${item.vendor?`<span class="item-vendor">${item.vendor}</span> `:''}${item.barcode?'BC:'+item.barcode:''}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="qty-controls"><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty=Math.max(1,scannedItems[${i}].qty-1);renderScan()">−</button><span class="qty-num">${item.qty}</span><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty++;renderScan()">+</button></div><button class="del-btn" onclick="scannedItems.splice(${i},1);renderScan()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;
+  });
+  h+=`<button class="btn btn-danger btn-full" style="margin-top:10px;opacity:.85" onclick="if(confirm('전체 삭제?')){scannedItems=[];renderScan();}">전체 삭제</button>`;
+  el.innerHTML=h;
+}
+
+// CAMERA
+function startCamera(){
+  document.getElementById('cameraError').classList.add('hidden');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}}).then(stream=>{
+    cameraStream=stream;const v=document.getElementById('video');v.srcObject=stream;v.play();
+    document.getElementById('cameraOff').classList.add('hidden');document.getElementById('cameraOn').classList.remove('hidden');document.getElementById('liveBadge').classList.remove('hidden');
+    if('BarcodeDetector' in window){const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','qr_code']});scanInterval=setInterval(async()=>{if(v.readyState>=2){try{const b=await det.detect(v);if(b.length>0)processBarcode(b[0].rawValue);}catch(e){}}},300);}
+    else showCamErr('자동 바코드 인식 미지원. Chrome을 사용해주세요.');
+  }).catch(err=>{showCamErr(err.name==='NotAllowedError'?'카메라 권한 필요':err.name==='NotFoundError'?'카메라 없음':'오류: '+err.message);});
+}
+function stopCamera(){if(scanInterval){clearInterval(scanInterval);scanInterval=null;}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}document.getElementById('cameraOff').classList.remove('hidden');document.getElementById('cameraOn').classList.add('hidden');document.getElementById('liveBadge').classList.add('hidden');document.getElementById('detectedMsg').classList.add('hidden');lastDetected='';}
+function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');msg.textContent='✓ '+code;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`바코드 ${code} - DB없음`,'warning');if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
+function showCamErr(m){const e=document.getElementById('cameraError');e.textContent=m;e.classList.remove('hidden');}
+
+// INVOICE
+function addInvoiceItem(){
+  const vendor=document.getElementById('invVendor').value.trim().toUpperCase();
+  const style=document.getElementById('invStyle').value.trim().toUpperCase();
+  const color=document.getElementById('invColor').value.trim().toUpperCase();
+  const qty=parseInt(document.getElementById('invQty').value)||0;
+  if(!style){showToast('Style # 입력','warning');document.getElementById('invStyle').focus();return;}
+  if(qty<=0){showToast('수량 0 → 건너뜀','info');clrInv();return;}
+  const k=mKey(style,color);const ex=invoiceItems.find(i=>mKey(i.style,i.color)===k);
+  if(ex){ex.qty+=qty;if(vendor&&!ex.vendor)ex.vendor=vendor;showToast(`${style}${color?' '+color:''} +${qty} (총${ex.qty})`,'success');}
+  else{invoiceItems.push({vendor,style,color,qty});showToast(`${style}${color?' '+color:''} ×${qty} 추가`,'success');}
+  if(vendor&&!recentVendors.includes(vendor)){recentVendors.unshift(vendor);if(recentVendors.length>8)recentVendors.pop();renderRV();}
+  document.getElementById('lastAdded').textContent=`✓ ${vendor} ${style} ${color} × ${qty}`;
+  renderInvoice();clrInv();
+}
+function clrInv(){document.getElementById('invStyle').value='';document.getElementById('invColor').value='';document.getElementById('invQty').value='';document.getElementById('invStyle').focus();}
+function renderRV(){const c=document.getElementById('recentVendors');if(!recentVendors.length){c.innerHTML='';return;}let h='';recentVendors.forEach(v=>{h+=`<button class="recent-tag" onclick="document.getElementById('invVendor').value='${v}';document.getElementById('invStyle').focus();">${v}</button>`;});c.innerHTML=h;}
+function renderInvoice(){
+  const tq=invoiceItems.reduce((a,i)=>a+i.qty,0);document.getElementById('invBadge').textContent=`인보이스 ${tq}`;
+  const tc=document.getElementById('tabInvCount');if(invoiceItems.length>0){tc.textContent=invoiceItems.length;tc.classList.remove('hidden');}else tc.classList.add('hidden');
+  const card=document.getElementById('invoiceListCard');if(!invoiceItems.length){card.classList.add('hidden');return;}
+  card.classList.remove('hidden');document.getElementById('invCount').textContent=`${invoiceItems.length}종 / ${tq}개`;
+  let h='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">수량</th><th></th></tr></thead><tbody>';
+  invoiceItems.forEach((item,i)=>{h+=`<tr><td class="vendor-col">${item.vendor}</td><td class="style-col">${item.style}</td><td class="color-col">${item.color||'-'}</td><td class="qty-col">${item.qty}</td><td><button class="del-btn" style="margin:0;padding:2px" onclick="invoiceItems.splice(${i},1);renderInvoice();"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>`;});
+  h+='</tbody></table>';document.getElementById('invoiceList').innerHTML=h;
+}
+
+// MATCH
+function renderMatch(){
+  const c=document.getElementById('matchContent');const has=scannedItems.length>0||invoiceItems.length>0;
+  if(!has){c.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:10px">📋</div><div style="font-size:15px;font-weight:700">대조할 데이터 없음</div><div style="font-size:13px;margin-top:6px">[스캔]에서 옷 스캔 → [인보이스]에서 입력</div></div>';return;}
+  if(!invoiceItems.length&&scannedItems.length>0){
+    let h=`<div class="card wait-card"><div style="font-size:15px;font-weight:700;color:var(--warning)">⏳ 인보이스 대기 중</div><div style="font-size:12px;color:var(--dim);line-height:1.6;margin-top:4px">${scannedItems.length}종 ${scannedItems.reduce((a,i)=>a+i.qty,0)}개 스캔 완료</div></div>`;
+    h+='<div class="card"><div class="card-title">📦 선스캔 목록</div>';scannedItems.forEach(i=>{h+=`<div class="list-item"><div><span class="style-num">${i.style}</span>${i.color?` <span class="item-color">${i.color}</span>`:''} ${i.vendor?`<span class="item-vendor">${i.vendor}</span>`:''}</div><span style="font-weight:700">${i.qty}개</span></div>`;});h+='</div>';c.innerHTML=h;return;
+  }
+  const sMap={},iMap={};scannedItems.forEach(i=>{sMap[mKey(i.style,i.color)]=i;});invoiceItems.forEach(i=>{iMap[mKey(i.style,i.color)]=i;});
+  const ok=[],miss=[],ext=[],mm=[];
+  invoiceItems.forEach(inv=>{const k=mKey(inv.style,inv.color);const s=sMap[k];if(!s)miss.push(inv);else if(s.qty!==inv.qty)mm.push({...inv,scanQty:s.qty});else ok.push({...inv});});
+  scannedItems.forEach(s=>{if(!iMap[mKey(s.style,s.color)])ext.push(s);});
+  const total=invoiceItems.length,pct=total>0?Math.round(ok.length/total*100):0;
+  let h='';
+  h+=`<div class="stat-row"><div class="stat-box" style="background:#34D39915"><div class="stat-num" style="color:var(--success)">${ok.length}</div><div class="stat-label">일치</div></div><div class="stat-box" style="background:#FBBF2415"><div class="stat-num" style="color:var(--warning)">${mm.length}</div><div class="stat-label">수량불일치</div></div><div class="stat-box" style="background:#F8717115"><div class="stat-num" style="color:var(--danger)">${miss.length+ext.length}</div><div class="stat-label">누락/초과</div></div></div>`;
+  h+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">검수 진행률</span><span style="font-size:13px;font-weight:700;color:var(--accent)">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${ok.length===total?'var(--success)':'var(--accent)'}"></div></div></div>`;
+  if(ok.length){h+='<div class="card"><div class="card-title" style="color:var(--success)">✓ 일치 ('+ok.length+')</div>';ok.forEach(i=>{h+=`<div class="match-card match-ok"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--success);font-weight:600">${i.qty}개 ✓</span></div>${i.vendor?`<div class="item-sub"><span class="item-vendor">${i.vendor}</span></div>`:''}</div>`;});h+='</div>';}
+  if(mm.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">⚠️ 수량 불일치 ('+mm.length+')</div>';mm.forEach(i=>{const df=i.scanQty-i.qty;h+=`<div class="match-card match-warn"><div style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</div>${i.vendor?`<div class="item-sub"><span class="item-vendor">${i.vendor}</span></div>`:''}<div style="font-size:12px;margin-top:3px;display:flex;gap:10px"><span>인보이스:<strong>${i.qty}</strong></span><span>스캔:<strong style="color:${df>0?'var(--warning)':'var(--danger)'}">${i.scanQty}</strong></span><span style="color:var(--warning);font-weight:600">(${df>0?'+':''}${df})</span></div></div>`;});h+='</div>';}
+  if(miss.length){h+='<div class="card"><div class="card-title" style="color:var(--danger)">✗ 미스캔 ('+miss.length+')</div>';miss.forEach(i=>{h+=`<div class="match-card match-miss"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--danger)">${i.qty}개</span></div>${i.vendor?`<div class="item-sub"><span class="item-vendor">${i.vendor}</span></div>`:''}</div>`;});h+='</div>';}
+  if(ext.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">📦 초과 ('+ext.length+')</div>';ext.forEach(i=>{h+=`<div class="match-card match-warn"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px">${i.qty}개</span></div></div>`;});h+='</div>';}
+  if(ok.length===total&&total>0&&!mm.length&&!ext.length)h+='<div class="card success-card"><div style="font-size:48px;margin-bottom:8px">🎉</div><div style="font-size:18px;font-weight:800;color:var(--success)">검수 완료!</div><div style="font-size:13px;color:var(--dim);margin-top:5px">모든 항목 일치</div></div>';
+  c.innerHTML=h;
+}
+
+// DB
+function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length}개 로드`,'success');renderDB();}else showToast('CSV 파싱 실패','danger');};r.readAsText(f);e.target.value='';}
+function parseCSV(text){const ls=text.trim().split('\n');if(ls.length<2)return[];const hd=ls[0].split(',').map(h=>h.trim().toLowerCase());const bi=hd.findIndex(h=>h.includes('barcode')||h.includes('바코드'));const si=hd.findIndex(h=>h.includes('style')||h.includes('스타일'));const ni=hd.findIndex(h=>h.includes('name')||h.includes('상품명'));const pi=hd.findIndex(h=>h.includes('price')||h.includes('가격'));const ci=hd.findIndex(h=>h.includes('color')||h.includes('색상'));const vi=hd.findIndex(h=>h.includes('vendor')||h.includes('업체'));if(bi===-1||si===-1)return[];return ls.slice(1).filter(l=>l.trim()).map(l=>{const c=l.split(',').map(x=>x.trim());return{barcode:c[bi]||'',style:c[si]||'',name:ni>=0?c[ni]:'',price:pi>=0?parseFloat(c[pi])||0:0,color:ci>=0?c[ci]:'',vendor:vi>=0?c[vi]:''};});}
+function renderDB(){const s=(document.getElementById('dbSearch')?.value||'').toLowerCase();const f=s?db.filter(i=>i.barcode.includes(s)||i.style.toLowerCase().includes(s)||(i.vendor||'').toLowerCase().includes(s)||(i.color||'').toLowerCase().includes(s)):db;document.getElementById('dbCount').textContent=db.length+'개';let h='';f.forEach(i=>{h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${i.style}</span>${i.color?` <span class="item-color">${i.color}</span>`:''}</div><div class="item-sub">${i.vendor?`<span class="item-vendor">${i.vendor}</span> `:''}${i.name||''}</div><div style="font-size:10px;color:var(--dim)">BC: ${i.barcode}${i.price>0?' · $'+i.price.toFixed(2):''}</div></div></div>`;});if(!f.length)h='<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">결과 없음</div>';document.getElementById('dbList').innerHTML=h;document.getElementById('dbNotice').textContent=`${db.length}개 데이터. CSV로 DB 교체 가능.`;}
+
+// KEYBOARD
+document.getElementById('barcodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleBarcodeScan();});
+document.getElementById('scanStyleInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('scanColorInput').focus();});
+document.getElementById('scanColorInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleManualScanAdd();});
+document.getElementById('invVendor').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invStyle').focus();}});
+document.getElementById('invStyle').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invColor').focus();}});
+document.getElementById('invColor').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invQty').focus();}});
+document.getElementById('invQty').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addInvoiceItem();}});
+
+renderScan();renderInvoice();renderDB();
+</script>
+</body>
+</html>
