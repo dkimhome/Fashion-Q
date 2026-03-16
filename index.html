@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0F0F12">
+<title>Fashion Q 검수</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap">
+<style>
+:root{--bg:#0F0F12;--card:#1A1A22;--accent:#E8A838;--success:#34D399;--danger:#F87171;--warning:#FBBF24;--text:#F5F5F7;--dim:#8B8B9E;--border:#2A2A38;--inputBg:#14141C}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:72px;overflow-x:hidden}
+@keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
+.login-screen{position:fixed;top:0;left:0;right:0;bottom:0;background:#0F0F12;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.login-logo{font-size:28px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--dim);margin-bottom:30px}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:320px}
+.login-title{font-size:15px;font-weight:700;margin-bottom:16px;text-align:center}
+.login-input{width:100%;background:var(--inputBg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;font-family:inherit;margin-bottom:10px;text-align:center;letter-spacing:2px}
+.login-input::placeholder{letter-spacing:0;color:#8B8B9E66}
+.login-error{color:var(--danger);font-size:12px;text-align:center;margin-bottom:8px;min-height:18px}
+
+/* COMMON */
+.header{background:linear-gradient(135deg,#1A1A22,#22222E);padding:14px 16px 10px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-top{display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:18px;font-weight:800;color:var(--accent);letter-spacing:-.5px}
+.header-sub{font-size:11px;color:var(--dim);margin-top:1px}
+.user-info{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);margin-top:4px}
+.user-name{color:var(--text);font-weight:600}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--dim);padding:2px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit}
+.badges{display:flex;gap:6px}
+.badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-green{background:#34D39922;color:var(--success)}.badge-gold{background:#E8A83822;color:var(--accent)}
+.content{padding:14px 14px 16px}
+.tab-content{display:none}.tab-content.active{display:block}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.card-title-between{justify-content:space-between}
+.input-row{display:flex;gap:6px;margin-bottom:8px}
+input[type="text"]{background:var(--inputBg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-size:14px;outline:none;font-family:inherit;width:100%}
+input::placeholder{color:#8B8B9E66}
+.input-label{font-size:10px;color:var(--dim);margin-bottom:3px;font-weight:600}
+.input-group{display:flex;flex-direction:column}
+.btn{background:var(--accent);color:#0F0F12;border:none;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;justify-content:center;font-family:inherit;white-space:nowrap;transition:opacity .2s}
+.btn:disabled{opacity:.4;cursor:default}
+.btn-full{width:100%;padding:12px}.btn-danger{background:var(--danger);color:#fff}.btn-gray{background:var(--border);color:#fff}.btn-sm{padding:5px 10px;font-size:13px;border-radius:6px}.btn-camera{padding:14px;font-size:15px}
+.btn-outline{background:transparent;border:1.5px solid var(--accent);color:var(--accent)}
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #2A2A3822}.list-item:last-child{border-bottom:none}
+.style-num{font-size:13px;font-weight:700;color:var(--accent)}.item-sub{font-size:11px;color:var(--dim);margin-top:1px}
+.item-vendor{font-size:10px;color:var(--dim);background:#2A2A3855;padding:1px 6px;border-radius:4px;display:inline-block}
+.item-color{font-size:11px;color:var(--warning);font-weight:600}
+.qty-controls{display:flex;align-items:center;gap:4px}.qty-num{min-width:24px;text-align:center;font-weight:800;font-size:15px}
+.del-btn{background:none;border:none;color:var(--danger);cursor:pointer;padding:4px}
+.camera-box{position:relative;border-radius:12px;overflow:hidden;background:#000;margin-bottom:10px}.camera-box video{width:100%;display:block}
+.scan-guide{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70%;height:80px;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 2000px rgba(0,0,0,.35),inset 0 0 20px #E8A83833;pointer-events:none}
+.scan-label{position:absolute;top:-22px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0F0F12;padding:2px 10px;border-radius:4px;font-size:10px;font-weight:800;white-space:nowrap}
+.live-badge{animation:pulse 1.5s infinite}
+.detected-msg{margin-top:8px;padding:8px 12px;background:#34D39915;border-radius:8px;font-size:13px;color:var(--success);font-weight:700;text-align:center}
+.error-msg{margin-top:8px;padding:8px 12px;background:#F8717115;border-radius:8px;font-size:12px;color:var(--danger)}
+.empty{text-align:center;padding:36px 16px;color:var(--dim)}.empty-icon{font-size:36px;margin-bottom:8px}
+.match-card{padding:10px 12px;margin-bottom:6px;border-radius:0 10px 10px 0}
+.match-ok{background:#34D39912;border-left:3px solid var(--success)}.match-warn{background:#FBBF2412;border-left:3px solid var(--warning)}.match-miss{background:#F8717112;border-left:3px solid var(--danger)}
+.stat-row{display:flex;gap:8px;margin-bottom:12px}.stat-box{flex:1;border-radius:12px;padding:12px 8px;text-align:center}.stat-num{font-size:22px;font-weight:800}.stat-label{font-size:10px;color:var(--dim);margin-top:2px}
+.progress-bar{background:var(--inputBg);border-radius:6px;height:8px;overflow:hidden}.progress-fill{height:100%;border-radius:6px;transition:width .5s ease}
+.tip-card{background:#E8A83810;border-color:#E8A83830}.tip-text{font-size:11px;color:var(--dim);line-height:1.6}
+.tab-bar{display:flex;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--card);border-top:1px solid var(--border);z-index:100}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px 7px;background:none;border:none;color:var(--dim);font-size:10px;font-weight:500;cursor:pointer;border-top:2px solid transparent;font-family:inherit}.tab-btn.active{color:var(--accent);font-weight:700;border-top-color:var(--accent)}.tab-btn svg{width:20px;height:20px}
+.tab-count{background:var(--accent);color:#0F0F12;border-radius:8px;padding:0 5px;font-size:9px;font-weight:800;line-height:15px}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);padding:9px 18px;border-radius:12px;font-size:12px;font-weight:700;z-index:1000;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:slideDown .3s ease;color:#0F0F12;max-width:88%;text-align:center}
+.toast-success{background:var(--success)}.toast-warning{background:var(--warning)}.toast-danger{background:var(--danger)}.toast-info{background:var(--accent)}
+.search-wrap{position:relative;display:flex;align-items:center;flex:1}.search-wrap svg{position:absolute;left:10px;color:var(--dim);width:16px;height:16px}.search-wrap input{padding-left:32px}
+.db-list{max-height:360px;overflow-y:auto}
+.hidden{display:none}
+.fast-entry{display:grid;grid-template-columns:1fr 1.2fr;gap:6px;margin-bottom:8px}.fast-entry input{font-size:13px;padding:9px 10px}
+.recent-vendor{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.recent-tag{background:var(--border);color:var(--dim);border:none;padding:3px 8px;border-radius:6px;font-size:10px;cursor:pointer;font-family:inherit}.recent-tag:active{background:var(--accent);color:#0F0F12}
+.inv-table{width:100%;border-collapse:collapse;font-size:12px}.inv-table th{text-align:left;padding:6px 4px;color:var(--dim);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)}.inv-table td{padding:6px 4px;border-bottom:1px solid #2A2A3822}
+.inv-table .vendor-col{color:var(--dim);font-size:11px}.inv-table .style-col{color:var(--accent);font-weight:700}.inv-table .color-col{color:var(--warning);font-size:11px}.inv-table .qty-col{text-align:right;font-weight:700}
+.page-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.page-card.completed{border-color:var(--success);background:#34D39908}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.page-date{font-size:12px;font-weight:700;color:var(--accent)}.page-info{font-size:11px;color:var(--dim)}
+.page-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.page-status.active{background:#E8A83822;color:var(--accent)}.page-status.done{background:#34D39922;color:var(--success)}
+.page-thumb{width:60px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--border)}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+
+/* Staff management table */
+.staff-table{width:100%;border-collapse:collapse;font-size:12px}
+.staff-table th{text-align:left;padding:8px 6px;color:var(--dim);font-weight:600;font-size:10px;border-bottom:1px solid var(--border)}
+.staff-table td{padding:8px 6px;border-bottom:1px solid #2A2A3822}
+.role-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px}
+.role-badge.admin{background:#E8A83822;color:var(--accent)}.role-badge.staff{background:#34D39922;color:var(--success)}
+</style>
+</head>
+<body style="background:#0F0F12;color:#F5F5F7">
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- ============ LOGIN SCREEN ============ -->
+<div id="loginScreen" class="login-screen" style="background:#0F0F12">
+  <div class="login-logo">Fashion Q</div>
+  <div class="login-sub">매장 7747 · 입고 검수 시스템</div>
+  <div class="login-card">
+    <div class="login-title">로그인</div>
+    <input type="text" class="login-input" id="loginEmpNo" placeholder="Employee #" inputmode="numeric" maxlength="10">
+    <input type="text" class="login-input" id="loginPin" placeholder="4자리 PIN" inputmode="numeric" maxlength="4" style="-webkit-text-security:disc">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-full" onclick="doLogin()" id="loginBtn">로그인</button>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:12px">초기 관리자: EMP# <b>0000</b> / PIN <b>1234</b></div>
+  </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="mainApp" class="hidden">
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Fashion Q 검수</h1>
+      <div class="user-info">
+        <span id="headerUserName" class="user-name"></span>
+        <span id="headerRole"></span>
+        <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+      </div>
+    </div>
+    <div class="badges"><span id="scanBadge" class="badge badge-green">스캔 0</span><span id="invBadge" class="badge badge-gold">인보이스 0</span></div>
+  </div>
+</div>
+
+<div class="content">
+  <!-- SCAN TAB -->
+  <div id="tab-scan" class="tab-content active">
+    <div class="card">
+      <div class="card-title card-title-between"><span>📷 카메라 바코드 스캔</span><span id="liveBadge" class="badge badge-green live-badge hidden">● LIVE</span></div>
+      <div id="cameraOff"><button class="btn btn-full btn-camera" onclick="startCamera()">📷 카메라로 바코드 스캔</button></div>
+      <div id="cameraOn" class="hidden"><div class="camera-box"><video id="video" playsinline muted autoplay></video><div class="scan-guide"><div class="scan-label">바코드를 여기에 맞추세요</div></div></div><button class="btn btn-danger btn-full" onclick="stopCamera()">카메라 끄기</button><div id="detectedMsg" class="detected-msg hidden"></div></div>
+      <div id="cameraError" class="error-msg hidden"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔢 바코드 수동 / 블루투스</div>
+      <div class="input-row"><input type="text" id="barcodeInput" placeholder="바코드 번호..." inputmode="numeric" style="flex:1"><button class="btn" onclick="handleBarcodeScan()">조회</button></div>
+    </div>
+    <div class="card">
+      <div class="card-title">✏️ Style # 직접 입력</div>
+      <div class="input-row"><input type="text" id="scanStyleInput" placeholder="Style #" style="flex:1.5"><input type="text" id="scanColorInput" placeholder="색상(선택)" style="flex:1"><button class="btn" onclick="handleManualScanAdd()">추가</button></div>
+    </div>
+    <div class="card"><div class="card-title card-title-between"><span>📦 스캔 목록</span><span id="scanCount" class="badge badge-gold">0종 / 0개</span></div><div id="scanList"></div></div>
+  </div>
+
+  <!-- INVOICE TAB -->
+  <div id="tab-invoice" class="tab-content">
+    <div class="card">
+      <div class="card-title">📸 인보이스 사진 → AI 자동 입력</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">사진 찍기 또는 갤러리에서 선택 → AI가 날짜 + 7747 수량 자동 추출</div>
+      <input type="file" id="invoiceCamera" accept="image/*" capture="environment" style="display:none" onchange="handleInvoicePhoto(event)">
+      <input type="file" id="invoiceGallery" accept="image/*" style="display:none" onchange="handleInvoicePhoto(event)">
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-full btn-camera" onclick="document.getElementById('invoiceCamera').click()" id="photoBtnCam" style="flex:1">📷 촬영</button>
+        <button class="btn btn-full btn-outline" onclick="document.getElementById('invoiceGallery').click()" id="photoBtnGal" style="flex:1;padding:14px;font-size:15px">🖼️ 갤러리</button>
+      </div>
+      <div id="photoPreview" class="hidden" style="margin-top:10px"><img id="previewImg" style="width:100%;border-radius:10px;border:1px solid var(--border)"></div>
+      <div id="aiStatus" class="hidden" style="margin-top:8px;padding:12px;background:var(--inputBg);border-radius:10px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div id="aiStatusText" style="font-size:13px;color:var(--accent);font-weight:600">AI 분석 중...</div></div>
+      <div id="aiResult" class="hidden" style="margin-top:8px"></div>
+    </div>
+    <div class="card"><div class="card-title card-title-between"><span>📋 인보이스 페이지</span><span id="pageCount" class="badge badge-gold">0</span></div><div id="pageList"></div></div>
+    <div class="card">
+      <div class="card-title" onclick="document.getElementById('manualBody').classList.toggle('hidden')" style="cursor:pointer">✏️ 수동 입력 ▾</div>
+      <div id="manualBody" class="hidden">
+        <div class="input-label">최근 Vendor</div><div id="recentVendors" class="recent-vendor"></div>
+        <div class="fast-entry">
+          <div class="input-group"><div class="input-label">Vendor</div><input type="text" id="invVendor" placeholder="REFLEX" autocapitalize="characters"></div>
+          <div class="input-group"><div class="input-label">Style #</div><input type="text" id="invStyle" placeholder="PA080" autocapitalize="characters"></div>
+          <div class="input-group"><div class="input-label">색상</div><input type="text" id="invColor" placeholder="BLK" autocapitalize="characters"></div>
+          <div class="input-group"><div class="input-label">수량 (7747)</div><input type="text" id="invQty" placeholder="0" inputmode="numeric"></div>
+        </div>
+        <button class="btn btn-full" onclick="addInvoiceItem()">추가</button>
+        <div id="lastAdded" style="margin-top:6px;font-size:11px;color:var(--success);text-align:center;min-height:16px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCH TAB -->
+  <div id="tab-match" class="tab-content"><div id="matchContent"></div></div>
+
+  <!-- ADMIN: DB TAB -->
+  <div id="tab-db" class="tab-content">
+    <div class="card">
+      <div class="card-title card-title-between"><span>🗄️ 바코드 DB</span><span id="dbCount" class="badge badge-gold">0</span></div>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
+      <button class="btn btn-full" style="margin-bottom:10px" onclick="document.getElementById('csvFile').click()">📤 CSV 업로드</button>
+      <div class="input-row" style="margin-bottom:10px"><div class="search-wrap"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dbSearch" placeholder="검색..." oninput="renderDB()"></div></div>
+      <div id="dbList" class="db-list"></div>
+    </div>
+    <!-- API Key Setting -->
+    <div class="card">
+      <div class="card-title">🔑 AI 설정 (인보이스 자동 인식)</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Anthropic API 키를 입력하면 인보이스 사진 AI 분석이 활성화됩니다.<br>API 키는 이 기기에만 저장됩니다.</div>
+      <div class="input-row">
+        <input type="text" id="apiKeyInput" placeholder="sk-ant-api03-..." style="flex:1;font-size:12px;-webkit-text-security:disc">
+        <button class="btn" onclick="saveApiKey()">저장</button>
+      </div>
+      <div id="apiKeyStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN: STAFF TAB -->
+  <div id="tab-staff" class="tab-content">
+    <div class="card">
+      <div class="card-title">👥 직원 등록</div>
+      <div class="fast-entry">
+        <div class="input-group"><div class="input-label">Employee #</div><input type="text" id="newEmpNo" placeholder="숫자" inputmode="numeric"></div>
+        <div class="input-group"><div class="input-label">이름</div><input type="text" id="newEmpName" placeholder="홍길동"></div>
+        <div class="input-group"><div class="input-label">4자리 PIN</div><input type="text" id="newEmpPin" placeholder="0000" inputmode="numeric" maxlength="4"></div>
+        <div class="input-group"><div class="input-label">역할</div>
+          <select id="newEmpRole" style="background:var(--inputBg);border:1px solid var(--border);border-radius:10px;padding:9px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none">
+            <option value="staff">실무자</option><option value="admin">관리자</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-full" onclick="addStaff()">직원 추가</button>
+    </div>
+    <div class="card">
+      <div class="card-title card-title-between"><span>👥 직원 목록</span><span id="staffCount" class="badge badge-gold">0</span></div>
+      <div id="staffList"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="tabBar" class="tab-bar hidden"></div>
+
+<script>
+// ================================================================
+// STATE
+// ================================================================
+let users=[{empNo:'0000',name:'관리자',pin:'1234',role:'admin'}];
+let currentUser=null;
+let db=[],scannedItems=[],invoicePages=[],recentVendors=[];
+let cameraStream=null,scanInterval=null,lastDetected='',pageIdCounter=1;
+let apiKey='';
+
+// Load saved users
+try{const saved=localStorage.getItem('fq_users');if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0)users=parsed;}}catch(e){}
+function saveUsers(){try{localStorage.setItem('fq_users',JSON.stringify(users));}catch(e){}}
+
+// Load API key
+try{apiKey=localStorage.getItem('fq_apikey')||'';}catch(e){}
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key){showToast('API 키를 입력하세요','warning');return;}
+  apiKey=key;
+  try{localStorage.setItem('fq_apikey',key);}catch(e){}
+  document.getElementById('apiKeyStatus').innerHTML='<span style="color:var(--success)">✓ 저장됨 (키: ...'+key.slice(-6)+')</span>';
+  showToast('API 키 저장됨','success');
+}
+function loadApiKeyDisplay(){
+  const el=document.getElementById('apiKeyInput');
+  const st=document.getElementById('apiKeyStatus');
+  if(apiKey){el.value=apiKey;st.innerHTML='<span style="color:var(--success)">✓ 저장된 키: ...'+apiKey.slice(-6)+'</span>';}
+  else{st.innerHTML='<span style="color:var(--warning)">⚠️ API 키 미설정 - AI 인보이스 인식 불가</span>';}
+}
+
+// ================================================================
+// UTILS
+// ================================================================
+function showToast(m,t='info'){const e=document.getElementById('toast');e.className='toast toast-'+t;e.textContent=m;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),2400);}
+function mKey(s,c){return(s+'||'+(c||'')).toUpperCase();}
+function getAllInvoiceItems(){
+  let items=[];invoicePages.filter(p=>!p.completed).forEach(p=>{p.items.forEach(i=>{
+    const k=mKey(i.style,i.color);const ex=items.find(x=>mKey(x.style,x.color)===k);
+    if(ex)ex.qty+=i.qty;else items.push({...i});
+  });});return items;
+}
+
+// ================================================================
+// LOGIN / LOGOUT
+// ================================================================
+function doLogin(){
+  const empNo=document.getElementById('loginEmpNo').value.trim();
+  const pin=document.getElementById('loginPin').value.trim();
+  const err=document.getElementById('loginError');
+  if(!empNo||!pin){err.textContent='Employee #와 PIN을 입력하세요';return;}
+  const user=users.find(u=>u.empNo===empNo&&u.pin===pin);
+  if(!user){err.textContent='Employee # 또는 PIN이 틀렸습니다';return;}
+  err.textContent='';
+  currentUser=user;
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  document.getElementById('tabBar').classList.remove('hidden');
+  document.getElementById('headerUserName').textContent=user.name;
+  document.getElementById('headerRole').textContent=user.role==='admin'?'(관리자)':'(실무자)';
+  buildTabs();renderScan();renderPages();renderDB();renderStaff();
+}
+function doLogout(){
+  currentUser=null;
+  stopCamera();
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('tabBar').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('loginEmpNo').value='';
+  document.getElementById('loginPin').value='';
+  document.getElementById('loginError').textContent='';
+}
+document.getElementById('loginEmpNo').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('loginPin').focus();}});
+document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doLogin();}});
+
+// ================================================================
+// TABS (role-based)
+// ================================================================
+function buildTabs(){
+  const bar=document.getElementById('tabBar');let h='';
+  h+=mkTab('scan','스캔','<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke-linecap="round"/>',true);
+  h+=mkTab('invoice','인보이스','<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/>');
+  h+=mkTab('match','대조','<path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round"/>');
+  if(currentUser?.role==='admin'){
+    h+=mkTab('db','DB','<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>');
+    h+=mkTab('staff','직원','<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>');
+  }
+  bar.innerHTML=h;
+}
+function mkTab(id,label,svg,active){
+  return `<button class="tab-btn${active?' active':''}" data-tab="${id}" onclick="switchTab('${id}')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">${svg}</svg><span>${label}</span><span id="tab${id}Count" class="tab-count hidden">0</span></button>`;
+}
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${id}"]`)?.classList.add('active');
+  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db'){renderDB();loadApiKeyDisplay();}if(id==='staff')renderStaff();
+}
+
+// ================================================================
+// STAFF MANAGEMENT (admin)
+// ================================================================
+function addStaff(){
+  const empNo=document.getElementById('newEmpNo').value.trim();
+  const name=document.getElementById('newEmpName').value.trim();
+  const pin=document.getElementById('newEmpPin').value.trim();
+  const role=document.getElementById('newEmpRole').value;
+  if(!empNo||!name||!pin){showToast('모든 항목을 입력하세요','warning');return;}
+  if(pin.length!==4||!/^\d{4}$/.test(pin)){showToast('PIN은 숫자 4자리','warning');return;}
+  if(users.find(u=>u.empNo===empNo)){showToast('이미 등록된 Employee #','warning');return;}
+  users.push({empNo,name,pin,role});saveUsers();
+  showToast(`${name} (${empNo}) 등록됨`,'success');
+  document.getElementById('newEmpNo').value='';document.getElementById('newEmpName').value='';document.getElementById('newEmpPin').value='';
+  renderStaff();
+}
+function removeStaff(empNo){
+  if(empNo===currentUser?.empNo){showToast('자기 자신은 삭제할 수 없습니다','warning');return;}
+  if(!confirm('이 직원을 삭제하시겠습니까?'))return;
+  users=users.filter(u=>u.empNo!==empNo);saveUsers();renderStaff();showToast('삭제됨','info');
+}
+function resetPin(empNo){
+  const u=users.find(x=>x.empNo===empNo);if(!u)return;
+  const newPin=prompt(`${u.name}의 새 4자리 PIN:`);
+  if(!newPin||newPin.length!==4||!/^\d{4}$/.test(newPin)){showToast('유효한 4자리 숫자를 입력하세요','warning');return;}
+  u.pin=newPin;saveUsers();showToast(`${u.name} PIN 변경됨`,'success');
+}
+function renderStaff(){
+  document.getElementById('staffCount').textContent=users.length+'명';
+  const el=document.getElementById('staffList');
+  let h='<table class="staff-table"><thead><tr><th>Emp#</th><th>이름</th><th>역할</th><th></th></tr></thead><tbody>';
+  users.forEach(u=>{
+    const isSelf=u.empNo===currentUser?.empNo;
+    h+=`<tr><td style="font-weight:600">${u.empNo}</td><td>${u.name}${isSelf?' (나)':''}</td><td><span class="role-badge ${u.role}">${u.role==='admin'?'관리자':'실무자'}</span></td><td style="text-align:right"><button class="btn btn-sm btn-gray" style="font-size:10px;padding:3px 6px;margin-right:4px" onclick="resetPin('${u.empNo}')">PIN</button>${!isSelf?`<button class="btn btn-sm btn-danger" style="font-size:10px;padding:3px 6px" onclick="removeStaff('${u.empNo}')">삭제</button>`:''}</td></tr>`;
+  });
+  h+='</tbody></table>';el.innerHTML=h;
+}
+
+// ================================================================
+// BARCODE DB
+// ================================================================
+function lookupBarcode(code){code=code.trim();
+  let f=db.find(i=>i.barcode===code);if(f)return f;
+  if(code.length>8){const t=code.substring(0,code.length-2);f=db.find(i=>i.barcode===t);if(f)return f;}
+  if(code.length>8){const t=code.substring(0,8);f=db.find(i=>i.barcode===t);if(f)return f;}
+  const s=code.replace(/^0+/,'');f=db.find(i=>i.barcode.replace(/^0+/,'')===s);if(f)return f;
+  if(code.length>8){const t=code.substring(0,code.length-2).replace(/^0+/,'');f=db.find(i=>i.barcode.replace(/^0+/,'')===t);if(f)return f;}
+  return null;
+}
+
+// ================================================================
+// SCAN
+// ================================================================
+function addScannedItem(style,color,vendor,name,barcode,qty=1){
+  const k=mKey(style,color);const ex=scannedItems.find(i=>mKey(i.style,i.color)===k);
+  if(ex){ex.qty+=qty;showToast(`${style}${color?' '+color:''} +${qty} (총${ex.qty})`,'success');}
+  else{scannedItems.push({style:style.toUpperCase(),color:(color||'').toUpperCase(),vendor:(vendor||'').toUpperCase(),name:name||'',barcode:barcode||'',qty,by:currentUser?.name||''});showToast(`${style}${color?' '+color:''} 추가`,'success');}
+  renderScan();
+}
+function handleBarcodeScan(){const inp=document.getElementById('barcodeInput');const c=inp.value.trim();if(!c)return;const f=lookupBarcode(c);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`바코드 ${c} - DB에 없음`,'warning');inp.value='';inp.focus();}
+function handleManualScanAdd(){const s=document.getElementById('scanStyleInput').value.trim().toUpperCase();const c=document.getElementById('scanColorInput').value.trim().toUpperCase();if(!s)return;addScannedItem(s,c,'','','');document.getElementById('scanStyleInput').value='';document.getElementById('scanColorInput').value='';document.getElementById('scanStyleInput').focus();}
+function renderScan(){
+  const tq=scannedItems.reduce((a,i)=>a+i.qty,0);
+  document.getElementById('scanCount').textContent=`${scannedItems.length}종 / ${tq}개`;
+  document.getElementById('scanBadge').textContent=`스캔 ${tq}`;
+  const tc=document.getElementById('tabscanCount');if(tc){if(scannedItems.length>0){tc.textContent=scannedItems.length;tc.classList.remove('hidden');}else tc.classList.add('hidden');}
+  const el=document.getElementById('scanList');
+  if(!scannedItems.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div style="font-size:13px">스캔한 항목이 없습니다</div></div>';return;}
+  let h='';scannedItems.forEach((item,i)=>{
+    h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${item.style}</span>${item.color?` <span class="item-color">${item.color}</span>`:''}</div><div class="item-sub">${item.vendor?`<span class="item-vendor">${item.vendor}</span> `:''}${item.barcode?'BC:'+item.barcode:''}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="qty-controls"><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty=Math.max(1,scannedItems[${i}].qty-1);renderScan()">−</button><span class="qty-num">${item.qty}</span><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty++;renderScan()">+</button></div><button class="del-btn" onclick="scannedItems.splice(${i},1);renderScan()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;
+  });
+  h+=`<button class="btn btn-danger btn-full" style="margin-top:10px;opacity:.85" onclick="if(confirm('전체 삭제?')){scannedItems=[];renderScan();}">전체 삭제</button>`;
+  el.innerHTML=h;
+}
+
+// ================================================================
+// CAMERA
+// ================================================================
+function startCamera(){
+  document.getElementById('cameraError').classList.add('hidden');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:720}}}).then(stream=>{
+    cameraStream=stream;const v=document.getElementById('video');v.srcObject=stream;v.play();
+    document.getElementById('cameraOff').classList.add('hidden');document.getElementById('cameraOn').classList.remove('hidden');document.getElementById('liveBadge').classList.remove('hidden');
+    if('BarcodeDetector' in window){const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','qr_code']});scanInterval=setInterval(async()=>{if(v.readyState>=2){try{const b=await det.detect(v);if(b.length>0)processBarcode(b[0].rawValue);}catch(e){}}},300);}
+    else showCamErr('자동 바코드 인식 미지원. Chrome 사용.');
+  }).catch(err=>{showCamErr(err.name==='NotAllowedError'?'카메라 권한 필요':err.message);});
+}
+function stopCamera(){if(scanInterval){clearInterval(scanInterval);scanInterval=null;}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}document.getElementById('cameraOff').classList.remove('hidden');document.getElementById('cameraOn').classList.add('hidden');document.getElementById('liveBadge').classList.add('hidden');document.getElementById('detectedMsg').classList.add('hidden');lastDetected='';}
+function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');msg.textContent='✓ '+code;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`바코드 ${code} - DB없음`,'warning');if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
+function showCamErr(m){const e=document.getElementById('cameraError');e.textContent=m;e.classList.remove('hidden');}
+
+// ================================================================
+// INVOICE - AI PHOTO
+// ================================================================
+function resizeImage(base64,maxW=1800){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
+      const c=document.createElement('canvas');c.width=w;c.height=h;
+      const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
+      resolve(c.toDataURL('image/jpeg',0.85));
+    };
+    img.onerror=()=>resolve(base64);
+    img.src=base64;
+  });
+}
+function showAIErr(msg){
+  const sp=document.getElementById('aiStatus').querySelector('.spinner');if(sp)sp.style.display='none';
+  document.getElementById('aiStatusText').innerHTML=`<span style="color:var(--danger)">${msg}</span>`;
+}
+async function handleInvoicePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(ev)=>{
+    let base64=ev.target.result;
+    document.getElementById('previewImg').src=base64;
+    document.getElementById('photoPreview').classList.remove('hidden');
+    document.getElementById('aiStatus').classList.remove('hidden');
+    document.getElementById('aiStatus').querySelector('.spinner').style.display='';
+    document.getElementById('aiResult').classList.add('hidden');
+    document.getElementById('aiStatusText').textContent='이미지 최적화 중...';
+    setBtns(true);
+    try{
+      if(!apiKey){
+        showAIErr('⚠️ API 키 미설정. [DB관리] 탭에서 API 키를 입력하세요.');
+        setBtns(false);return;
+      }
+      // Resize to reduce payload and cost
+      const resized=await resizeImage(base64);
+      const thumbForSave=await resizeImage(base64,400);
+      const imageData=resized.split(',')[1];
+      const mediaType='image/jpeg';
+      const origKB=Math.round(base64.length*3/4/1024);
+      const newKB=Math.round(imageData.length*3/4/1024);
+      document.getElementById('aiStatusText').textContent=`AI 분석 중... (${newKB>1024?Math.round(newKB/1024)+'MB':newKB+'KB'} 전송)`;
+
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4000,messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mediaType,data:imageData}},
+          {type:'text',text:`You are reading a fashion apparel wholesale invoice/packing slip for store location 7747.
+
+TASK:
+1. Find the invoice DATE (usually near the top, format varies: "2/23/26", "02-23-2026", "Feb 23, 2026", etc.)
+2. Find ALL line items that have a non-zero quantity in the column for store "7747"
+   - The 7747 column may appear among several store number columns
+   - Read ONLY the quantity under the 7747 column
+3. For each qualifying row extract: vendor name, style number, color (if listed), and the 7747 quantity
+
+IMPORTANT:
+- Some invoices list vendor name at the top, not per-row. In that case use that vendor for all items.
+- Style numbers can be alphanumeric like "PA080", "RV2301", "BL-119", etc.
+- Color might be abbreviated: BLK, WHT, NVY, RED, etc. If no color column exists, use empty string.
+- Only include rows where the 7747 qty is > 0.
+- If you cannot find a 7747 column, look for the store's quantity column or the only quantity column available.
+
+Respond with ONLY valid JSON (no markdown, no code fences, no explanation):
+{"date":"...","items":[{"vendor":"...","style":"...","color":"...","qty":0}]}`}
+        ]}]});
+
+      // Check HTTP-level errors
+      if(!resp.ok){
+        let errMsg=`HTTP ${resp.status}`;
+        try{const errData=await resp.json();errMsg=errData.error?.message||errData.error?.type||errMsg;}catch(e){}
+        if(resp.status===401) errMsg='API 키가 유효하지 않습니다. DB관리 탭에서 확인하세요.';
+        else if(resp.status===429) errMsg='요청 제한 초과. 잠시 후 다시 시도하세요.';
+        else if(resp.status===400) errMsg='요청 오류: '+errMsg;
+        else if(resp.status===529||resp.status===503) errMsg='API 서버 과부하. 잠시 후 재시도하세요.';
+        showAIErr('❌ '+errMsg);
+        setBtns(false);return;
+      }
+
+      const data=await resp.json();
+
+      // Check API-level errors
+      if(data.type==='error'){
+        showAIErr('❌ API 오류: '+(data.error?.message||'알 수 없는 오류'));
+        setBtns(false);return;
+      }
+
+      const text=data.content?.map(b=>b.text||'').join('')||'';
+
+      // Debug: log raw response for troubleshooting
+      console.log('[AI raw response]',text.substring(0,500));
+
+      // Parse JSON from response (handle possible code fences)
+      let parsed;
+      try{
+        const cleaned=text.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+        const jm=cleaned.match(/\{[\s\S]*\}/);
+        if(jm) parsed=JSON.parse(jm[0]);
+      }catch(pe){console.warn('[AI JSON parse error]',pe.message,text.substring(0,200));}
+
+      if(!parsed){
+        showAIErr('⚠️ AI 응답을 파싱하지 못했습니다. 사진을 다시 시도해주세요.');
+        console.warn('[AI full response]',text);
+        setBtns(false);return;
+      }
+      if(!parsed.items||!parsed.items.length){
+        showAIErr('⚠️ 7747 수량이 있는 항목을 찾지 못했습니다. 인보이스 사진이 맞는지 확인해주세요.');
+        setBtns(false);return;
+      }
+
+      document.getElementById('aiStatus').classList.add('hidden');
+      const rd=document.getElementById('aiResult');rd.classList.remove('hidden');
+      const totalQty=parsed.items.reduce((a,i)=>a+(parseInt(i.qty)||0),0);
+      let h=`<div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:4px">✓ ${parsed.items.length}개 항목 인식 (총 ${totalQty}개)</div>`;
+      h+=`<div style="font-size:12px;color:var(--accent);margin-bottom:8px">📅 ${parsed.date||'날짜 미인식'}</div>`;
+      h+='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">수량</th></tr></thead><tbody>';
+      parsed.items.forEach(i=>{h+=`<tr><td class="vendor-col">${i.vendor||''}</td><td class="style-col">${i.style||''}</td><td class="color-col">${i.color||'-'}</td><td class="qty-col">${i.qty||0}</td></tr>`;});
+      h+='</tbody></table><button class="btn btn-full" style="margin-top:10px" onclick="applyAI()">인보이스에 추가</button>';
+      rd.innerHTML=h;window._aiP=parsed;window._aiT=thumbForSave;
+    }catch(err){
+      console.error('[AI error]',err);
+      showAIErr('❌ 오류: '+err.message);
+    }
+    setBtns(false);
+  };reader.readAsDataURL(file);e.target.value='';
+}
+function setBtns(d){['photoBtnCam','photoBtnGal'].forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=d;});}
+function applyAI(){
+  if(!window._aiP)return;const p=window._aiP;
+  const page={id:pageIdCounter++,date:p.date||'',thumb:window._aiT||'',items:[],completed:false,by:currentUser?.name||''};
+  p.items.forEach(i=>{const q=parseInt(i.qty)||0;if(q<=0)return;page.items.push({vendor:(i.vendor||'').toUpperCase(),style:(i.style||'').toUpperCase(),color:(i.color||'').toUpperCase(),qty:q});
+    const v=(i.vendor||'').toUpperCase();if(v&&!recentVendors.includes(v)){recentVendors.unshift(v);if(recentVendors.length>8)recentVendors.pop();}});
+  invoicePages.push(page);renderPages();renderRV();updateInvBadge();
+  showToast(`페이지 추가: ${page.items.length}항목 (${page.date})`,'success');
+  document.getElementById('aiResult').innerHTML='<div style="text-align:center;padding:10px;color:var(--success);font-weight:700">✓ 추가 완료!</div>';
+  document.getElementById('photoPreview').classList.add('hidden');window._aiP=null;window._aiT=null;
+}
+
+// ================================================================
+// INVOICE PAGES
+// ================================================================
+function renderPages(){
+  const el=document.getElementById('pageList');const active=invoicePages.filter(p=>!p.completed),done=invoicePages.filter(p=>p.completed);
+  updateInvBadge();document.getElementById('pageCount').textContent=`${active.length}개 활성`;
+  if(!invoicePages.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div style="font-size:13px">인보이스 페이지 없음</div></div>';return;}
+  let h='';
+  active.forEach(p=>{const tq=p.items.reduce((a,i)=>a+i.qty,0);
+    h+=`<div class="page-card"><div class="page-header"><div style="display:flex;align-items:center;gap:8px">${p.thumb?`<img src="${p.thumb}" class="page-thumb">`:''}
+    <div><div class="page-date">📅 ${p.date||'날짜없음'}</div><div class="page-info">${p.items.length}종·${tq}개${p.by?' · '+p.by:''}</div></div></div><span class="page-status active">진행중</span></div>
+    <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm" style="flex:1;font-size:11px" onclick="toggleDet(${p.id})">상세</button><button class="btn btn-sm btn-outline" style="flex:1;font-size:11px;padding:5px 8px" onclick="completePg(${p.id})">✓완료</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">삭제</button></div>
+    <div id="det-${p.id}" class="hidden" style="margin-top:8px"></div></div>`;});
+  if(done.length){h+=`<div style="font-size:11px;color:var(--dim);margin:10px 0 6px;font-weight:600">완료 (${done.length})</div>`;
+    done.forEach(p=>{const tq=p.items.reduce((a,i)=>a+i.qty,0);
+      h+=`<div class="page-card completed"><div class="page-header"><div><div class="page-date" style="opacity:.6">📅 ${p.date||''}</div><div class="page-info">${p.items.length}종·${tq}개</div></div><span class="page-status done">완료✓</span></div>
+      <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm btn-gray" style="flex:1;font-size:11px" onclick="uncompPg(${p.id})">되돌리기</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">삭제</button></div></div>`;});}
+  el.innerHTML=h;
+}
+function toggleDet(id){const el=document.getElementById('det-'+id);if(!el.classList.contains('hidden')){el.classList.add('hidden');return;}
+  const p=invoicePages.find(x=>x.id===id);if(!p)return;
+  let h='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">수량</th><th></th></tr></thead><tbody>';
+  p.items.forEach((item,i)=>{h+=`<tr><td class="vendor-col">${item.vendor}</td><td class="style-col">${item.style}</td><td class="color-col">${item.color||'-'}</td><td class="qty-col">${item.qty}</td><td><button class="del-btn" style="margin:0;padding:2px" onclick="rmPgItem(${id},${i})"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>`;});
+  h+='</tbody></table>';el.innerHTML=h;el.classList.remove('hidden');
+}
+function rmPgItem(pid,idx){const p=invoicePages.find(x=>x.id===pid);if(!p)return;p.items.splice(idx,1);if(!p.items.length)invoicePages=invoicePages.filter(x=>x.id!==pid);renderPages();}
+function completePg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=true;p.thumb='';showToast(`📅 ${p.date} 완료`,'success');renderPages();}}
+function uncompPg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=false;renderPages();}}
+function removePg(id){if(!confirm('삭제?'))return;invoicePages=invoicePages.filter(x=>x.id!==id);renderPages();showToast('삭제됨','info');}
+function updateInvBadge(){const all=getAllInvoiceItems();const tq=all.reduce((a,i)=>a+i.qty,0);document.getElementById('invBadge').textContent=`인보이스 ${tq}`;
+  const tc=document.getElementById('tabinvoiceCount');const n=invoicePages.filter(p=>!p.completed).length;if(tc){if(n>0){tc.textContent=n;tc.classList.remove('hidden');}else tc.classList.add('hidden');}}
+
+function addInvoiceItem(){
+  const vendor=document.getElementById('invVendor').value.trim().toUpperCase();const style=document.getElementById('invStyle').value.trim().toUpperCase();
+  const color=document.getElementById('invColor').value.trim().toUpperCase();const qty=parseInt(document.getElementById('invQty').value)||0;
+  if(!style){showToast('Style # 입력','warning');return;}if(qty<=0){showToast('수량 0 건너뜀','info');clrInv();return;}
+  let mp=invoicePages.find(p=>p.date==='수동입력'&&!p.completed);
+  if(!mp){mp={id:pageIdCounter++,date:'수동입력',thumb:'',items:[],completed:false,by:currentUser?.name||''};invoicePages.push(mp);}
+  const k=mKey(style,color);const ex=mp.items.find(i=>mKey(i.style,i.color)===k);
+  if(ex)ex.qty+=qty;else mp.items.push({vendor,style,color,qty});
+  if(vendor&&!recentVendors.includes(vendor)){recentVendors.unshift(vendor);if(recentVendors.length>8)recentVendors.pop();renderRV();}
+  document.getElementById('lastAdded').textContent=`✓ ${vendor} ${style} ${color} × ${qty}`;
+  renderPages();updateInvBadge();clrInv();showToast(`${style} ×${qty} 추가`,'success');
+}
+function clrInv(){document.getElementById('invStyle').value='';document.getElementById('invColor').value='';document.getElementById('invQty').value='';document.getElementById('invStyle').focus();}
+function renderRV(){const c=document.getElementById('recentVendors');if(!recentVendors.length){c.innerHTML='';return;}let h='';recentVendors.forEach(v=>{h+=`<button class="recent-tag" onclick="document.getElementById('invVendor').value='${v}';document.getElementById('invStyle').focus();">${v}</button>`;});c.innerHTML=h;}
+
+// ================================================================
+// MATCH
+// ================================================================
+function renderMatch(){
+  const c=document.getElementById('matchContent');const inv=getAllInvoiceItems();const has=scannedItems.length>0||inv.length>0;
+  if(!has){c.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:10px">📋</div><div style="font-size:15px;font-weight:700">대조할 데이터 없음</div></div>';return;}
+  if(!inv.length&&scannedItems.length>0){c.innerHTML=`<div class="card" style="background:#FBBF2410"><div style="font-size:15px;font-weight:700;color:var(--warning)">⏳ 인보이스 대기 중</div><div style="font-size:12px;color:var(--dim);margin-top:4px">${scannedItems.length}종 ${scannedItems.reduce((a,i)=>a+i.qty,0)}개 스캔완료</div></div>`;return;}
+  const sMap={},iMap={};scannedItems.forEach(i=>{sMap[mKey(i.style,i.color)]=i;});inv.forEach(i=>{iMap[mKey(i.style,i.color)]=i;});
+  const ok=[],miss=[],ext=[],mm=[];
+  inv.forEach(iv=>{const k=mKey(iv.style,iv.color);const s=sMap[k];if(!s)miss.push(iv);else if(s.qty!==iv.qty)mm.push({...iv,scanQty:s.qty});else ok.push({...iv});});
+  scannedItems.forEach(s=>{if(!iMap[mKey(s.style,s.color)])ext.push(s);});
+  const total=inv.length,pct=total>0?Math.round(ok.length/total*100):0;
+  let h=`<div class="stat-row"><div class="stat-box" style="background:#34D39915"><div class="stat-num" style="color:var(--success)">${ok.length}</div><div class="stat-label">일치</div></div><div class="stat-box" style="background:#FBBF2415"><div class="stat-num" style="color:var(--warning)">${mm.length}</div><div class="stat-label">수량불일치</div></div><div class="stat-box" style="background:#F8717115"><div class="stat-num" style="color:var(--danger)">${miss.length+ext.length}</div><div class="stat-label">누락/초과</div></div></div>`;
+  h+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">검수 진행률</span><span style="font-size:13px;font-weight:700;color:var(--accent)">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${ok.length===total&&total>0?'var(--success)':'var(--accent)'}"></div></div></div>`;
+  if(ok.length){h+='<div class="card"><div class="card-title" style="color:var(--success)">✓ 일치 ('+ok.length+')</div>';ok.forEach(i=>{h+=`<div class="match-card match-ok"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--success);font-weight:600">${i.qty}개✓</span></div></div>`;});h+='</div>';}
+  if(mm.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">⚠️ 수량불일치 ('+mm.length+')</div>';mm.forEach(i=>{const d=i.scanQty-i.qty;h+=`<div class="match-card match-warn"><div style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</div><div style="font-size:12px;margin-top:3px">인보이스:${i.qty} · 스캔:${i.scanQty} (${d>0?'+':''}${d})</div></div>`;});h+='</div>';}
+  if(miss.length){h+='<div class="card"><div class="card-title" style="color:var(--danger)">✗ 미스캔 ('+miss.length+')</div>';miss.forEach(i=>{h+=`<div class="match-card match-miss"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--danger)">${i.qty}개</span></div></div>`;});h+='</div>';}
+  if(ext.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">📦 초과 ('+ext.length+')</div>';ext.forEach(i=>{h+=`<div class="match-card match-warn"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px">${i.qty}개</span></div></div>`;});h+='</div>';}
+  if(ok.length===total&&total>0&&!mm.length&&!ext.length)h+='<div class="card" style="background:#34D39915;text-align:center;padding:28px"><div style="font-size:48px;margin-bottom:8px">🎉</div><div style="font-size:18px;font-weight:800;color:var(--success)">검수 완료!</div></div>';
+  c.innerHTML=h;
+}
+
+// ================================================================
+// DB
+// ================================================================
+function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length}개 로드`,'success');renderDB();}else showToast('CSV 파싱 실패','danger');};r.readAsText(f);e.target.value='';}
+function parseCSV(text){const ls=text.replace(/\r/g,'').trim().split('\n');if(ls.length<2)return[];const hd=ls[0].split(',').map(h=>h.trim().toLowerCase());
+  let bi=hd.findIndex(h=>h==='iv_styleid');if(bi===-1)bi=hd.findIndex(h=>h.includes('barcode')||h.includes('바코드'));
+  let si=hd.findIndex(h=>h==='iv_style');if(si===-1)si=hd.findIndex(h=>(h.includes('style')||h.includes('스타일'))&&!h.includes('styleid'));
+  const ni=hd.findIndex(h=>h.includes('name')||h.includes('상품명'));const pi=hd.findIndex(h=>h.includes('price'));const ci=hd.findIndex(h=>h.includes('color')||h.includes('색상'));const vi=hd.findIndex(h=>h.includes('vendor')||h.includes('업체'));
+  if(bi===-1||si===-1)return[];return ls.slice(1).filter(l=>l.trim()).map(l=>{const c=l.split(',').map(x=>x.trim());return{barcode:c[bi]||'',style:c[si]||'',name:ni>=0?c[ni]:'',price:pi>=0?parseFloat(c[pi])||0:0,color:ci>=0?c[ci]:'',vendor:vi>=0?c[vi]:''};});}
+function renderDB(){const s=(document.getElementById('dbSearch')?.value||'').toLowerCase();const f=s?db.filter(i=>i.barcode.includes(s)||i.style.toLowerCase().includes(s)||(i.vendor||'').toLowerCase().includes(s)):db;document.getElementById('dbCount').textContent=db.length+'개';
+  let h='';f.slice(0,100).forEach(i=>{h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${i.style}</span>${i.color?` <span class="item-color">${i.color}</span>`:''}</div><div class="item-sub">${i.vendor?`<span class="item-vendor">${i.vendor}</span> `:''}${i.name||''}</div><div style="font-size:10px;color:var(--dim)">BC:${i.barcode}</div></div></div>`;});
+  if(f.length>100)h+=`<div style="text-align:center;padding:10px;color:var(--dim);font-size:11px">외 ${f.length-100}개</div>`;if(!f.length)h='<div style="text-align:center;padding:20px;color:var(--dim)">결과 없음</div>';document.getElementById('dbList').innerHTML=h;}
+
+// ================================================================
+// KEYBOARD
+// ================================================================
+document.getElementById('barcodeInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleBarcodeScan();});
+document.getElementById('scanStyleInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('scanColorInput').focus();});
+document.getElementById('scanColorInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleManualScanAdd();});
+document.getElementById('invVendor').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invStyle').focus();}});
+document.getElementById('invStyle').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invColor').focus();}});
+document.getElementById('invColor').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invQty').focus();}});
+document.getElementById('invQty').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addInvoiceItem();}});
+</script>
+</body>
+</html>
