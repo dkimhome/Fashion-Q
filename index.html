@@ -194,7 +194,12 @@ input::placeholder{color:#8B8B9E66}
     <div class="card">
       <div class="card-title card-title-between"><span>🗄️ Barcode DB</span><span id="dbCount" class="badge badge-gold">0</span></div>
       <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
-      <button class="btn btn-full" style="margin-bottom:10px" onclick="document.getElementById('csvFile').click()">📤 Upload CSV</button>
+      <input type="file" id="accessFile" accept=".mdb,.accdb" style="display:none" onchange="handleAccessUpload(event)">
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button class="btn btn-full" style="flex:1" onclick="document.getElementById('csvFile').click()">📤 CSV</button>
+        <button class="btn btn-full btn-outline" style="flex:1" onclick="document.getElementById('accessFile').click()">🗃️ Access DB</button>
+      </div>
+      <div id="accessMapping" class="hidden" style="margin-bottom:10px"></div>
       <div class="input-row" style="margin-bottom:10px"><div class="search-wrap"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dbSearch" placeholder="Search..." oninput="renderDB()"></div></div>
       <div id="dbList" class="db-list"></div>
     </div>
@@ -702,6 +707,133 @@ function renderMatch(){
 // DB
 // ================================================================
 function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length} loaded`,'success');renderDB();}else showToast('CSV parse failed','danger');};r.readAsText(f);e.target.value='';}
+
+var _mdbReader=null;
+async function loadMdbLib(){
+  if(_mdbReader)return _mdbReader;
+  var urls=[
+    'https://cdn.jsdelivr.net/npm/mdb-reader@2.2.5/+esm',
+    'https://cdn.jsdelivr.net/npm/mdb-reader/+esm',
+    'https://unpkg.com/mdb-reader@2.2.5/dist/esm/index.js'
+  ];
+  for(var i=0;i<urls.length;i++){
+    try{var mod=await import(urls[i]);_mdbReader=mod.default||mod.MdbReader||mod;return _mdbReader;}catch(e){console.warn('MDB load fail:',urls[i],e);}
+  }
+  return null;
+}
+
+async function handleAccessUpload(e){
+  var file=e.target.files[0];if(!file)return;
+  var mapDiv=document.getElementById('accessMapping');
+  mapDiv.classList.remove('hidden');
+  mapDiv.innerHTML='<div style="padding:12px;background:var(--inputBg);border-radius:10px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div style="font-size:12px;color:var(--accent)">Loading Access DB library...</div></div>';
+  
+  var MdbReader=await loadMdbLib();
+  if(!MdbReader){
+    mapDiv.innerHTML='<div style="padding:12px;background:#F8717115;border-radius:10px;color:var(--danger);font-size:12px">Failed to load Access DB library. Please use CSV instead, or check internet connection.</div>';
+    e.target.value='';return;
+  }
+  
+  mapDiv.innerHTML='<div style="padding:12px;background:var(--inputBg);border-radius:10px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div style="font-size:12px;color:var(--accent)">Reading file...</div></div>';
+  
+  try{
+    var buf=await file.arrayBuffer();
+    var reader=new MdbReader(new Uint8Array(buf));
+    var tables=reader.getTableNames().filter(function(t){return !t.startsWith('MSys');});
+    
+    if(!tables.length){
+      mapDiv.innerHTML='<div style="padding:10px;color:var(--danger);font-size:12px">No tables found in this file.</div>';
+      e.target.value='';return;
+    }
+    
+    window._mdbReader=reader;
+    window._mdbTables=tables;
+    
+    var h='<div style="background:var(--inputBg);border-radius:10px;padding:12px">';
+    h+='<div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">📂 Access DB: '+file.name+' ('+tables.length+' tables)</div>';
+    h+='<div class="input-label">Select Table</div>';
+    h+='<select id="mdbTable" style="width:100%;background:var(--inputBg);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:13px;font-family:inherit;margin-bottom:8px" onchange="onMdbTableSelect()">';
+    h+='<option value="">-- Choose table --</option>';
+    tables.forEach(function(t){h+='<option value="'+t+'">'+t+'</option>';});
+    h+='</select>';
+    h+='<div id="mdbColumns"></div>';
+    h+='</div>';
+    mapDiv.innerHTML=h;
+  }catch(err){
+    console.error('Access parse error:',err);
+    mapDiv.innerHTML='<div style="padding:10px;color:var(--danger);font-size:12px">Error reading file: '+err.message+'</div>';
+  }
+  e.target.value='';
+}
+
+function onMdbTableSelect(){
+  var tableName=document.getElementById('mdbTable').value;
+  var colDiv=document.getElementById('mdbColumns');
+  if(!tableName||!window._mdbReader){colDiv.innerHTML='';return;}
+  
+  try{
+    var table=window._mdbReader.getTable(tableName);
+    var cols=table.columns.map(function(c){return c.name;});
+    
+    var h='<div class="input-label" style="margin-top:6px">Barcode Column</div>';
+    h+='<select id="mdbBarcodeCol" style="width:100%;background:var(--inputBg);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:13px;font-family:inherit;margin-bottom:6px">';
+    cols.forEach(function(c){
+      var sel=(c.toLowerCase().includes('barcode')||c.toLowerCase().includes('styleid'))?' selected':'';
+      h+='<option value="'+c+'"'+sel+'>'+c+'</option>';
+    });
+    h+='</select>';
+    
+    h+='<div class="input-label">Style # Column</div>';
+    h+='<select id="mdbStyleCol" style="width:100%;background:var(--inputBg);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:13px;font-family:inherit;margin-bottom:8px">';
+    cols.forEach(function(c){
+      var sel=(c.toLowerCase()==='iv_style'||(c.toLowerCase().includes('style')&&!c.toLowerCase().includes('id')))?' selected':'';
+      h+='<option value="'+c+'"'+sel+'>'+c+'</option>';
+    });
+    h+='</select>';
+    
+    h+='<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Table "'+tableName+'": '+table.data.length+' rows, '+cols.length+' columns</div>';
+    h+='<button class="btn btn-full" onclick="loadMdbData()">Load into DB</button>';
+    
+    colDiv.innerHTML=h;
+    window._mdbTableName=tableName;
+  }catch(err){
+    colDiv.innerHTML='<div style="color:var(--danger);font-size:12px">Error: '+err.message+'</div>';
+  }
+}
+
+function loadMdbData(){
+  var tableName=window._mdbTableName;
+  var barcodeCol=document.getElementById('mdbBarcodeCol').value;
+  var styleCol=document.getElementById('mdbStyleCol').value;
+  if(!tableName||!barcodeCol||!styleCol){showToast('Select table and columns','warning');return;}
+  
+  try{
+    var table=window._mdbReader.getTable(tableName);
+    var rows=table.data;
+    var cols=table.columns.map(function(c){return c.name;});
+    var bi=cols.indexOf(barcodeCol);
+    var si=cols.indexOf(styleCol);
+    
+    var loaded=[];
+    rows.forEach(function(row){
+      var bc=String(row[bi]||'').trim();
+      var st=String(row[si]||'').trim();
+      if(bc&&st)loaded.push({barcode:bc,style:st,name:'',price:0,color:'',vendor:''});
+    });
+    
+    if(loaded.length>0){
+      db=loaded;
+      showToast('DB: '+loaded.length+' loaded from Access','success');
+      renderDB();
+      document.getElementById('accessMapping').classList.add('hidden');
+      window._mdbReader=null;window._mdbTables=null;
+    }else{
+      showToast('No valid rows found','warning');
+    }
+  }catch(err){
+    showToast('Load error: '+err.message,'danger');
+  }
+}
 function parseCSV(text){const ls=text.replace(/\r/g,'').trim().split('\n');if(ls.length<2)return[];const hd=ls[0].split(',').map(h=>h.trim().toLowerCase());
   let bi=hd.findIndex(h=>h==='iv_styleid');if(bi===-1)bi=hd.findIndex(h=>h.includes('barcode')||h.includes('barcode'));
   let si=hd.findIndex(h=>h==='iv_style');if(si===-1)si=hd.findIndex(h=>(h.includes('style')||h.includes('style'))&&!h.includes('styleid'));
