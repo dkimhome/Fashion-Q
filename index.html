@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0F0F12">
-<title>Fashion Q 검수</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap">
+<title>Fashion Q Inspection</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap">
 <style>
 :root{--bg:#0F0F12;--card:#1A1A22;--accent:#E8A838;--success:#34D399;--danger:#F87171;--warning:#FBBF24;--text:#F5F5F7;--dim:#8B8B9E;--border:#2A2A38;--inputBg:#14141C}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:72px;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;position:relative;padding-bottom:72px;overflow-x:hidden}
 @keyframes slideDown{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -106,14 +106,14 @@ input::placeholder{color:#8B8B9E66}
 <!-- ============ LOGIN SCREEN ============ -->
 <div id="loginScreen" class="login-screen" style="background:#0F0F12">
   <div class="login-logo">Fashion Q</div>
-  <div class="login-sub" id="loginSub">매장 7747 · 입고 검수 시스템</div>
+  <div class="login-sub" id="loginSub">Store 7747 · Shipment Inspection</div>
   <div class="login-card">
-    <div class="login-title">로그인</div>
+    <div class="login-title">Login</div>
     <input type="text" class="login-input" id="loginEmpNo" placeholder="Employee #" inputmode="numeric" maxlength="10">
-    <input type="text" class="login-input" id="loginPin" placeholder="4자리 PIN" inputmode="numeric" maxlength="4" style="-webkit-text-security:disc">
+    <input type="text" class="login-input" id="loginPin" placeholder="4-digit PIN" inputmode="numeric" maxlength="4" style="-webkit-text-security:disc">
     <div class="login-error" id="loginError"></div>
-    <button class="btn btn-full" onclick="doLogin()" id="loginBtn">로그인</button>
-    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:12px">초기 관리자: EMP# <b>0000</b> / PIN <b>1234</b></div>
+    <button class="btn btn-full" onclick="doLogin()" id="loginBtn">Login</button>
+    <div style="font-size:10px;color:var(--dim);text-align:center;margin-top:12px">Default Admin: EMP# <b>0000</b> / PIN <b>1234</b></div>
   </div>
 </div>
 
@@ -123,14 +123,14 @@ input::placeholder{color:#8B8B9E66}
 <div class="header">
   <div class="header-top">
     <div>
-      <h1>Fashion Q 검수</h1>
+      <h1>Fashion Q Inspection</h1>
       <div class="user-info">
         <span id="headerUserName" class="user-name"></span>
         <span id="headerRole"></span>
-        <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+        <button class="logout-btn" onclick="doLogout()">Logout</button>
       </div>
     </div>
-    <div class="badges"><span id="scanBadge" class="badge badge-green">스캔 0</span><span id="invBadge" class="badge badge-gold">인보이스 0</span></div>
+    <div class="badges"><span id="scanBadge" class="badge badge-green">Scan 0</span><span id="invBadge" class="badge badge-gold">Invoice 0</span></div>
   </div>
 </div>
 
@@ -138,49 +138,49 @@ input::placeholder{color:#8B8B9E66}
   <!-- SCAN TAB -->
   <div id="tab-scan" class="tab-content active">
     <div class="card">
-      <div class="card-title card-title-between"><span>📷 카메라 바코드 스캔</span><span id="liveBadge" class="badge badge-green live-badge hidden">● LIVE</span></div>
-      <div id="cameraOff"><button class="btn btn-full btn-camera" onclick="startCamera()">📷 카메라로 바코드 스캔</button></div>
-      <div id="cameraOn" class="hidden"><div class="camera-box"><video id="video" playsinline muted autoplay></video><div class="scan-guide"><div class="scan-label">바코드를 여기에 맞추세요</div></div></div><button class="btn btn-danger btn-full" onclick="stopCamera()">카메라 끄기</button><div id="detectedMsg" class="detected-msg hidden"></div></div>
+      <div class="card-title card-title-between"><span>📷 Camera Barcode Scan</span><span id="liveBadge" class="badge badge-green live-badge hidden">● LIVE</span></div>
+      <div id="cameraOff"><button class="btn btn-full btn-camera" onclick="startCamera()">📷 Scan Barcode with Camera</button></div>
+      <div id="cameraOn" class="hidden"><div class="camera-box"><video id="video" playsinline muted autoplay></video><div class="scan-guide"><div class="scan-label">Align barcode here</div></div></div><button class="btn btn-danger btn-full" onclick="stopCamera()">Stop Camera</button><div id="detectedMsg" class="detected-msg hidden"></div></div>
       <div id="cameraError" class="error-msg hidden"></div>
     </div>
     <div class="card">
-      <div class="card-title">🔢 바코드 수동 / 블루투스</div>
-      <div class="input-row"><input type="text" id="barcodeInput" placeholder="바코드 번호..." inputmode="numeric" style="flex:1"><button class="btn" onclick="handleBarcodeScan()">조회</button></div>
+      <div class="card-title">🔢 Manual / Bluetooth Barcode</div>
+      <div class="input-row"><input type="text" id="barcodeInput" placeholder="Barcode #..." inputmode="numeric" style="flex:1"><button class="btn" onclick="handleBarcodeScan()">Lookup</button></div>
     </div>
     <div class="card">
-      <div class="card-title">✏️ Style # 직접 입력</div>
-      <div class="input-row"><input type="text" id="scanStyleInput" placeholder="Style #" style="flex:1.5"><input type="text" id="scanColorInput" placeholder="색상(선택)" style="flex:1"><button class="btn" onclick="handleManualScanAdd()">추가</button></div>
+      <div class="card-title">✏️ Manual Style # Entry</div>
+      <div class="input-row"><input type="text" id="scanStyleInput" placeholder="Style #" style="flex:1.5"><input type="text" id="scanColorInput" placeholder="Color(opt)" style="flex:1"><button class="btn" onclick="handleManualScanAdd()">Add</button></div>
     </div>
-    <div class="card"><div class="card-title card-title-between"><span>📦 스캔 목록</span><span id="scanCount" class="badge badge-gold">0종 / 0개</span></div><div id="scanList"></div></div>
+    <div class="card"><div class="card-title card-title-between"><span>📦 Scan List</span><span id="scanCount" class="badge badge-gold">0 items / 0 pcs</span></div><div id="scanList"></div></div>
   </div>
 
   <!-- INVOICE TAB -->
   <div id="tab-invoice" class="tab-content">
     <div class="card">
-      <div class="card-title">📸 인보이스 사진 → AI 자동 입력</div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5" id="invoiceAiDesc">사진 찍기 또는 갤러리에서 선택 → AI가 날짜 + 7747 수량 자동 추출</div>
+      <div class="card-title">📸 Invoice Photo → AI Auto-Extract</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5" id="invoiceAiDesc">Take photo or select from gallery → AI auto-extracts date + 7747 quantities</div>
       <input type="file" id="invoiceCamera" accept="image/*" capture="environment" style="display:none" onchange="handleInvoicePhoto(event)">
       <input type="file" id="invoiceGallery" accept="image/*" style="display:none" onchange="handleInvoicePhoto(event)">
       <div style="display:flex;gap:8px">
-        <button class="btn btn-full btn-camera" onclick="document.getElementById('invoiceCamera').click()" id="photoBtnCam" style="flex:1">📷 촬영</button>
-        <button class="btn btn-full btn-outline" onclick="document.getElementById('invoiceGallery').click()" id="photoBtnGal" style="flex:1;padding:14px;font-size:15px">🖼️ 갤러리</button>
+        <button class="btn btn-full btn-camera" onclick="document.getElementById('invoiceCamera').click()" id="photoBtnCam" style="flex:1">📷 Camera</button>
+        <button class="btn btn-full btn-outline" onclick="document.getElementById('invoiceGallery').click()" id="photoBtnGal" style="flex:1;padding:14px;font-size:15px">🖼️ Gallery</button>
       </div>
       <div id="photoPreview" class="hidden" style="margin-top:10px"><img id="previewImg" style="width:100%;border-radius:10px;border:1px solid var(--border)"></div>
-      <div id="aiStatus" class="hidden" style="margin-top:8px;padding:12px;background:var(--inputBg);border-radius:10px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div id="aiStatusText" style="font-size:13px;color:var(--accent);font-weight:600">AI 분석 중...</div></div>
+      <div id="aiStatus" class="hidden" style="margin-top:8px;padding:12px;background:var(--inputBg);border-radius:10px;text-align:center"><div class="spinner" style="margin:0 auto 8px"></div><div id="aiStatusText" style="font-size:13px;color:var(--accent);font-weight:600">AI Analyzing...</div></div>
       <div id="aiResult" class="hidden" style="margin-top:8px"></div>
     </div>
-    <div class="card"><div class="card-title card-title-between"><span>📋 인보이스 페이지</span><span id="pageCount" class="badge badge-gold">0</span></div><div id="pageList"></div></div>
+    <div class="card"><div class="card-title card-title-between"><span>📋 Invoice Pages</span><span id="pageCount" class="badge badge-gold">0</span></div><div id="pageList"></div></div>
     <div class="card">
-      <div class="card-title" onclick="document.getElementById('manualBody').classList.toggle('hidden')" style="cursor:pointer">✏️ 수동 입력 ▾</div>
+      <div class="card-title" onclick="document.getElementById('manualBody').classList.toggle('hidden')" style="cursor:pointer">✏️ Manual Entry ▾</div>
       <div id="manualBody" class="hidden">
-        <div class="input-label">최근 Vendor</div><div id="recentVendors" class="recent-vendor"></div>
+        <div class="input-label">Recent Vendor</div><div id="recentVendors" class="recent-vendor"></div>
         <div class="fast-entry">
           <div class="input-group"><div class="input-label">Vendor</div><input type="text" id="invVendor" placeholder="REFLEX" autocapitalize="characters"></div>
           <div class="input-group"><div class="input-label">Style #</div><input type="text" id="invStyle" placeholder="PA080" autocapitalize="characters"></div>
-          <div class="input-group"><div class="input-label">색상</div><input type="text" id="invColor" placeholder="BLK" autocapitalize="characters"></div>
-          <div class="input-group"><div class="input-label" id="invQtyLabel">수량 (7747)</div><input type="text" id="invQty" placeholder="0" inputmode="numeric"></div>
+          <div class="input-group"><div class="input-label">Color</div><input type="text" id="invColor" placeholder="BLK" autocapitalize="characters"></div>
+          <div class="input-group"><div class="input-label" id="invQtyLabel">Qty (7747)</div><input type="text" id="invQty" placeholder="0" inputmode="numeric"></div>
         </div>
-        <button class="btn btn-full" onclick="addInvoiceItem()">추가</button>
+        <button class="btn btn-full" onclick="addInvoiceItem()">Add</button>
         <div id="lastAdded" style="margin-top:6px;font-size:11px;color:var(--success);text-align:center;min-height:16px"></div>
       </div>
     </div>
@@ -192,52 +192,57 @@ input::placeholder{color:#8B8B9E66}
   <!-- ADMIN: DB TAB -->
   <div id="tab-db" class="tab-content">
     <div class="card">
-      <div class="card-title card-title-between"><span>🗄️ 바코드 DB</span><span id="dbCount" class="badge badge-gold">0</span></div>
+      <div class="card-title card-title-between"><span>🗄️ Barcode DB</span><span id="dbCount" class="badge badge-gold">0</span></div>
       <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSVUpload(event)">
-      <button class="btn btn-full" style="margin-bottom:10px" onclick="document.getElementById('csvFile').click()">📤 CSV 업로드</button>
-      <div class="input-row" style="margin-bottom:10px"><div class="search-wrap"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dbSearch" placeholder="검색..." oninput="renderDB()"></div></div>
+      <button class="btn btn-full" style="margin-bottom:10px" onclick="document.getElementById('csvFile').click()">📤 Upload CSV</button>
+      <div class="input-row" style="margin-bottom:10px"><div class="search-wrap"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dbSearch" placeholder="Search..." oninput="renderDB()"></div></div>
       <div id="dbList" class="db-list"></div>
     </div>
     <!-- Store Number Setting -->
     <div class="card">
-      <div class="card-title">🏪 매장 설정</div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">인보이스에서 읽을 매장번호를 설정합니다. 다른 매장에서도 사용 가능합니다.</div>
+      <div class="card-title">🏪 Store Settings</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Set the store number to read from invoices. Can be used for other stores.</div>
       <div class="input-row">
         <input type="text" id="storeNoInput" placeholder="7747" inputmode="numeric" style="flex:1;font-size:16px;text-align:center;font-weight:700;letter-spacing:2px">
-        <button class="btn" onclick="saveStoreNo()">저장</button>
+        <button class="btn" onclick="saveStoreNo()">Save</button>
       </div>
       <div id="storeNoStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
     </div>
     <!-- API Key Setting -->
     <div class="card">
-      <div class="card-title">🔑 AI 설정 (인보이스 자동 인식)</div>
-      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Anthropic API 키를 입력하면 인보이스 사진 AI 분석이 활성화됩니다.<br>API 키는 이 기기에만 저장됩니다.</div>
+      <div class="card-title">🔑 AI Settings (Invoice Recognition)</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Enter Anthropic API key to enable AI invoice photo analysis.<br>API key is stored on this device only.</div>
       <div class="input-row">
         <input type="text" id="apiKeyInput" placeholder="sk-ant-api03-..." style="flex:1;font-size:12px;-webkit-text-security:disc">
-        <button class="btn" onclick="saveApiKey()">저장</button>
+        <button class="btn" onclick="saveApiKey()">Save</button>
       </div>
       <div id="apiKeyStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗑️ Data Management</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Scan/invoice data is auto-saved. Data persists after refresh.</div>
+      <button class="btn btn-danger btn-full" onclick="clearAllData()">Reset All Scan + Invoice Data</button>
     </div>
   </div>
 
   <!-- ADMIN: STAFF TAB -->
   <div id="tab-staff" class="tab-content">
     <div class="card">
-      <div class="card-title">👥 직원 등록</div>
+      <div class="card-title">👥 Register Staff</div>
       <div class="fast-entry">
-        <div class="input-group"><div class="input-label">Employee #</div><input type="text" id="newEmpNo" placeholder="숫자" inputmode="numeric"></div>
-        <div class="input-group"><div class="input-label">이름</div><input type="text" id="newEmpName" placeholder="홍길동"></div>
-        <div class="input-group"><div class="input-label">4자리 PIN</div><input type="text" id="newEmpPin" placeholder="0000" inputmode="numeric" maxlength="4"></div>
-        <div class="input-group"><div class="input-label">역할</div>
+        <div class="input-group"><div class="input-label">Employee #</div><input type="text" id="newEmpNo" placeholder="Number" inputmode="numeric"></div>
+        <div class="input-group"><div class="input-label">Name</div><input type="text" id="newEmpName" placeholder="John Doe"></div>
+        <div class="input-group"><div class="input-label">4-digit PIN</div><input type="text" id="newEmpPin" placeholder="0000" inputmode="numeric" maxlength="4"></div>
+        <div class="input-group"><div class="input-label">Role</div>
           <select id="newEmpRole" style="background:var(--inputBg);border:1px solid var(--border);border-radius:10px;padding:9px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none">
-            <option value="staff">실무자</option><option value="admin">관리자</option>
+            <option value="staff">Staff</option><option value="admin">Admin</option>
           </select>
         </div>
       </div>
-      <button class="btn btn-full" onclick="addStaff()">직원 추가</button>
+      <button class="btn btn-full" onclick="addStaff()">Add Staff</button>
     </div>
     <div class="card">
-      <div class="card-title card-title-between"><span>👥 직원 목록</span><span id="staffCount" class="badge badge-gold">0</span></div>
+      <div class="card-title card-title-between"><span>👥 Staff List</span><span id="staffCount" class="badge badge-gold">0</span></div>
       <div id="staffList"></div>
     </div>
   </div>
@@ -250,7 +255,7 @@ input::placeholder{color:#8B8B9E66}
 // ================================================================
 // STATE
 // ================================================================
-let users=[{empNo:'0000',name:'관리자',pin:'1234',role:'admin'}];
+let users=[{empNo:'0000',name:'Admin',pin:'1234',role:'admin'}];
 let currentUser=null;
 let db=[],scannedItems=[],invoicePages=[],recentVendors=[];
 let cameraStream=null,scanInterval=null,lastDetected='',pageIdCounter=1;
@@ -258,45 +263,64 @@ let apiKey='';
 let storeNo='7747';
 
 // Load saved users (ensure default admin always exists)
-try{const saved=localStorage.getItem('fq_users');if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0){users=parsed;if(!users.find(u=>u.empNo==='0000'))users.unshift({empNo:'0000',name:'관리자',pin:'1234',role:'admin'});}}}catch(e){}
+try{const saved=localStorage.getItem('fq_users');if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0){users=parsed;if(!users.find(u=>u.empNo==='0000'))users.unshift({empNo:'0000',name:'Admin',pin:'1234',role:'admin'});}}}catch(e){}
 function saveUsers(){try{localStorage.setItem('fq_users',JSON.stringify(users));}catch(e){}}
 
 // Load API key & store number
 try{apiKey=localStorage.getItem('fq_apikey')||'';}catch(e){}
 try{storeNo=localStorage.getItem('fq_storeno')||'7747';}catch(e){}
+
+// Load saved scan/invoice data
+try{var sd=localStorage.getItem('fq_scanned');if(sd){scannedItems=JSON.parse(sd)||[];}}catch(e){}
+try{var iv=localStorage.getItem('fq_invoices');if(iv){invoicePages=JSON.parse(iv)||[];}}catch(e){}
+try{var rv=localStorage.getItem('fq_vendors');if(rv){recentVendors=JSON.parse(rv)||[];}}catch(e){}
+try{var pc=localStorage.getItem('fq_pageid');if(pc){pageIdCounter=parseInt(pc)||1;}}catch(e){}
+
+function saveData(){
+  try{localStorage.setItem('fq_scanned',JSON.stringify(scannedItems));}catch(e){}
+  try{localStorage.setItem('fq_invoices',JSON.stringify(invoicePages.map(function(p){return{id:p.id,date:p.date,thumb:'',items:p.items,completed:p.completed,by:p.by};})));}catch(e){}
+  try{localStorage.setItem('fq_vendors',JSON.stringify(recentVendors));}catch(e){}
+  try{localStorage.setItem('fq_pageid',String(pageIdCounter));}catch(e){}
+}
+function clearAllData(){
+  if(!confirm('Delete all scan and invoice data?'))return;
+  scannedItems=[];invoicePages=[];recentVendors=[];pageIdCounter=1;
+  try{localStorage.removeItem('fq_scanned');localStorage.removeItem('fq_invoices');localStorage.removeItem('fq_vendors');localStorage.removeItem('fq_pageid');}catch(e){}
+  renderScan();renderPages();updateInvBadge();renderRV();showToast('All data cleared','info');
+}
 function saveApiKey(){
   const key=document.getElementById('apiKeyInput').value.trim();
-  if(!key){showToast('API 키를 입력하세요','warning');return;}
+  if(!key){showToast('Enter API key','warning');return;}
   apiKey=key;
   try{localStorage.setItem('fq_apikey',key);}catch(e){}
-  document.getElementById('apiKeyStatus').innerHTML='<span style="color:var(--success)">✓ 저장됨 (키: ...'+key.slice(-6)+')</span>';
-  showToast('API 키 저장됨','success');
+  document.getElementById('apiKeyStatus').innerHTML='<span style="color:var(--success)">✓ Saved (key: ...'+key.slice(-6)+')</span>';
+  showToast('API key saved','success');
 }
 function loadApiKeyDisplay(){
   const el=document.getElementById('apiKeyInput');
   const st=document.getElementById('apiKeyStatus');
-  if(apiKey){el.value=apiKey;st.innerHTML='<span style="color:var(--success)">✓ 저장된 키: ...'+apiKey.slice(-6)+'</span>';}
-  else{st.innerHTML='<span style="color:var(--warning)">⚠️ API 키 미설정 - AI 인보이스 인식 불가</span>';}
+  if(apiKey){el.value=apiKey;st.innerHTML='<span style="color:var(--success)">✓ Saved key: ...'+apiKey.slice(-6)+'</span>';}
+  else{st.innerHTML='<span style="color:var(--warning)">⚠️ No API key - AI invoice recognition disabled</span>';}
 }
 function saveStoreNo(){
   var v=document.getElementById('storeNoInput').value.trim();
-  if(!v){showToast('매장번호를 입력하세요','warning');return;}
+  if(!v){showToast('Enter store number','warning');return;}
   storeNo=v;
   try{localStorage.setItem('fq_storeno',v);}catch(e){}
-  document.getElementById('storeNoStatus').innerHTML='<span style="color:var(--success)">✓ 매장 '+v+' 설정됨</span>';
+  document.getElementById('storeNoStatus').innerHTML='<span style="color:var(--success)">✓ Store '+v+' set</span>';
   updateStoreLabels();
-  showToast('매장번호 '+v+' 저장됨','success');
+  showToast('Store #'+v+' saved','success');
 }
 function loadStoreNoDisplay(){
   var el=document.getElementById('storeNoInput');
   var st=document.getElementById('storeNoStatus');
   if(el)el.value=storeNo;
-  if(st)st.innerHTML='<span style="color:var(--success)">현재 매장: <b>'+storeNo+'</b></span>';
+  if(st)st.innerHTML='<span style="color:var(--success)">Current store: <b>'+storeNo+'</b></span>';
 }
 function updateStoreLabels(){
-  var sub=document.getElementById('loginSub');if(sub)sub.textContent='매장 '+storeNo+' · 입고 검수 시스템';
-  var desc=document.getElementById('invoiceAiDesc');if(desc)desc.textContent='사진 찍기 또는 갤러리에서 선택 → AI가 날짜 + '+storeNo+' 수량 자동 추출';
-  var ql=document.getElementById('invQtyLabel');if(ql)ql.textContent='수량 ('+storeNo+')';
+  var sub=document.getElementById('loginSub');if(sub)sub.textContent='Store '+storeNo+' · Shipment Inspection';
+  var desc=document.getElementById('invoiceAiDesc');if(desc)desc.textContent='Photo or gallery → AI auto-extracts date + '+storeNo+' quantities';
+  var ql=document.getElementById('invQtyLabel');if(ql)ql.textContent='Qty ('+storeNo+')';
 }
 
 // ================================================================
@@ -318,16 +342,16 @@ function doLogin(){
   const empNo=document.getElementById('loginEmpNo').value.trim();
   const pin=document.getElementById('loginPin').value.trim();
   const err=document.getElementById('loginError');
-  if(!empNo||!pin){err.textContent='Employee #와 PIN을 입력하세요';return;}
+  if(!empNo||!pin){err.textContent='Enter Employee # and PIN';return;}
   const user=users.find(u=>u.empNo===empNo&&u.pin===pin);
-  if(!user){err.textContent='Employee # 또는 PIN이 틀렸습니다';return;}
+  if(!user){err.textContent='Invalid Employee # or PIN';return;}
   err.textContent='';
   currentUser=user;
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
   document.getElementById('tabBar').classList.remove('hidden');
   document.getElementById('headerUserName').textContent=user.name;
-  document.getElementById('headerRole').textContent=user.role==='admin'?'(관리자)':'(실무자)';
+  document.getElementById('headerRole').textContent=user.role==='admin'?'(Admin)':'(Staff)';
   buildTabs();renderScan();renderPages();renderDB();renderStaff();updateStoreLabels();
 }
 function doLogout(){
@@ -348,12 +372,12 @@ document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='E
 // ================================================================
 function buildTabs(){
   const bar=document.getElementById('tabBar');let h='';
-  h+=mkTab('scan','스캔','<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke-linecap="round"/>',true);
-  h+=mkTab('invoice','인보이스','<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/>');
-  h+=mkTab('match','대조','<path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round"/>');
+  h+=mkTab('scan','Scan','<path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2" stroke-linecap="round"/><line x1="7" y1="12" x2="17" y2="12" stroke-linecap="round"/>',true);
+  h+=mkTab('invoice','Invoice','<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/>');
+  h+=mkTab('match','Match','<path d="M9 11l3 3L22 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-linecap="round"/>');
   if(currentUser?.role==='admin'){
     h+=mkTab('db','DB','<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>');
-    h+=mkTab('staff','직원','<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>');
+    h+=mkTab('staff','Staff','<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>');
   }
   bar.innerHTML=h;
 }
@@ -376,32 +400,32 @@ function addStaff(){
   const name=document.getElementById('newEmpName').value.trim();
   const pin=document.getElementById('newEmpPin').value.trim();
   const role=document.getElementById('newEmpRole').value;
-  if(!empNo||!name||!pin){showToast('모든 항목을 입력하세요','warning');return;}
-  if(pin.length!==4||!/^\d{4}$/.test(pin)){showToast('PIN은 숫자 4자리','warning');return;}
-  if(users.find(u=>u.empNo===empNo)){showToast('이미 등록된 Employee #','warning');return;}
+  if(!empNo||!name||!pin){showToast('Fill in all fields','warning');return;}
+  if(pin.length!==4||!/^\d{4}$/.test(pin)){showToast('PIN must be 4 digits','warning');return;}
+  if(users.find(u=>u.empNo===empNo)){showToast('Employee # already exists','warning');return;}
   users.push({empNo,name,pin,role});saveUsers();
-  showToast(`${name} (${empNo}) 등록됨`,'success');
+  showToast(`${name} (${empNo}) registered`,'success');
   document.getElementById('newEmpNo').value='';document.getElementById('newEmpName').value='';document.getElementById('newEmpPin').value='';
   renderStaff();
 }
 function removeStaff(empNo){
-  if(empNo===currentUser?.empNo){showToast('자기 자신은 삭제할 수 없습니다','warning');return;}
-  if(!confirm('이 직원을 삭제하시겠습니까?'))return;
-  users=users.filter(u=>u.empNo!==empNo);saveUsers();renderStaff();showToast('삭제됨','info');
+  if(empNo===currentUser?.empNo){showToast('Cannot delete yourself','warning');return;}
+  if(!confirm('Delete this staff member?'))return;
+  users=users.filter(u=>u.empNo!==empNo);saveUsers();renderStaff();showToast('Deleted','info');
 }
 function resetPin(empNo){
   const u=users.find(x=>x.empNo===empNo);if(!u)return;
-  const newPin=prompt(`${u.name}의 새 4자리 PIN:`);
-  if(!newPin||newPin.length!==4||!/^\d{4}$/.test(newPin)){showToast('유효한 4자리 숫자를 입력하세요','warning');return;}
-  u.pin=newPin;saveUsers();showToast(`${u.name} PIN 변경됨`,'success');
+  const newPin=prompt(`${u.name}' new 4-digit PIN:`);
+  if(!newPin||newPin.length!==4||!/^\d{4}$/.test(newPin)){showToast('Enter a valid 4-digit number','warning');return;}
+  u.pin=newPin;saveUsers();showToast(`${u.name} PIN changed`,'success');
 }
 function renderStaff(){
-  document.getElementById('staffCount').textContent=users.length+'명';
+  document.getElementById('staffCount').textContent=users.length+'members';
   const el=document.getElementById('staffList');
-  let h='<table class="staff-table"><thead><tr><th>Emp#</th><th>이름</th><th>역할</th><th></th></tr></thead><tbody>';
+  let h='<table class="staff-table"><thead><tr><th>Emp#</th><th>Name</th><th>Role</th><th></th></tr></thead><tbody>';
   users.forEach(u=>{
     const isSelf=u.empNo===currentUser?.empNo;
-    h+=`<tr><td style="font-weight:600">${u.empNo}</td><td>${u.name}${isSelf?' (나)':''}</td><td><span class="role-badge ${u.role}">${u.role==='admin'?'관리자':'실무자'}</span></td><td style="text-align:right"><button class="btn btn-sm btn-gray" style="font-size:10px;padding:3px 6px;margin-right:4px" onclick="resetPin('${u.empNo}')">PIN</button>${!isSelf?`<button class="btn btn-sm btn-danger" style="font-size:10px;padding:3px 6px" onclick="removeStaff('${u.empNo}')">삭제</button>`:''}</td></tr>`;
+    h+=`<tr><td style="font-weight:600">${u.empNo}</td><td>${u.name}${isSelf?' (me)':''}</td><td><span class="role-badge ${u.role}">${u.role==='admin'?'Admin':'Staff'}</span></td><td style="text-align:right"><button class="btn btn-sm btn-gray" style="font-size:10px;padding:3px 6px;margin-right:4px" onclick="resetPin('${u.empNo}')">PIN</button>${!isSelf?`<button class="btn btn-sm btn-danger" style="font-size:10px;padding:3px 6px" onclick="removeStaff('${u.empNo}')">Del</button>`:''}</td></tr>`;
   });
   h+='</tbody></table>';el.innerHTML=h;
 }
@@ -452,24 +476,68 @@ function lookupBarcode(code){
 // ================================================================
 function addScannedItem(style,color,vendor,name,barcode,qty=1){
   const k=mKey(style,color);const ex=scannedItems.find(i=>mKey(i.style,i.color)===k);
-  if(ex){ex.qty+=qty;showToast(`${style}${color?' '+color:''} +${qty} (총${ex.qty})`,'success');}
-  else{scannedItems.push({style:style.toUpperCase(),color:(color||'').toUpperCase(),vendor:(vendor||'').toUpperCase(),name:name||'',barcode:barcode||'',qty,by:currentUser?.name||''});showToast(`${style}${color?' '+color:''} 추가`,'success');}
-  renderScan();
+  if(ex){ex.qty+=qty;showToast(`${style}${color?' '+color:''} +${qty} (total ${ex.qty})`,'success');}
+  else{scannedItems.push({style:style.toUpperCase(),color:(color||'').toUpperCase(),vendor:(vendor||'').toUpperCase(),name:name||'',barcode:barcode||'',qty,by:currentUser?.name||''});showToast(`${style}${color?' '+color:''} added`,'success');}
+  renderScan();saveData();
 }
-function handleBarcodeScan(){const inp=document.getElementById('barcodeInput');const c=inp.value.trim();if(!c)return;const f=lookupBarcode(c);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`바코드 ${c} (${c.length}자리) - DB에 없음`,'warning');inp.value='';inp.focus();}
+function handleBarcodeScan(){const inp=document.getElementById('barcodeInput');const c=inp.value.trim();if(!c)return;const f=lookupBarcode(c);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast(`Barcode ${c} (${c.length}digits) - Not in DB`,'warning');inp.value='';inp.focus();}
 function handleManualScanAdd(){const s=document.getElementById('scanStyleInput').value.trim().toUpperCase();const c=document.getElementById('scanColorInput').value.trim().toUpperCase();if(!s)return;addScannedItem(s,c,'','','');document.getElementById('scanStyleInput').value='';document.getElementById('scanColorInput').value='';document.getElementById('scanStyleInput').focus();}
 function renderScan(){
   const tq=scannedItems.reduce((a,i)=>a+i.qty,0);
-  document.getElementById('scanCount').textContent=`${scannedItems.length}종 / ${tq}개`;
-  document.getElementById('scanBadge').textContent=`스캔 ${tq}`;
+  document.getElementById('scanCount').textContent=`${scannedItems.length}items / ${tq}pcs`;
+  document.getElementById('scanBadge').textContent=`Scan ${tq}`;
   const tc=document.getElementById('tabscanCount');if(tc){if(scannedItems.length>0){tc.textContent=scannedItems.length;tc.classList.remove('hidden');}else tc.classList.add('hidden');}
   const el=document.getElementById('scanList');
-  if(!scannedItems.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div style="font-size:13px">스캔한 항목이 없습니다</div></div>';return;}
+  if(!scannedItems.length){el.innerHTML='<div class="empty"><div class="empty-icon">📦</div><div style="font-size:13px">No scanned items</div></div>';return;}
   let h='';scannedItems.forEach((item,i)=>{
-    h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${item.style}</span>${item.color?` <span class="item-color">${item.color}</span>`:''}</div><div class="item-sub">${item.vendor?`<span class="item-vendor">${item.vendor}</span> `:''}${item.barcode?'BC:'+item.barcode:''}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="qty-controls"><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty=Math.max(1,scannedItems[${i}].qty-1);renderScan()">−</button><span class="qty-num">${item.qty}</span><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty++;renderScan()">+</button></div><button class="del-btn" onclick="scannedItems.splice(${i},1);renderScan()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;
+    h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${item.style}</span>${item.color?` <span class="item-color">${item.color}</span>`:''}</div><div class="item-sub">${item.vendor?`<span class="item-vendor">${item.vendor}</span> `:''}${item.barcode?'BC:'+item.barcode:''}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="qty-controls"><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty=Math.max(1,scannedItems[${i}].qty-1);renderScan();saveData()">−</button><span class="qty-num">${item.qty}</span><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty++;renderScan();saveData()">+</button></div><button class="del-btn" onclick="scannedItems.splice(${i},1);renderScan();saveData()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;
   });
-  h+=`<button class="btn btn-danger btn-full" style="margin-top:10px;opacity:.85" onclick="if(confirm('전체 삭제?')){scannedItems=[];renderScan();}">전체 삭제</button>`;
+  h+='<div style="display:flex;gap:6px;margin-top:10px"><button class="btn btn-full" style="flex:1" onclick="exportCSV()">📥 CSV</button><button class="btn btn-full btn-outline" style="flex:1" onclick="printScan()">🖨️ Print</button></div>';
+  h+=`<button class="btn btn-danger btn-full" style="margin-top:6px;opacity:.85" onclick="if(confirm('Delete all scan data?')){scannedItems=[];renderScan();saveData();}">Delete All</button>`;
   el.innerHTML=h;
+}
+
+function exportCSV(){
+  if(!scannedItems.length){showToast('No data to export','warning');return;}
+  var now=new Date();var ds=now.getFullYear()+''+(now.getMonth()+1<10?'0':'')+(now.getMonth()+1)+(now.getDate()<10?'0':'')+now.getDate();
+  var csv='\uFEFFVendor,Style #,Color,Barcode,Qty,Scanned By\r\n';
+  scannedItems.forEach(function(item){
+    csv+='"'+(item.vendor||'')+'",'+ '"'+(item.style||'')+'",'+ '"'+(item.color||'')+'",'+ '"'+(item.barcode||'')+'",'+ item.qty+',"'+(item.by||'')+'"\r\n';
+  });
+  var totalQty=scannedItems.reduce(function(a,i){return a+i.qty;},0);
+  csv+='"","TOTAL","","",'+totalQty+',""\r\n';
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='scan_'+storeNo+'_'+ds+'.csv';a.click();
+  showToast('CSV download complete','success');
+}
+
+function printScan(){
+  if(!scannedItems.length){showToast('No data to print','warning');return;}
+  var now=new Date();var dateStr=now.getFullYear()+'/'+(now.getMonth()+1)+'/'+ now.getDate()+' '+now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+  var totalQty=scannedItems.reduce(function(a,i){return a+i.qty;},0);
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Scan List</title><style>';
+  html+='body{font-family:Arial,sans-serif;font-size:12px;padding:10px;max-width:400px;margin:0 auto}';
+  html+='h2{text-align:center;margin:4px 0;font-size:16px}';
+  html+='.info{text-align:center;font-size:11px;color:#666;margin-bottom:8px}';
+  html+='table{width:100%;border-collapse:collapse}';
+  html+='th{background:#333;color:#fff;padding:4px 6px;text-align:left;font-size:11px}';
+  html+='td{padding:3px 6px;border-bottom:1px solid #ddd;font-size:11px}';
+  html+='.qty{text-align:right;font-weight:bold}';
+  html+='.total{font-weight:bold;background:#f5f5f5}';
+  html+='@media print{body{padding:0}}';
+  html+='</style></head><body>';
+  html+='<h2>Fashion Q Store '+storeNo+' Scan List</h2>';
+  html+='<div class="info">'+dateStr+' | '+scannedItems.length+'items '+totalQty+'pcs | '+(currentUser?currentUser.name:'')+'</div>';
+  html+='<table><thead><tr><th>Vendor</th><th>Style #</th><th>Color</th><th style="text-align:right">Qty</th></tr></thead><tbody>';
+  scannedItems.forEach(function(item){
+    html+='<tr><td>'+(item.vendor||'')+'</td><td style="font-weight:bold">'+(item.style||'')+'</td><td>'+(item.color||'-')+'</td><td class="qty">'+item.qty+'</td></tr>';
+  });
+  html+='<tr class="total"><td colspan="3">Total</td><td class="qty">'+totalQty+'</td></tr>';
+  html+='</tbody></table></body></html>';
+  var w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();setTimeout(function(){w.print();},500);}
+  else{showToast('Pop-up blocked - please allow pop-ups','warning');}
 }
 
 // ================================================================
@@ -481,11 +549,11 @@ function startCamera(){
     cameraStream=stream;const v=document.getElementById('video');v.srcObject=stream;v.play();
     document.getElementById('cameraOff').classList.add('hidden');document.getElementById('cameraOn').classList.remove('hidden');document.getElementById('liveBadge').classList.remove('hidden');
     if('BarcodeDetector' in window){const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','itf','qr_code']});scanInterval=setInterval(async()=>{if(v.readyState>=2){try{const b=await det.detect(v);if(b.length>0)processBarcode(b[0].rawValue);}catch(e){}}},300);}
-    else showCamErr('자동 바코드 인식 미지원. Chrome 사용.');
-  }).catch(err=>{showCamErr(err.name==='NotAllowedError'?'카메라 권한 필요':err.message);});
+    else showCamErr('Auto barcode detection not supported. Use Chrome.');
+  }).catch(err=>{showCamErr(err.name==='NotAllowedError'?'Camera permission required':err.message);});
 }
 function stopCamera(){if(scanInterval){clearInterval(scanInterval);scanInterval=null;}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}document.getElementById('cameraOff').classList.remove('hidden');document.getElementById('cameraOn').classList.add('hidden');document.getElementById('liveBadge').classList.add('hidden');document.getElementById('detectedMsg').classList.add('hidden');lastDetected='';}
-function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');var dbKey='';if(code.length===12){dbKey=code.substring(1,11).substring(0,8);}else if(code.length===10){dbKey=code.substring(0,8);}else{dbKey=code;}msg.textContent='✓ '+code+' ('+code.length+'자리) → DB검색: '+dbKey;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast('바코드 '+code+' ('+code.length+'자리→'+dbKey+') DB없음','warning');if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
+function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');var dbKey='';if(code.length===12){dbKey=code.substring(1,11).substring(0,8);}else if(code.length===10){dbKey=code.substring(0,8);}else{dbKey=code;}msg.textContent='✓ '+code+' ('+code.length+'digits) → DB lookup: '+dbKey;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else showToast('Barcode '+code+' ('+code.length+'digits→'+dbKey+')) Not in DB','warning');if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
 function showCamErr(m){const e=document.getElementById('cameraError');e.textContent=m;e.classList.remove('hidden');}
 
 // ================================================================
@@ -503,15 +571,15 @@ async function handleInvoicePhoto(e){
     document.getElementById('aiStatus').classList.remove('hidden');
     var sp=document.getElementById('aiStatus').querySelector('.spinner');if(sp)sp.style.display='';
     document.getElementById('aiResult').classList.add('hidden');
-    document.getElementById('aiStatusText').textContent='이미지 최적화 중...';
+    document.getElementById('aiStatusText').textContent='Optimizing image...';
     setBtns(true);
     try{
-      if(!apiKey){showAIErr('API 키 미설정. DB관리 탭에서 API 키를 입력하세요.');setBtns(false);return;}
+      if(!apiKey){showAIErr('No API key. Enter key in DB tab.');setBtns(false);return;}
       var resized=await resizeImage(base64);
       var thumbForSave=await resizeImage(base64,400);
       var imageData=resized.split(',')[1];
       var newKB=Math.round(imageData.length*3/4/1024);
-      document.getElementById('aiStatusText').textContent='AI 분석 중... ('+(newKB>1024?Math.round(newKB/1024)+'MB':newKB+'KB')+' 전송)';
+      document.getElementById('aiStatusText').textContent='Analyzing... ('+(newKB>1024?Math.round(newKB/1024)+'MB':newKB+'KB')+' sending)';
       var sn=storeNo;
       var promptText='You are a precise data-entry assistant reading a wholesale fashion apparel invoice.\n\nTABLE STRUCTURE:\n- The top of the document has a DATE (e.g. 2/23/26).\n- The table header row contains: Vendor, Style #, DESCRIPTION, COLOR, RATIO, Price, Q TAG, TKT DATE, then MULTIPLE store-number columns (4-digit numbers like 7723, 7724, 7727, etc.), and finally a TOTAL column on the far right.\n- I need the quantity from the column labeled '+sn+' in the header row.\n\nHOW TO FIND THE '+sn+' COLUMN:\n- Look at the header row and locate the column with the number '+sn+'.\n- Count which position it is among the store-number columns.\n- IMPORTANT VISUAL CLUE: The quantities in the '+sn+' column may be highlighted with a yellow/green fluorescent marker (highlighter pen). If you see a column of numbers with highlighter marks, that is very likely the '+sn+' column.\n- The '+sn+' column is NOT the TOTAL column. TOTAL values are much larger sums.\n\nYOUR TASK:\n1. Find the DATE.\n2. Read EVERY row in the table from top to bottom.\n3. For each row, read the number in the '+sn+' column.\n4. If that number is greater than 0, include the row in the output.\n5. If the cell is empty or blank, skip the row.\n\nFOR EACH ROW EXTRACT:\n- vendor: from the Vendor column. If blank in a row, use the vendor from the previous row.\n- style: from the Style # column. If blank in a row, use the style from the previous row.\n- color: from the COLOR column. If blank, use empty string.\n- qty: the number from the '+sn+' column ONLY. NOT the TOTAL.\n\nRULES:\n- Same style with different colors = separate items.\n- Expect 15-25+ rows. Do NOT stop early. Read every row.\n- Typical qty values are small numbers like 6, 12, 18, 24, 30, 36.\n\nRespond with ONLY valid JSON (no markdown, no backticks, no explanation):\n{"date":"...","items":[{"vendor":"...","style":"...","color":"...","qty":0}]}';
       var resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
@@ -523,29 +591,29 @@ async function handleInvoicePhoto(e){
       if(!resp.ok){
         var errMsg='HTTP '+resp.status;
         try{var errData=await resp.json();errMsg=errData.error&&errData.error.message||errMsg;}catch(e){}
-        if(resp.status===401)errMsg='API 키가 유효하지 않습니다. DB관리 탭에서 확인하세요.';
-        else if(resp.status===429)errMsg='요청 제한 초과. 잠시 후 다시 시도하세요.';
-        else if(resp.status===529||resp.status===503)errMsg='API 서버 과부하. 잠시 후 재시도하세요.';
+        if(resp.status===401)errMsg='Invalid API key. Check in DB tab.';
+        else if(resp.status===429)errMsg='Rate limit exceeded. Try again later.';
+        else if(resp.status===529||resp.status===503)errMsg='API server overloaded. Try again later.';
         showAIErr('❌ '+errMsg);setBtns(false);return;
       }
       var data=await resp.json();
-      if(data.type==='error'){showAIErr('❌ API 오류: '+(data.error&&data.error.message||'알 수 없는 오류'));setBtns(false);return;}
+      if(data.type==='error'){showAIErr('❌ API error: '+(data.error&&data.error.message||'Unknown error'));setBtns(false);return;}
       var text='';if(data.content){for(var i=0;i<data.content.length;i++){text+=(data.content[i].text||'');}}
       console.log('[AI raw]',text.substring(0,500));
       var parsed=null;
       try{var cleaned=text.replace(/```json/gi,'').replace(/```/g,'').trim();var jm=cleaned.match(/\{[\s\S]*\}/);if(jm)parsed=JSON.parse(jm[0]);}catch(pe){console.warn('[AI parse error]',pe);}
-      if(!parsed){showAIErr('AI 응답을 파싱하지 못했습니다. 다시 시도해주세요.');setBtns(false);return;}
-      if(!parsed.items||!parsed.items.length){showAIErr(sn+' 수량이 있는 항목을 찾지 못했습니다.');setBtns(false);return;}
+      if(!parsed){showAIErr('Could not parse AI response. Please retry.');setBtns(false);return;}
+      if(!parsed.items||!parsed.items.length){showAIErr(sn+' qty items not found.');setBtns(false);return;}
       document.getElementById('aiStatus').classList.add('hidden');
       var rd=document.getElementById('aiResult');rd.classList.remove('hidden');
       var totalQty=0;for(var i=0;i<parsed.items.length;i++){totalQty+=(parseInt(parsed.items[i].qty)||0);}
-      var h='<div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:4px">✓ '+parsed.items.length+'개 항목 인식 (총 '+totalQty+'개)</div>';
-      h+='<div style="font-size:12px;color:var(--accent);margin-bottom:8px">📅 '+(parsed.date||'날짜 미인식')+'</div>';
-      h+='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">수량</th></tr></thead><tbody>';
+      var h='<div style="font-size:13px;font-weight:700;color:var(--success);margin-bottom:4px">✓ '+parsed.items.length+' items found (total '+totalQty+'pcs)</div>';
+      h+='<div style="font-size:12px;color:var(--accent);margin-bottom:8px">📅 '+(parsed.date||'Date not found')+'</div>';
+      h+='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">Qty</th></tr></thead><tbody>';
       parsed.items.forEach(function(i){h+='<tr><td class="vendor-col">'+(i.vendor||'')+'</td><td class="style-col">'+(i.style||'')+'</td><td class="color-col">'+(i.color||'-')+'</td><td class="qty-col">'+(i.qty||0)+'</td></tr>';});
-      h+='</tbody></table><button class="btn btn-full" style="margin-top:10px" onclick="applyAI()">인보이스에 추가</button>';
+      h+='</tbody></table><button class="btn btn-full" style="margin-top:10px" onclick="applyAI()">Add to Invoice</button>';
       rd.innerHTML=h;window._aiP=parsed;window._aiT=thumbForSave;
-    }catch(err){console.error('[AI error]',err);showAIErr('❌ 오류: '+err.message);}
+    }catch(err){console.error('[AI error]',err);showAIErr('❌ Error: '+err.message);}
     setBtns(false);
   };reader.readAsDataURL(file);e.target.value='';
 }
@@ -555,9 +623,9 @@ function applyAI(){
   const page={id:pageIdCounter++,date:p.date||'',thumb:window._aiT||'',items:[],completed:false,by:currentUser?.name||''};
   p.items.forEach(i=>{const q=parseInt(i.qty)||0;if(q<=0)return;page.items.push({vendor:(i.vendor||'').toUpperCase(),style:(i.style||'').toUpperCase(),color:(i.color||'').toUpperCase(),qty:q});
     const v=(i.vendor||'').toUpperCase();if(v&&!recentVendors.includes(v)){recentVendors.unshift(v);if(recentVendors.length>8)recentVendors.pop();}});
-  invoicePages.push(page);renderPages();renderRV();updateInvBadge();
-  showToast(`페이지 추가: ${page.items.length}항목 (${page.date})`,'success');
-  document.getElementById('aiResult').innerHTML='<div style="text-align:center;padding:10px;color:var(--success);font-weight:700">✓ 추가 완료!</div>';
+  invoicePages.push(page);renderPages();renderRV();updateInvBadge();saveData();
+  showToast(`Page added: ${page.items.length}items (${page.date})`,'success');
+  document.getElementById('aiResult').innerHTML='<div style="text-align:center;padding:10px;color:var(--success);font-weight:700">✓ Added!</div>';
   document.getElementById('photoPreview').classList.add('hidden');window._aiP=null;window._aiT=null;
 }
 
@@ -566,44 +634,44 @@ function applyAI(){
 // ================================================================
 function renderPages(){
   const el=document.getElementById('pageList');const active=invoicePages.filter(p=>!p.completed),done=invoicePages.filter(p=>p.completed);
-  updateInvBadge();document.getElementById('pageCount').textContent=`${active.length}개 활성`;
-  if(!invoicePages.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div style="font-size:13px">인보이스 페이지 없음</div></div>';return;}
+  updateInvBadge();document.getElementById('pageCount').textContent=`${active.length}active`;
+  if(!invoicePages.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div style="font-size:13px">No invoice pages</div></div>';return;}
   let h='';
   active.forEach(p=>{const tq=p.items.reduce((a,i)=>a+i.qty,0);
     h+=`<div class="page-card"><div class="page-header"><div style="display:flex;align-items:center;gap:8px">${p.thumb?`<img src="${p.thumb}" class="page-thumb">`:''}
-    <div><div class="page-date">📅 ${p.date||'날짜없음'}</div><div class="page-info">${p.items.length}종·${tq}개${p.by?' · '+p.by:''}</div></div></div><span class="page-status active">진행중</span></div>
-    <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm" style="flex:1;font-size:11px" onclick="toggleDet(${p.id})">상세</button><button class="btn btn-sm btn-outline" style="flex:1;font-size:11px;padding:5px 8px" onclick="completePg(${p.id})">✓완료</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">삭제</button></div>
+    <div><div class="page-date">📅 ${p.date||'No date'}</div><div class="page-info">${p.items.length}items·${tq}pcs${p.by?' · '+p.by:''}</div></div></div><span class="page-status active">Active</span></div>
+    <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm" style="flex:1;font-size:11px" onclick="toggleDet(${p.id})">Detail</button><button class="btn btn-sm btn-outline" style="flex:1;font-size:11px;padding:5px 8px" onclick="completePg(${p.id})">✓Done</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">Del</button></div>
     <div id="det-${p.id}" class="hidden" style="margin-top:8px"></div></div>`;});
-  if(done.length){h+=`<div style="font-size:11px;color:var(--dim);margin:10px 0 6px;font-weight:600">완료 (${done.length})</div>`;
+  if(done.length){h+=`<div style="font-size:11px;color:var(--dim);margin:10px 0 6px;font-weight:600"> Done (${done.length})</div>`;
     done.forEach(p=>{const tq=p.items.reduce((a,i)=>a+i.qty,0);
-      h+=`<div class="page-card completed"><div class="page-header"><div><div class="page-date" style="opacity:.6">📅 ${p.date||''}</div><div class="page-info">${p.items.length}종·${tq}개</div></div><span class="page-status done">완료✓</span></div>
-      <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm btn-gray" style="flex:1;font-size:11px" onclick="uncompPg(${p.id})">되돌리기</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">삭제</button></div></div>`;});}
+      h+=`<div class="page-card completed"><div class="page-header"><div><div class="page-date" style="opacity:.6">📅 ${p.date||''}</div><div class="page-info">${p.items.length}items·${tq}pcs</div></div><span class="page-status done">Done✓</span></div>
+      <div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm btn-gray" style="flex:1;font-size:11px" onclick="uncompPg(${p.id})">Undo</button><button class="btn btn-sm btn-danger" style="font-size:11px" onclick="removePg(${p.id})">Del</button></div></div>`;});}
   el.innerHTML=h;
 }
 function toggleDet(id){const el=document.getElementById('det-'+id);if(!el.classList.contains('hidden')){el.classList.add('hidden');return;}
   const p=invoicePages.find(x=>x.id===id);if(!p)return;
-  let h='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">수량</th><th></th></tr></thead><tbody>';
+  let h='<table class="inv-table"><thead><tr><th>Vendor</th><th>Style#</th><th>Color</th><th style="text-align:right">Qty</th><th></th></tr></thead><tbody>';
   p.items.forEach((item,i)=>{h+=`<tr><td class="vendor-col">${item.vendor}</td><td class="style-col">${item.style}</td><td class="color-col">${item.color||'-'}</td><td class="qty-col">${item.qty}</td><td><button class="del-btn" style="margin:0;padding:2px" onclick="rmPgItem(${id},${i})"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></td></tr>`;});
   h+='</tbody></table>';el.innerHTML=h;el.classList.remove('hidden');
 }
-function rmPgItem(pid,idx){const p=invoicePages.find(x=>x.id===pid);if(!p)return;p.items.splice(idx,1);if(!p.items.length)invoicePages=invoicePages.filter(x=>x.id!==pid);renderPages();}
-function completePg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=true;p.thumb='';showToast(`📅 ${p.date} 완료`,'success');renderPages();}}
-function uncompPg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=false;renderPages();}}
-function removePg(id){if(!confirm('삭제?'))return;invoicePages=invoicePages.filter(x=>x.id!==id);renderPages();showToast('삭제됨','info');}
-function updateInvBadge(){const all=getAllInvoiceItems();const tq=all.reduce((a,i)=>a+i.qty,0);document.getElementById('invBadge').textContent=`인보이스 ${tq}`;
+function rmPgItem(pid,idx){const p=invoicePages.find(x=>x.id===pid);if(!p)return;p.items.splice(idx,1);if(!p.items.length)invoicePages=invoicePages.filter(x=>x.id!==pid);renderPages();saveData();}
+function completePg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=true;p.thumb='';showToast(`📅 ${p.date} Done`,'success');renderPages();saveData();}}
+function uncompPg(id){const p=invoicePages.find(x=>x.id===id);if(p){p.completed=false;renderPages();saveData();}}
+function removePg(id){if(!confirm('Delete?'))return;invoicePages=invoicePages.filter(x=>x.id!==id);renderPages();saveData();showToast('Deleted','info');}
+function updateInvBadge(){const all=getAllInvoiceItems();const tq=all.reduce((a,i)=>a+i.qty,0);document.getElementById('invBadge').textContent=`Invoice ${tq}`;
   const tc=document.getElementById('tabinvoiceCount');const n=invoicePages.filter(p=>!p.completed).length;if(tc){if(n>0){tc.textContent=n;tc.classList.remove('hidden');}else tc.classList.add('hidden');}}
 
 function addInvoiceItem(){
   const vendor=document.getElementById('invVendor').value.trim().toUpperCase();const style=document.getElementById('invStyle').value.trim().toUpperCase();
   const color=document.getElementById('invColor').value.trim().toUpperCase();const qty=parseInt(document.getElementById('invQty').value)||0;
-  if(!style){showToast('Style # 입력','warning');return;}if(qty<=0){showToast('수량 0 건너뜀','info');clrInv();return;}
-  let mp=invoicePages.find(p=>p.date==='수동입력'&&!p.completed);
-  if(!mp){mp={id:pageIdCounter++,date:'수동입력',thumb:'',items:[],completed:false,by:currentUser?.name||''};invoicePages.push(mp);}
+  if(!style){showToast('Enter Style #','warning');return;}if(qty<=0){showToast('Qty 0, skipped','info');clrInv();return;}
+  let mp=invoicePages.find(p=>p.date==='Manual'&&!p.completed);
+  if(!mp){mp={id:pageIdCounter++,date:'Manual',thumb:'',items:[],completed:false,by:currentUser?.name||''};invoicePages.push(mp);}
   const k=mKey(style,color);const ex=mp.items.find(i=>mKey(i.style,i.color)===k);
   if(ex)ex.qty+=qty;else mp.items.push({vendor,style,color,qty});
   if(vendor&&!recentVendors.includes(vendor)){recentVendors.unshift(vendor);if(recentVendors.length>8)recentVendors.pop();renderRV();}
   document.getElementById('lastAdded').textContent=`✓ ${vendor} ${style} ${color} × ${qty}`;
-  renderPages();updateInvBadge();clrInv();showToast(`${style} ×${qty} 추가`,'success');
+  renderPages();updateInvBadge();clrInv();saveData();showToast(`${style} ×${qty} added`,'success');
 }
 function clrInv(){document.getElementById('invStyle').value='';document.getElementById('invColor').value='';document.getElementById('invQty').value='';document.getElementById('invStyle').focus();}
 function renderRV(){const c=document.getElementById('recentVendors');if(!recentVendors.length){c.innerHTML='';return;}let h='';recentVendors.forEach(v=>{h+=`<button class="recent-tag" onclick="document.getElementById('invVendor').value='${v}';document.getElementById('invStyle').focus();">${v}</button>`;});c.innerHTML=h;}
@@ -613,35 +681,35 @@ function renderRV(){const c=document.getElementById('recentVendors');if(!recentV
 // ================================================================
 function renderMatch(){
   const c=document.getElementById('matchContent');const inv=getAllInvoiceItems();const has=scannedItems.length>0||inv.length>0;
-  if(!has){c.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:10px">📋</div><div style="font-size:15px;font-weight:700">대조할 데이터 없음</div></div>';return;}
-  if(!inv.length&&scannedItems.length>0){c.innerHTML=`<div class="card" style="background:#FBBF2410"><div style="font-size:15px;font-weight:700;color:var(--warning)">⏳ 인보이스 대기 중</div><div style="font-size:12px;color:var(--dim);margin-top:4px">${scannedItems.length}종 ${scannedItems.reduce((a,i)=>a+i.qty,0)}개 스캔완료</div></div>`;return;}
+  if(!has){c.innerHTML='<div class="empty"><div style="font-size:48px;margin-bottom:10px">📋</div><div style="font-size:15px;font-weight:700">No data to compare</div></div>';return;}
+  if(!inv.length&&scannedItems.length>0){c.innerHTML=`<div class="card" style="background:#FBBF2410"><div style="font-size:15px;font-weight:700;color:var(--warning)">⏳ Waiting for invoice</div><div style="font-size:12px;color:var(--dim);margin-top:4px">${scannedItems.length}items ${scannedItems.reduce((a,i)=>a+i.qty,0)}pcs scanned</div></div>`;return;}
   const sMap={},iMap={};scannedItems.forEach(i=>{sMap[mKey(i.style,i.color)]=i;});inv.forEach(i=>{iMap[mKey(i.style,i.color)]=i;});
   const ok=[],miss=[],ext=[],mm=[];
   inv.forEach(iv=>{const k=mKey(iv.style,iv.color);const s=sMap[k];if(!s)miss.push(iv);else if(s.qty!==iv.qty)mm.push({...iv,scanQty:s.qty});else ok.push({...iv});});
   scannedItems.forEach(s=>{if(!iMap[mKey(s.style,s.color)])ext.push(s);});
   const total=inv.length,pct=total>0?Math.round(ok.length/total*100):0;
-  let h=`<div class="stat-row"><div class="stat-box" style="background:#34D39915"><div class="stat-num" style="color:var(--success)">${ok.length}</div><div class="stat-label">일치</div></div><div class="stat-box" style="background:#FBBF2415"><div class="stat-num" style="color:var(--warning)">${mm.length}</div><div class="stat-label">수량불일치</div></div><div class="stat-box" style="background:#F8717115"><div class="stat-num" style="color:var(--danger)">${miss.length+ext.length}</div><div class="stat-label">누락/초과</div></div></div>`;
-  h+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">검수 진행률</span><span style="font-size:13px;font-weight:700;color:var(--accent)">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${ok.length===total&&total>0?'var(--success)':'var(--accent)'}"></div></div></div>`;
-  if(ok.length){h+='<div class="card"><div class="card-title" style="color:var(--success)">✓ 일치 ('+ok.length+')</div>';ok.forEach(i=>{h+=`<div class="match-card match-ok"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--success);font-weight:600">${i.qty}개✓</span></div></div>`;});h+='</div>';}
-  if(mm.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">⚠️ 수량불일치 ('+mm.length+')</div>';mm.forEach(i=>{const d=i.scanQty-i.qty;h+=`<div class="match-card match-warn"><div style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</div><div style="font-size:12px;margin-top:3px">인보이스:${i.qty} · 스캔:${i.scanQty} (${d>0?'+':''}${d})</div></div>`;});h+='</div>';}
-  if(miss.length){h+='<div class="card"><div class="card-title" style="color:var(--danger)">✗ 미스캔 ('+miss.length+')</div>';miss.forEach(i=>{h+=`<div class="match-card match-miss"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--danger)">${i.qty}개</span></div></div>`;});h+='</div>';}
-  if(ext.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">📦 초과 ('+ext.length+')</div>';ext.forEach(i=>{h+=`<div class="match-card match-warn"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px">${i.qty}개</span></div></div>`;});h+='</div>';}
-  if(ok.length===total&&total>0&&!mm.length&&!ext.length)h+='<div class="card" style="background:#34D39915;text-align:center;padding:28px"><div style="font-size:48px;margin-bottom:8px">🎉</div><div style="font-size:18px;font-weight:800;color:var(--success)">검수 완료!</div></div>';
+  let h=`<div class="stat-row"><div class="stat-box" style="background:#34D39915"><div class="stat-num" style="color:var(--success)">${ok.length}</div><div class="stat-label">Match</div></div><div class="stat-box" style="background:#FBBF2415"><div class="stat-num" style="color:var(--warning)">${mm.length}</div><div class="stat-label">Qty Mismatch</div></div><div class="stat-box" style="background:#F8717115"><div class="stat-num" style="color:var(--danger)">${miss.length+ext.length}</div><div class="stat-label">Missing/Extra</div></div></div>`;
+  h+=`<div class="card" style="padding:12px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">Inspection Progress</span><span style="font-size:13px;font-weight:700;color:var(--accent)">${pct}%</span></div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${ok.length===total&&total>0?'var(--success)':'var(--accent)'}"></div></div></div>`;
+  if(ok.length){h+='<div class="card"><div class="card-title" style="color:var(--success)">✓ Match ('+ok.length+')</div>';ok.forEach(i=>{h+=`<div class="match-card match-ok"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--success);font-weight:600">${i.qty}pcs✓</span></div></div>`;});h+='</div>';}
+  if(mm.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">⚠️ Qty Mismatch ('+mm.length+')</div>';mm.forEach(i=>{const d=i.scanQty-i.qty;h+=`<div class="match-card match-warn"><div style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</div><div style="font-size:12px;margin-top:3px">Inv:${i.qty} · Scan:${i.scanQty} (${d>0?'+':''}${d})</div></div>`;});h+='</div>';}
+  if(miss.length){h+='<div class="card"><div class="card-title" style="color:var(--danger)">✗ Not Scanned ('+miss.length+')</div>';miss.forEach(i=>{h+=`<div class="match-card match-miss"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px;color:var(--danger)">${i.qty}pcs</span></div></div>`;});h+='</div>';}
+  if(ext.length){h+='<div class="card"><div class="card-title" style="color:var(--warning)">📦 Extra ('+ext.length+')</div>';ext.forEach(i=>{h+=`<div class="match-card match-warn"><div style="display:flex;justify-content:space-between"><span style="font-size:13px;font-weight:600">${i.style}${i.color?' <span class="item-color">'+i.color+'</span>':''}</span><span style="font-size:12px">${i.qty}pcs</span></div></div>`;});h+='</div>';}
+  if(ok.length===total&&total>0&&!mm.length&&!ext.length)h+='<div class="card" style="background:#34D39915;text-align:center;padding:28px"><div style="font-size:48px;margin-bottom:8px">🎉</div><div style="font-size:18px;font-weight:800;color:var(--success)">Inspection Complete!</div></div>';
   c.innerHTML=h;
 }
 
 // ================================================================
 // DB
 // ================================================================
-function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length}개 로드`,'success');renderDB();}else showToast('CSV 파싱 실패','danger');};r.readAsText(f);e.target.value='';}
+function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length} loaded`,'success');renderDB();}else showToast('CSV parse failed','danger');};r.readAsText(f);e.target.value='';}
 function parseCSV(text){const ls=text.replace(/\r/g,'').trim().split('\n');if(ls.length<2)return[];const hd=ls[0].split(',').map(h=>h.trim().toLowerCase());
-  let bi=hd.findIndex(h=>h==='iv_styleid');if(bi===-1)bi=hd.findIndex(h=>h.includes('barcode')||h.includes('바코드'));
-  let si=hd.findIndex(h=>h==='iv_style');if(si===-1)si=hd.findIndex(h=>(h.includes('style')||h.includes('스타일'))&&!h.includes('styleid'));
-  const ni=hd.findIndex(h=>h.includes('name')||h.includes('상품명'));const pi=hd.findIndex(h=>h.includes('price'));const ci=hd.findIndex(h=>h.includes('color')||h.includes('색상'));const vi=hd.findIndex(h=>h.includes('vendor')||h.includes('업체'));
+  let bi=hd.findIndex(h=>h==='iv_styleid');if(bi===-1)bi=hd.findIndex(h=>h.includes('barcode')||h.includes('barcode'));
+  let si=hd.findIndex(h=>h==='iv_style');if(si===-1)si=hd.findIndex(h=>(h.includes('style')||h.includes('style'))&&!h.includes('styleid'));
+  const ni=hd.findIndex(h=>h.includes('name')||h.includes('name'));const pi=hd.findIndex(h=>h.includes('price'));const ci=hd.findIndex(h=>h.includes('color')||h.includes('color'));const vi=hd.findIndex(h=>h.includes('vendor')||h.includes('vendor'));
   if(bi===-1||si===-1)return[];return ls.slice(1).filter(l=>l.trim()).map(l=>{const c=l.split(',').map(x=>x.trim());return{barcode:c[bi]||'',style:c[si]||'',name:ni>=0?c[ni]:'',price:pi>=0?parseFloat(c[pi])||0:0,color:ci>=0?c[ci]:'',vendor:vi>=0?c[vi]:''};});}
-function renderDB(){const s=(document.getElementById('dbSearch')?.value||'').toLowerCase();const f=s?db.filter(i=>i.barcode.includes(s)||i.style.toLowerCase().includes(s)||(i.vendor||'').toLowerCase().includes(s)):db;document.getElementById('dbCount').textContent=db.length+'개';
+function renderDB(){const s=(document.getElementById('dbSearch')?.value||'').toLowerCase();const f=s?db.filter(i=>i.barcode.includes(s)||i.style.toLowerCase().includes(s)||(i.vendor||'').toLowerCase().includes(s)):db;document.getElementById('dbCount').textContent=db.length+'pcs';
   let h='';f.slice(0,100).forEach(i=>{h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${i.style}</span>${i.color?` <span class="item-color">${i.color}</span>`:''}</div><div class="item-sub">${i.vendor?`<span class="item-vendor">${i.vendor}</span> `:''}${i.name||''}</div><div style="font-size:10px;color:var(--dim)">BC:${i.barcode}</div></div></div>`;});
-  if(f.length>100)h+=`<div style="text-align:center;padding:10px;color:var(--dim);font-size:11px">외 ${f.length-100}개</div>`;if(!f.length)h='<div style="text-align:center;padding:20px;color:var(--dim)">결과 없음</div>';document.getElementById('dbList').innerHTML=h;}
+  if(f.length>100)h+=`<div style="text-align:center;padding:10px;color:var(--dim);font-size:11px">+ ${f.length-100} more</div>`;if(!f.length)h='<div style="text-align:center;padding:20px;color:var(--dim)">No results</div>';document.getElementById('dbList').innerHTML=h;}
 
 // ================================================================
 // KEYBOARD
