@@ -708,18 +708,38 @@ function renderMatch(){
 // ================================================================
 function handleCSVUpload(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const p=parseCSV(ev.target.result);if(p.length>0){db=p;showToast(`DB: ${p.length} loaded`,'success');renderDB();}else showToast('CSV parse failed','danger');};r.readAsText(f);e.target.value='';}
 
-var _mdbReader=null;
-async function loadMdbLib(){
-  if(_mdbReader)return _mdbReader;
-  var urls=[
-    'https://cdn.jsdelivr.net/npm/mdb-reader@2.2.5/+esm',
-    'https://cdn.jsdelivr.net/npm/mdb-reader/+esm',
-    'https://unpkg.com/mdb-reader@2.2.5/dist/esm/index.js'
-  ];
-  for(var i=0;i<urls.length;i++){
-    try{var mod=await import(urls[i]);_mdbReader=mod.default||mod.MdbReader||mod;return _mdbReader;}catch(e){console.warn('MDB load fail:',urls[i],e);}
-  }
-  return null;
+var _mdbReady=false;
+function loadMdbLib(){
+  return new Promise(function(resolve){
+    if(_mdbReady&&window.MDBReader){resolve(window.MDBReader);return;}
+    // Step 1: Load Buffer polyfill
+    var bufScript=document.createElement('script');
+    bufScript.src='https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.min.js';
+    bufScript.onload=function(){
+      // Make Buffer globally available
+      if(window.buffer&&window.buffer.Buffer)window.Buffer=window.buffer.Buffer;
+      // Step 2: Load mdb-reader UMD
+      var mdbScript=document.createElement('script');
+      mdbScript.src='https://cdn.jsdelivr.net/npm/mdb-reader@2.2.5/dist/umd/index.js';
+      mdbScript.onload=function(){
+        _mdbReady=true;
+        // Try various export names
+        var MDB=window.MDBReader||window.MdbReader;
+        if(!MDB&&window.mdbReader)MDB=window.mdbReader.MDBReader||window.mdbReader.default||window.mdbReader;
+        if(!MDB){
+          // Check all new globals
+          var keys=Object.keys(window);
+          console.log('[MDB] Available globals after load:',keys.filter(function(k){return k.toLowerCase().includes('mdb');}));
+        }
+        console.log('[MDB] Resolved constructor:',MDB);
+        resolve(MDB||null);
+      };
+      mdbScript.onerror=function(){resolve(null);};
+      document.head.appendChild(mdbScript);
+    };
+    bufScript.onerror=function(){resolve(null);};
+    document.head.appendChild(bufScript);
+  });
 }
 
 async function handleAccessUpload(e){
@@ -730,7 +750,7 @@ async function handleAccessUpload(e){
   
   var MdbReader=await loadMdbLib();
   if(!MdbReader){
-    mapDiv.innerHTML='<div style="padding:12px;background:#F8717115;border-radius:10px;color:var(--danger);font-size:12px">Failed to load Access DB library. Please use CSV instead, or check internet connection.</div>';
+    mapDiv.innerHTML='<div style="padding:12px;background:#F8717115;border-radius:10px;color:var(--danger);font-size:12px">Failed to load Access DB library. Check internet connection and try again. <br><span style="color:var(--dim);font-size:10px">If problem persists, convert to CSV instead.</span></div>';
     e.target.value='';return;
   }
   
@@ -738,7 +758,7 @@ async function handleAccessUpload(e){
   
   try{
     var buf=await file.arrayBuffer();
-    var reader=new MdbReader(new Uint8Array(buf));
+    var reader=new MdbReader(Buffer.from(new Uint8Array(buf)));
     var tables=reader.getTableNames().filter(function(t){return !t.startsWith('MSys');});
     
     if(!tables.length){
