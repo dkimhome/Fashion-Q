@@ -213,6 +213,26 @@ input::placeholder{color:#8B8B9E66}
       </div>
       <div id="storeNoStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
     </div>
+    <!-- DB URL Setting -->
+    <div class="card">
+      <div class="card-title">🌐 Barcode DB URL (Auto-Load)</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">CSV file URL on GitHub Pages. DB auto-loads on login. Leave blank to load manually.</div>
+      <div class="input-row">
+        <input type="text" id="dbUrlInput" placeholder="https://dkimhome.github.io/Fashion-Q/BARCODE_STYLEnumber.csv" style="flex:1;font-size:11px">
+        <button class="btn" onclick="saveDbUrl()">Save</button>
+      </div>
+      <div id="dbUrlStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
+    </div>
+    <!-- Shared Scan Sheet -->
+    <div class="card">
+      <div class="card-title">📡 Shared Scan Storage</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Google Sheet web app URL for shared scan data. All staff can upload/download scans.</div>
+      <div class="input-row">
+        <input type="text" id="sheetUrlInput" placeholder="https://script.google.com/macros/s/..." style="flex:1;font-size:11px">
+        <button class="btn" onclick="saveSheetUrl()">Save</button>
+      </div>
+      <div id="sheetUrlStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
+    </div>
     <!-- API Key Setting -->
     <div class="card">
       <div class="card-title">🔑 AI Settings (Invoice Recognition)</div>
@@ -266,14 +286,18 @@ let db=[],scannedItems=[],invoicePages=[],recentVendors=[];
 let cameraStream=null,scanInterval=null,lastDetected='',pageIdCounter=1;
 let apiKey='';
 let storeNo='7747';
+let dbUrl='';
+let sheetUrl='';
 
 // Load saved users (ensure default admin always exists)
 try{const saved=localStorage.getItem('fq_users');if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0){users=parsed;if(!users.find(u=>u.empNo==='0000'))users.unshift({empNo:'0000',name:'Admin',pin:'1234',role:'admin'});}}}catch(e){}
 function saveUsers(){try{localStorage.setItem('fq_users',JSON.stringify(users));}catch(e){}}
 
-// Load API key & store number
+// Load API key & store number & urls
 try{apiKey=localStorage.getItem('fq_apikey')||'';}catch(e){}
 try{storeNo=localStorage.getItem('fq_storeno')||'7747';}catch(e){}
+try{dbUrl=localStorage.getItem('fq_dburl')||'';}catch(e){}
+try{sheetUrl=localStorage.getItem('fq_sheeturl')||'';}catch(e){}
 
 // Load saved scan/invoice data
 try{var sd=localStorage.getItem('fq_scanned');if(sd){scannedItems=JSON.parse(sd)||[];}}catch(e){}
@@ -328,6 +352,74 @@ function updateStoreLabels(){
   var ql=document.getElementById('invQtyLabel');if(ql)ql.textContent='Qty ('+storeNo+')';
 }
 
+// DB URL
+function saveDbUrl(){
+  var v=document.getElementById('dbUrlInput').value.trim();
+  dbUrl=v;try{localStorage.setItem('fq_dburl',v);}catch(e){}
+  document.getElementById('dbUrlStatus').innerHTML=v?'<span style="color:var(--success)">✓ Saved. DB will auto-load on login.</span>':'<span style="color:var(--dim)">Cleared. Upload DB manually.</span>';
+  showToast('DB URL saved','success');
+}
+function loadDbUrlDisplay(){
+  var el=document.getElementById('dbUrlInput');var st=document.getElementById('dbUrlStatus');
+  if(el)el.value=dbUrl;
+  if(st)st.innerHTML=dbUrl?'<span style="color:var(--success)">✓ Auto-load: ...'+dbUrl.slice(-30)+'</span>':'<span style="color:var(--dim)">Not set. Upload DB manually.</span>';
+}
+async function autoLoadDB(){
+  if(!dbUrl)return;
+  try{
+    showToast('Loading barcode DB...','info');
+    var resp=await fetch(dbUrl);
+    if(!resp.ok){showToast('DB load failed: HTTP '+resp.status,'warning');return;}
+    var text=await resp.text();
+    var p=parseCSV(text);
+    if(p.length>0){db=p;showToast('DB: '+p.length+' loaded','success');renderDB();}
+    else showToast('DB URL loaded but 0 records parsed','warning');
+  }catch(err){showToast('DB load error: '+err.message,'warning');}
+}
+
+// Shared Sheet URL
+function saveSheetUrl(){
+  var v=document.getElementById('sheetUrlInput').value.trim();
+  sheetUrl=v;try{localStorage.setItem('fq_sheeturl',v);}catch(e){}
+  document.getElementById('sheetUrlStatus').innerHTML=v?'<span style="color:var(--success)">✓ Shared storage set.</span>':'<span style="color:var(--dim)">Not set.</span>';
+  showToast('Sheet URL saved','success');
+}
+function loadSheetUrlDisplay(){
+  var el=document.getElementById('sheetUrlInput');var st=document.getElementById('sheetUrlStatus');
+  if(el)el.value=sheetUrl;
+  if(st)st.innerHTML=sheetUrl?'<span style="color:var(--success)">✓ Connected</span>':'<span style="color:var(--dim)">Not set. Scans saved locally only.</span>';
+}
+async function uploadShared(){
+  if(!sheetUrl){showToast('Set Sheet URL in Settings tab first','warning');return;}
+  if(!scannedItems.length){showToast('No scans to upload','warning');return;}
+  try{
+    showToast('Uploading...','info');
+    var resp=await fetch(sheetUrl,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'upload',store:storeNo,employee:currentUser?currentUser.name:'Unknown',empNo:currentUser?currentUser.empNo:'',
+        items:scannedItems.map(function(i){return{style:i.style,color:i.color,vendor:i.vendor,barcode:i.barcode,qty:i.qty};})
+      })});
+    var data=await resp.json();
+    showToast('Uploaded '+((data&&data.count)||scannedItems.length)+' items to shared sheet','success');
+  }catch(err){showToast('Upload error: '+err.message,'danger');}
+}
+async function downloadShared(){
+  if(!sheetUrl){showToast('Set Sheet URL in Settings tab first','warning');return;}
+  try{
+    showToast('Downloading...','info');
+    var resp=await fetch(sheetUrl+'?action=download&store='+encodeURIComponent(storeNo));
+    var data=await resp.json();
+    if(data&&data.items&&data.items.length>0){
+      data.items.forEach(function(item){
+        var k=mKey(item.style,item.color);var ex=scannedItems.find(function(s){return mKey(s.style,s.color)===k;});
+        if(ex){ex.qty=Math.max(ex.qty,item.qty);}
+        else{scannedItems.push({style:(item.style||'').toUpperCase(),color:(item.color||'').toUpperCase(),vendor:(item.vendor||'').toUpperCase(),barcode:item.barcode||'',qty:item.qty||1,by:item.employee||'Shared',name:''});}
+      });
+      renderScan();saveData();
+      showToast('Downloaded '+data.items.length+' items from shared sheet','success');
+    }else{showToast('No shared scans found','info');}
+  }catch(err){showToast('Download error: '+err.message,'danger');}
+}
+
 // ================================================================
 // UTILS
 // ================================================================
@@ -357,7 +449,7 @@ function doLogin(){
   document.getElementById('tabBar').classList.remove('hidden');
   document.getElementById('headerUserName').textContent=user.name;
   document.getElementById('headerRole').textContent=user.role==='admin'?'(Admin)':'(Staff)';
-  buildTabs();renderScan();renderPages();renderDB();renderStaff();updateStoreLabels();
+  buildTabs();renderScan();renderPages();renderDB();renderStaff();updateStoreLabels();autoLoadDB();
 }
 function doLogout(){
   currentUser=null;
@@ -394,7 +486,7 @@ function switchTab(id){
   document.getElementById('tab-'+id).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.tab-btn[data-tab="${id}"]`)?.classList.add('active');
-  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db'){renderDB();loadApiKeyDisplay();loadStoreNoDisplay();}if(id==='staff')renderStaff();
+  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db'){renderDB();loadApiKeyDisplay();loadStoreNoDisplay();loadDbUrlDisplay();loadSheetUrlDisplay();}if(id==='staff')renderStaff();
 }
 
 // ================================================================
@@ -498,6 +590,7 @@ function renderScan(){
     h+=`<div class="list-item"><div style="flex:1"><div><span class="style-num">${item.style}</span>${item.color?` <span class="item-color">${item.color}</span>`:''}</div><div class="item-sub">${item.vendor?`<span class="item-vendor">${item.vendor}</span> `:''}${item.barcode?'BC:'+item.barcode:''}</div></div><div style="display:flex;align-items:center;gap:6px"><div class="qty-controls"><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty=Math.max(1,scannedItems[${i}].qty-1);renderScan();saveData()">−</button><span class="qty-num">${item.qty}</span><button class="btn btn-gray btn-sm" onclick="scannedItems[${i}].qty++;renderScan();saveData()">+</button></div><button class="del-btn" onclick="scannedItems.splice(${i},1);renderScan();saveData()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div></div>`;
   });
   h+='<div style="display:flex;gap:6px;margin-top:10px"><button class="btn btn-full" style="flex:1" onclick="exportCSV()">📥 CSV</button><button class="btn btn-full btn-outline" style="flex:1" onclick="printScan()">🖨️ Print</button></div>';
+  h+='<div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-full" style="flex:1;background:#34D399" onclick="uploadShared()">📤 Upload Shared</button><button class="btn btn-full btn-outline" style="flex:1" onclick="downloadShared()">📥 Download Shared</button></div>';
   h+=`<button class="btn btn-danger btn-full" style="margin-top:6px;opacity:.85" onclick="if(confirm('Delete all scan data?')){scannedItems=[];renderScan();saveData();}">Delete All</button>`;
   el.innerHTML=h;
 }
@@ -873,6 +966,56 @@ document.getElementById('invVendor').addEventListener('keydown',e=>{if(e.key==='
 document.getElementById('invStyle').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invColor').focus();}});
 document.getElementById('invColor').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('invQty').focus();}});
 document.getElementById('invQty').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addInvoiceItem();}});
+
+// ================================================================
+// GLOBAL BARCODE SCANNER LISTENER
+// Captures rapid digit input from wireless scanner regardless of focus
+// ================================================================
+var _scanBuf='';
+var _scanBufTimer=null;
+document.addEventListener('keydown',function(e){
+  var active=document.activeElement;
+  var isInput=active&&(active.tagName==='INPUT'||active.tagName==='TEXTAREA'||active.tagName==='SELECT');
+  var isBarcodeInput=active&&active.id==='barcodeInput';
+  // If barcode input is focused, let the existing handler deal with it
+  if(isBarcodeInput)return;
+  // Buffer digit keys
+  if(/^\d$/.test(e.key)){
+    _scanBuf+=e.key;
+    clearTimeout(_scanBufTimer);
+    // Clear buffer if no more keys within 300ms (human typing is slower)
+    _scanBufTimer=setTimeout(function(){_scanBuf='';},300);
+    // If typing into another input, let it go through (digits appear in that input too)
+    return;
+  }
+  // On Enter with 8+ buffered digits → treat as barcode scan
+  if(e.key==='Enter'&&_scanBuf.length>=8){
+    e.preventDefault();e.stopPropagation();
+    var code=_scanBuf;
+    _scanBuf='';clearTimeout(_scanBufTimer);
+    // Clear the digits from whatever input they went into
+    if(isInput&&active.id!=='barcodeInput'){
+      var v=active.value||'';
+      // Remove the scanned digits from the input value
+      if(v.endsWith(code))active.value=v.slice(0,-code.length);
+      else if(v===code)active.value='';
+    }
+    // Process barcode
+    var f=lookupBarcode(code);
+    if(f){
+      addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);
+      // Auto-switch to scan tab to show result
+      if(!document.getElementById('tab-scan').classList.contains('active'))switchTab('scan');
+    }else{
+      showToast('Barcode '+code+' ('+code.length+' digits) - Not in DB','warning');
+    }
+    return;
+  }
+  // Non-digit key resets buffer
+  if(e.key!=='Shift'&&e.key!=='Control'&&e.key!=='Alt'&&e.key!=='Meta'){
+    _scanBuf='';clearTimeout(_scanBufTimer);
+  }
+});
 </script>
 </body>
 </html>
