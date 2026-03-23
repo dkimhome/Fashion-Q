@@ -230,6 +230,7 @@
   <div class="verify-section" id="verifySection">
     <h2>Verify & Edit</h2>
     <p class="subtitle">Check each time against the photo. Fix any errors, then calculate.</p>
+    <details style="margin-bottom:12px;font-size:12px;"><summary style="cursor:pointer;color:var(--accent);font-weight:600;">Show raw OCR text (debug)</summary><pre id="rawOcrText" style="background:var(--surface-alt);padding:12px;border-radius:6px;margin-top:6px;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--border);"></pre></details>
     <div class="verify-emp">
       <div class="form-group"><label>Employee Name</label><input type="text" id="vEmpName"></div>
       <div class="form-group"><label>Store #</label><input type="text" id="vStore"></div>
@@ -323,42 +324,45 @@ async function callGoogleVision(imageBase64){
 // ══════════════════════════════════════
 // STEP 2: CLAUDE STRUCTURES THE OCR TEXT
 // ══════════════════════════════════════
-async function callClaude(ocrText){
+async function callClaude(ocrText,imageBase64){
   const apiKey=localStorage.getItem('tc_api_key');
   if(!apiKey)throw new Error('Claude API key not set. Go to Settings (⚙).');
 
-  const prompt=`You are parsing OCR text extracted from a Fashion Q store employee punch card timecard.
+  let mediaType='image/jpeg';
+  if(imageBase64&&imageBase64.startsWith('iVBOR'))mediaType='image/png';
+  else if(imageBase64&&imageBase64.startsWith('UklGR'))mediaType='image/webp';
 
-Below is the raw text that Google Vision OCR read from the card. Your job is to structure it into clean JSON.
+  const prompt=`You are parsing a Fashion Q store employee punch card timecard. You have TWO sources:
+1. The PHOTO of the card (attached image) — use this to see the LAYOUT and which times are on which day rows.
+2. The RAW OCR TEXT below — use this for precise digit reading, as it is more accurate for numbers.
+
+CROSS-REFERENCE both sources. The image shows which row each time belongs to. The OCR text has more accurate digits.
 
 === RAW OCR TEXT ===
 ${ocrText}
 === END OCR TEXT ===
 
-=== CARD STRUCTURE ===
-- The card has an employee name and store number at the top.
-- It has rows for days: MON, TUE, WED, THU, FRI, SAT, SUN.
-- Each day has IN and OUT time stamps from a mechanical clock.
-- The photo may show 1 week or 2 weeks (Week 1 = left side text, Week 2 = right side text).
-- Some text may be upside-down or garbled — those are break stamps, IGNORE them.
+=== CRITICAL: DAY-TO-TIME MATCHING ===
+Each punch card row has a day label (MON, TUE, WED, THU, FRI, SAT, SUN) on the LEFT, and IN/OUT times on the SAME ROW to the RIGHT.
 
-=== AM/PM RULES (MANDATORY — NO EXCEPTIONS) ===
-This retail store operates ~10 AM to 9 PM only. Apply these rules:
+LOOK AT THE IMAGE to confirm which times belong to which day. If a row is BLANK in the image, that day is OFF — return empty shifts. Do NOT shift times from the next day into an empty day.
+
+For 2-week cards: Week 1 is on the LEFT side, Week 2 on the RIGHT side. Match each side's times to the correct days independently.
+
+=== AM/PM RULES (NO EXCEPTIONS) ===
+Retail store, open ~10 AM to 9 PM only:
 - Hour 10, 11 → ALWAYS AM
 - Hour 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 → ALWAYS PM
-Override any AM/PM in the OCR text if it contradicts these rules.
 
-=== COMMON OCR ERRORS TO FIX ===
-The mechanical punch card digits often get misread:
-- "0" misread as "8" or "O" → if context suggests a round hour like :00, fix it
-- "3" misread as "8" or "0" → check if :30 vs :38 vs :80 makes sense
-- "5" misread as "2" → check if :05 vs :02, or hour 5 vs 2 in context
-- "1" misread as "7" → a 7 AM punch is impossible for this store, so hour 7 = PM
-- Impossible minutes (>59) → fix the most likely digit
-- Use shift logic: IN should be 10-12 AM or 12-2 PM; OUT should be 4-9 PM typically
+=== OCR DIGIT CORRECTIONS ===
+- "0" misread as "8" or "O" → :00 is far more common than :08
+- "3" misread as "8" or "0" → :30 is more common than :80
+- "5" misread as "2" → check context
+- Minutes >59 → fix the most likely digit
+- IN is typically 10 AM–1 PM, OUT is typically 4–9 PM
 
 === OUTPUT ===
-Return ONLY valid JSON. No markdown. No backticks. No explanation.
+Return ONLY valid JSON. No markdown. No backticks.
 {
   "employee_name": "string",
   "store_number": "string",
@@ -373,12 +377,18 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.
     }
   ]
 }
-Include all 7 days MON–SUN per week. Empty shifts for days off. If 2 weeks, include both.`;
+ALL 7 days MON–SUN per week. Empty shifts = day off. DO NOT SHIFT times between days.`;
+
+  const content=[];
+  if(imageBase64){
+    content.push({type:'image',source:{type:'base64',media_type:mediaType,data:imageBase64}});
+  }
+  content.push({type:'text',text:prompt});
 
   const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})
   });
   if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||'Claude API Error: '+resp.status);}
   const data=await resp.json();
@@ -678,9 +688,10 @@ async function runScan(){
 
     // Step 2: Claude structures the data
     msg.textContent='Step 2/2 — Structuring data with Claude AI...';
-    const data=await callClaude(ocrText);
+    const data=await callClaude(ocrText,capturedBase64);
 
     msg.textContent='Read complete — please verify below.';msg.className='status-msg success';
+    document.getElementById('rawOcrText').textContent=ocrText;
     showVerifyUI(data);
   }catch(err){msg.textContent=err.message;msg.className='status-msg error';}
   finally{btn.classList.remove('loading');btn.disabled=false;}
