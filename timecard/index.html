@@ -188,6 +188,7 @@
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
+    <div class="form-group"><label>Google Vision API Key</label><input type="password" id="gvKeyInput" placeholder="AIza..."></div>
     <div class="form-group"><label>Claude API Key</label><input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..."></div>
     <div class="form-group"><label>Store Number</label><input type="text" id="storeNumInput" placeholder="7747" value="7747"></div>
     <h3 style="margin-top:18px;">Manage Users</h3>
@@ -281,9 +282,9 @@ if(sessionStorage.getItem('tc_logged_in'))document.getElementById('loginOverlay'
 document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginEmp').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 
-function openSettings(){document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
+function openSettings(){document.getElementById('gvKeyInput').value=localStorage.getItem('tc_gv_key')||'';document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
 function closeSettings(){document.getElementById('settingsModal').classList.add('hidden');}
-function saveSettings(){const k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
+function saveSettings(){const g=document.getElementById('gvKeyInput').value.trim(),k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(g)localStorage.setItem('tc_gv_key',g);if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
 function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=document.getElementById('newEmpPin').value.trim();if(!e||p.length!==4){alert('Enter valid employee # and 4-digit PIN');return;}const u=getUsers();u[e]=p;saveUsers(u);document.getElementById('newEmpNum').value='';document.getElementById('newEmpPin').value='';renderUserList();}
 function removeUser(e){if(e==='0000'){alert('Cannot remove default admin.');return;}const u=getUsers();delete u[e];saveUsers(u);renderUserList();}
 function renderUserList(){const u=getUsers();document.getElementById('userList').innerHTML=Object.keys(u).map(e=>'<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+(e!=='0000'?'<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>':'<span style="opacity:0.4;">admin</span>')+'</div>').join('');}
@@ -294,61 +295,67 @@ function handleFile(input){const file=input.files[0];if(!file)return;const reade
 function removePhoto(){capturedBase64=null;const a=document.getElementById('photoArea'),i=a.querySelector('img');if(i)i.remove();a.classList.remove('has-photo');document.getElementById('cameraInput').value='';document.getElementById('uploadInput').value='';document.getElementById('scanBtn').disabled=true;}
 
 // ══════════════════════════════════════
-// CLAUDE API — PUNCH CARD SPECIFIC OCR
+// STEP 1: GOOGLE VISION OCR
 // ══════════════════════════════════════
-async function callClaude(imageBase64){
+async function callGoogleVision(imageBase64){
+  const gvKey=localStorage.getItem('tc_gv_key');
+  if(!gvKey)throw new Error('Google Vision API key not set. Go to Settings (⚙).');
+
+  const body={
+    requests:[{
+      image:{content:imageBase64},
+      features:[{type:'DOCUMENT_TEXT_DETECTION',maxResults:1}]
+    }]
+  };
+
+  const resp=await fetch('https://vision.googleapis.com/v1/images:annotate?key='+gvKey,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error('Google Vision Error: '+(err.error?.message||resp.status));}
+  const data=await resp.json();
+  const ann=data.responses&&data.responses[0];
+  if(ann&&ann.error)throw new Error('Vision: '+ann.error.message);
+  return ann?.fullTextAnnotation?.text||ann?.textAnnotations?.[0]?.description||'';
+}
+
+// ══════════════════════════════════════
+// STEP 2: CLAUDE STRUCTURES THE OCR TEXT
+// ══════════════════════════════════════
+async function callClaude(ocrText){
   const apiKey=localStorage.getItem('tc_api_key');
-  if(!apiKey)throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
-  let mediaType='image/jpeg';
-  if(imageBase64.startsWith('iVBOR'))mediaType='image/png';
-  else if(imageBase64.startsWith('UklGR'))mediaType='image/webp';
+  if(!apiKey)throw new Error('Claude API key not set. Go to Settings (⚙).');
 
-  const prompt=`You are an expert at reading mechanical time-clock punch cards. Read this Fashion Q store timecard photo with extreme precision.
+  const prompt=`You are parsing OCR text extracted from a Fashion Q store employee punch card timecard.
 
-=== CARD LAYOUT ===
-- Employee name and store number at the top.
-- Rows for each day: MON, TUE, WED, THU, FRI, SAT, SUN.
-- Each day has IN and OUT columns stamped by a mechanical time clock.
-- Photo may show 1 week or 2 weeks side by side (Week 1 = LEFT, Week 2 = RIGHT).
-- IGNORE any upside-down or sideways stamps — those are break markings, not work times.
+Below is the raw text that Google Vision OCR read from the card. Your job is to structure it into clean JSON.
 
-=== CRITICAL: AM/PM RULES FOR THIS STORE ===
-This is a retail clothing store. Employees work daytime shifts only. There are NO overnight or early-morning shifts. Apply these rules with ZERO exceptions:
-- Hour 10 → ALWAYS AM (10:xx AM)
-- Hour 11 → ALWAYS AM (11:xx AM)
-- Hour 12 → ALWAYS PM (12:xx PM)
-- Hour 1 → ALWAYS PM (1:xx PM)
-- Hour 2 → ALWAYS PM (2:xx PM)
-- Hour 3 → ALWAYS PM (3:xx PM)
-- Hour 4 → ALWAYS PM (4:xx PM)
-- Hour 5 → ALWAYS PM (5:xx PM)
-- Hour 6 → ALWAYS PM (6:xx PM)
-- Hour 7 → ALWAYS PM (7:xx PM)
-- Hour 8 → ALWAYS PM (8:xx PM)
-- Hour 9 → ALWAYS PM (9:xx PM)
-Even if the stamp says "A" or "AM" for hours 12-9, override it to PM. Even if it says "P" or "PM" for hours 10-11, override it to AM. The store ONLY operates roughly 10 AM to 9 PM.
+=== RAW OCR TEXT ===
+${ocrText}
+=== END OCR TEXT ===
 
-=== PUNCH CARD DIGIT RECOGNITION ===
-Mechanical time clocks use a specific typeface where certain digits look very similar. Apply these rules:
+=== CARD STRUCTURE ===
+- The card has an employee name and store number at the top.
+- It has rows for days: MON, TUE, WED, THU, FRI, SAT, SUN.
+- Each day has IN and OUT time stamps from a mechanical clock.
+- The photo may show 1 week or 2 weeks (Week 1 = left side text, Week 2 = right side text).
+- Some text may be upside-down or garbled — those are break stamps, IGNORE them.
 
-MOST CONFUSED PAIRS:
-• 0 vs 8: Both are rounded. "0" is a clean oval with NO horizontal bar. "8" has a pinched middle or horizontal bar creating two loops. If you see a clean oval → 0. If you see any pinch or cross-bar → 8.
-• 2 vs 5: "2" curves at top and has a flat bottom stroke going RIGHT. "5" has a flat top stroke going RIGHT and curves at bottom. If the curve is on TOP → 2. If the curve is on BOTTOM → 5.
+=== AM/PM RULES (MANDATORY — NO EXCEPTIONS) ===
+This retail store operates ~10 AM to 9 PM only. Apply these rules:
+- Hour 10, 11 → ALWAYS AM
+- Hour 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 → ALWAYS PM
+Override any AM/PM in the OCR text if it contradicts these rules.
 
-OTHER CONFUSED PAIRS:
-• 1 vs 7: "1" is a straight vertical line. "7" has a horizontal top bar.
-• 3 vs 8: "3" is open on the left side. "8" is fully closed.
-• 6 vs 0: "6" has an open top or a smaller top loop. "0" is fully closed and symmetric.
-• 5 vs 6: "5" has a flat top bar. "6" has a curved/closed top loop.
-
-=== READING PROCEDURE ===
-For each stamped time on the card:
-1. Read the hour digit(s) — apply digit recognition rules above.
-2. Read the minute digits — pay special attention to :00 vs :08, :05 vs :06, :02 vs :05, :30 vs :38.
-3. Apply the AM/PM rules above based on the hour (IGNORE what's printed on the card for AM/PM).
-4. Sanity check: IN time should be earlier than OUT time. Typical shift is 4-9 hours.
-
-After reading all times, RE-READ each one to verify. If any digit is uncertain, append "?" (e.g., "5:08? PM").
+=== COMMON OCR ERRORS TO FIX ===
+The mechanical punch card digits often get misread:
+- "0" misread as "8" or "O" → if context suggests a round hour like :00, fix it
+- "3" misread as "8" or "0" → check if :30 vs :38 vs :80 makes sense
+- "5" misread as "2" → check if :05 vs :02, or hour 5 vs 2 in context
+- "1" misread as "7" → a 7 AM punch is impossible for this store, so hour 7 = PM
+- Impossible minutes (>59) → fix the most likely digit
+- Use shift logic: IN should be 10-12 AM or 12-2 PM; OUT should be 4-9 PM typically
 
 === OUTPUT ===
 Return ONLY valid JSON. No markdown. No backticks. No explanation.
@@ -366,19 +373,14 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.
     }
   ]
 }
-Include all 7 days per week. Empty shifts for days off. If 2 weeks visible, include both.`;
-
-  const content=[
-    {type:'image',source:{type:'base64',media_type:mediaType,data:imageBase64}},
-    {type:'text',text:prompt}
-  ];
+Include all 7 days MON–SUN per week. Empty shifts for days off. If 2 weeks, include both.`;
 
   const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content:prompt}]})
   });
-  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||'API Error: '+resp.status);}
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||'Claude API Error: '+resp.status);}
   const data=await resp.json();
   const text=data.content.map(c=>c.text||'').join('');
   return JSON.parse(text.replace(/```json|```/g,'').trim());
@@ -624,40 +626,36 @@ function exportPeriodCSV(periodKey){
   const recs=records[periodKey];
   if(!recs||recs.length===0)return;
 
-  // Build CSV: one row per employee with daily breakdown
-  let csv='Pay Period,Employee,';
-  // Day columns — up to 2 weeks x 7 days
   const maxWeeks=Math.max(...recs.map(r=>r.weeks.length));
+  // Header: Employee, Totals first, then daily detail
+  let csv='Pay Period,Employee,Total Hours,Regular Hours,Overtime Hours,';
   for(let w=0;w<maxWeeks;w++){
+    csv+='W'+(w+1)+' Total,W'+(w+1)+' OT,';
     ['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(d=>{
       csv+='W'+(w+1)+' '+d+' In,W'+(w+1)+' '+d+' Out,W'+(w+1)+' '+d+' Hours,';
     });
-    csv+='W'+(w+1)+' Total,W'+(w+1)+' OT,';
   }
-  csv+='Total Hours,Regular Hours,Overtime Hours\r\n';
+  csv=csv.replace(/,$/,'\r\n');
 
   recs.forEach(r=>{
-    csv+='"'+periodKey+'","'+r.employee+'",';
+    csv+='"'+periodKey+'","'+r.employee+'",'+mToDecimal(r.totalWorked)+','+mToDecimal(r.regular)+','+mToDecimal(r.overtime)+',';
     for(let w=0;w<maxWeeks;w++){
       const week=r.weeks[w];
       if(week){
+        csv+=mToDecimal(week.worked)+','+mToDecimal(week.ot)+',';
         week.days.forEach(d=>{
           if(d.shifts.length>0){
             csv+='"'+d.shifts.map(s=>s.in).join('; ')+'","'+d.shifts.map(s=>s.out).join('; ')+'",'+mToDecimal(d.worked)+',';
-          }else{
-            csv+=',,,';
-          }
+          }else{csv+=',,,';} 
         });
-        csv+=mToDecimal(week.worked)+','+mToDecimal(week.ot)+',';
       }else{
-        for(let i=0;i<7;i++)csv+=',,,';
         csv+=',,';
+        for(let i=0;i<7;i++)csv+=',,,';
       }
     }
-    csv+=mToDecimal(r.totalWorked)+','+mToDecimal(r.regular)+','+mToDecimal(r.overtime)+'\r\n';
+    csv=csv.replace(/,$/,'\r\n');
   });
 
-  // Download
   const safeName=periodKey.replace(/[^a-zA-Z0-9]/g,'_');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
@@ -671,9 +669,20 @@ async function runScan(){
   const btn=document.getElementById('scanBtn'),msg=document.getElementById('statusMsg');
   if(!capturedBase64){msg.textContent='Please capture a timecard photo.';msg.className='status-msg error';return;}
   btn.classList.add('loading');btn.disabled=true;
-  msg.textContent='Reading timecard — this may take a moment...';msg.className='status-msg';
-  try{const data=await callClaude(capturedBase64);msg.textContent='Read complete — please verify below.';msg.className='status-msg success';showVerifyUI(data);}
-  catch(err){msg.textContent=err.message;msg.className='status-msg error';}
+
+  try{
+    // Step 1: Google Vision OCR
+    msg.textContent='Step 1/2 — Reading digits with Google Vision...';msg.className='status-msg';
+    const ocrText=await callGoogleVision(capturedBase64);
+    if(!ocrText.trim())throw new Error('Google Vision could not read any text from this image. Try a clearer photo.');
+
+    // Step 2: Claude structures the data
+    msg.textContent='Step 2/2 — Structuring data with Claude AI...';
+    const data=await callClaude(ocrText);
+
+    msg.textContent='Read complete — please verify below.';msg.className='status-msg success';
+    showVerifyUI(data);
+  }catch(err){msg.textContent=err.message;msg.className='status-msg error';}
   finally{btn.classList.remove('loading');btn.disabled=false;}
 }
 </script>
