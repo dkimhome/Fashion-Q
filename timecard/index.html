@@ -6,13 +6,7 @@
 <title>Fashion Q - Timecard Calculator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap');
-  :root {
-    --bg:#f0ece4;--surface:#fff;--surface-alt:#f7f5f0;--border:#d4cfc5;--text:#2c2a25;--text-muted:#7a756b;
-    --accent:#1a6b4e;--accent-light:#e8f5ee;--accent-dark:#0f4a35;--warn:#c4540a;
-    --overtime:#9b2c2c;--overtime-light:#fff5f5;--blue:#2b5ea7;
-    --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
-    --shadow-lg:0 4px 6px rgba(0,0,0,0.05),0 10px 30px rgba(0,0,0,0.08);--radius:10px;
-  }
+  :root{--bg:#f0ece4;--surface:#fff;--surface-alt:#f7f5f0;--border:#d4cfc5;--text:#2c2a25;--text-muted:#7a756b;--accent:#1a6b4e;--accent-light:#e8f5ee;--accent-dark:#0f4a35;--warn:#c4540a;--overtime:#9b2c2c;--overtime-light:#fff5f5;--blue:#2b5ea7;--shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);--shadow-lg:0 4px 6px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.08);--radius:10px;}
   *{margin:0;padding:0;box-sizing:border-box;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;}
   .header{background:var(--accent-dark);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -70,7 +64,6 @@
   .status-msg.error{color:var(--warn);}
   .status-msg.success{color:var(--accent);}
   .file-input{display:none;}
-
   .verify-section{display:none;background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
   .verify-section.visible{display:block;}
   .verify-section h2{font-size:17px;font-weight:700;margin-bottom:4px;}
@@ -99,7 +92,6 @@
   .btn-calc{background:var(--accent);color:#fff;}
   .btn-calc:hover{background:var(--accent-dark);}
   .btn-rescan{background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important;}
-
   .results-section{display:none;}
   .results-section.visible{display:block;}
   .employee-banner{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
@@ -119,15 +111,13 @@
   .day-hours{text-align:right;white-space:nowrap;}
   .day-hours .regular{font-size:13px;font-weight:600;}
   .day-hours .overtime-badge{display:inline-block;background:var(--overtime-light);color:var(--overtime);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px;}
-  .day-hours .break-info{font-size:11px;color:var(--accent);margin-top:2px;font-weight:500;}
-  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
   .summary-card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center;}
   .summary-card .label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
   .summary-card .value{font-size:17px;font-weight:700;line-height:1.3;}
   .summary-card.total-hours .value{color:var(--accent-dark);}
   .summary-card.overtime .value{color:var(--overtime);}
   .summary-card.regular .value{color:var(--blue);}
-  .summary-card.break-card .value{color:var(--accent);}
   .grand-total{background:var(--accent-dark);color:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);margin-bottom:20px;}
   .grand-total h3{font-size:13px;font-weight:500;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
   .grand-total .totals-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);}
@@ -136,10 +126,9 @@
   .grand-total .totals-row .t-value{font-size:15px;font-weight:700;text-align:right;}
   .grand-total .totals-row.highlight .t-value{color:#ffd700;font-size:18px;}
   @media(max-width:480px){
-    .summary-grid{gap:8px;}.summary-card .value{font-size:15px;}
+    .summary-grid{grid-template-columns:1fr;gap:8px;}.summary-card .value{font-size:15px;}
     .day-row{grid-template-columns:44px 1fr auto;padding:10px 14px;gap:8px;}
     .container{padding:14px;}.employee-banner{flex-direction:column;gap:10px;text-align:center;}
-    .employee-banner .period-badge{text-align:center;}
     .verify-shift-row input{width:80px;font-size:12px;}.verify-emp{flex-direction:column;}
   }
   @media print{.header,.upload-section,.verify-section{display:none;}body{background:#fff;}.results-section{display:block!important;}}
@@ -217,9 +206,8 @@
     </div>
     <div class="summary-grid">
       <div class="summary-card total-hours"><div class="label">Total Worked</div><div class="value" id="sumTotal">—</div></div>
-      <div class="summary-card overtime"><div class="label">Overtime</div><div class="value" id="sumOT">—</div></div>
       <div class="summary-card regular"><div class="label">Regular</div><div class="value" id="sumReg">—</div></div>
-      <div class="summary-card break-card"><div class="label">Paid Breaks</div><div class="value" id="sumBreak">—</div></div>
+      <div class="summary-card overtime"><div class="label">Overtime</div><div class="value" id="sumOT">—</div></div>
     </div>
     <div id="weekCards"></div>
     <div class="grand-total" id="grandTotal"></div>
@@ -234,34 +222,15 @@
 let capturedBase64=null;
 function getUsers(){return JSON.parse(localStorage.getItem('tc_users')||'{"0000":"1234"}');}
 function saveUsers(u){localStorage.setItem('tc_users',JSON.stringify(u));}
+function formatHM(m){if(m===0)return'0 minutes';const h=Math.floor(m/60),mm=m%60,p=[];if(h>0)p.push(h===1?'1 hour':h+' hours');if(mm>0)p.push(mm===1?'1 minute':mm+' minutes');return p.join(' ');}
+function formatHMShort(m){if(m===0)return'0 min';const h=Math.floor(m/60),mm=m%60;if(h===0)return mm+' min';if(mm===0)return h+' hr'+(h>1?'s':'');return h+' hr'+(h>1?'s':'')+' '+mm+' min';}
 
-function formatHM(m){
-  if(m===0)return'0 minutes';
-  const h=Math.floor(m/60),mm=m%60,p=[];
-  if(h>0)p.push(h===1?'1 hour':h+' hours');
-  if(mm>0)p.push(mm===1?'1 minute':mm+' minutes');
-  return p.join(' ');
-}
-function formatHMShort(m){
-  if(m===0)return'0 min';
-  const h=Math.floor(m/60),mm=m%60;
-  if(h===0)return mm+' min';
-  if(mm===0)return h+' hr'+(h>1?'s':'');
-  return h+' hr'+(h>1?'s':'')+' '+mm+' min';
-}
-
-// ── Login ──
-function doLogin(){
-  const e=document.getElementById('loginEmp').value.trim(),p=document.getElementById('loginPin').value.trim(),u=getUsers();
-  if(u[e]&&u[e]===p){sessionStorage.setItem('tc_logged_in',e);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('loginError').textContent='';}
-  else document.getElementById('loginError').textContent='Invalid employee # or PIN.';
-}
+function doLogin(){const e=document.getElementById('loginEmp').value.trim(),p=document.getElementById('loginPin').value.trim(),u=getUsers();if(u[e]&&u[e]===p){sessionStorage.setItem('tc_logged_in',e);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('loginError').textContent='';}else document.getElementById('loginError').textContent='Invalid employee # or PIN.';}
 function doLogout(){sessionStorage.removeItem('tc_logged_in');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('loginEmp').value='';document.getElementById('loginPin').value='';}
 if(sessionStorage.getItem('tc_logged_in'))document.getElementById('loginOverlay').classList.add('hidden');
 document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginEmp').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 
-// ── Settings ──
 function openSettings(){document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
 function closeSettings(){document.getElementById('settingsModal').classList.add('hidden');}
 function saveSettings(){const k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
@@ -269,22 +238,12 @@ function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=d
 function removeUser(e){if(e==='0000'){alert('Cannot remove default admin.');return;}const u=getUsers();delete u[e];saveUsers(u);renderUserList();}
 function renderUserList(){const u=getUsers();document.getElementById('userList').innerHTML=Object.keys(u).map(e=>'<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+(e!=='0000'?'<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>':'<span style="opacity:0.4;">admin</span>')+'</div>').join('');}
 
-// ── Photo ──
 function triggerCapture(){document.getElementById('fileInput').click();}
-function handleFile(input){
-  const file=input.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(e){
-    const full=e.target.result;capturedBase64=full.split(',')[1];
-    const area=document.getElementById('photoArea');
-    let img=area.querySelector('img');if(!img){img=document.createElement('img');area.appendChild(img);}
-    img.src=full;area.classList.add('has-photo');document.getElementById('scanBtn').disabled=false;
-  };reader.readAsDataURL(file);
-}
+function handleFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){const full=e.target.result;capturedBase64=full.split(',')[1];const area=document.getElementById('photoArea');let img=area.querySelector('img');if(!img){img=document.createElement('img');area.appendChild(img);}img.src=full;area.classList.add('has-photo');document.getElementById('scanBtn').disabled=false;};reader.readAsDataURL(file);}
 function removePhoto(){capturedBase64=null;const a=document.getElementById('photoArea'),i=a.querySelector('img');if(i)i.remove();a.classList.remove('has-photo');document.getElementById('fileInput').value='';document.getElementById('scanBtn').disabled=true;}
 
 // ══════════════════════════════════════
-// CLAUDE API — DOUBLE-READ OCR
+// CLAUDE API — PUNCH CARD SPECIFIC OCR
 // ══════════════════════════════════════
 async function callClaude(imageBase64){
   const apiKey=localStorage.getItem('tc_api_key');
@@ -293,34 +252,54 @@ async function callClaude(imageBase64){
   if(imageBase64.startsWith('iVBOR'))mediaType='image/png';
   else if(imageBase64.startsWith('UklGR'))mediaType='image/webp';
 
-  const prompt=`You are an expert OCR system. You will read a Fashion Q store employee timecard photograph with extreme precision.
+  const prompt=`You are an expert at reading mechanical time-clock punch cards. Read this Fashion Q store timecard photo with extreme precision.
 
-STEP 1 — UNDERSTAND THE CARD LAYOUT:
-A Fashion Q timecard is a physical card punched through a time clock machine.
-- The card has the employee name and store number printed at the top.
-- It has rows for each day of the week: MON, TUE, WED, THU, FRI, SAT, SUN.
-- Each day has IN and OUT columns where the time clock stamps times.
-- Stamped times look like "8:30A" (meaning 8:30 AM) or "5:15P" (meaning 5:15 PM).
-- Sometimes times are printed as "10:03 AM" with a space before AM/PM.
-- The card may show 1 week or 2 weeks side by side (Week 1 = LEFT, Week 2 = RIGHT).
-- IGNORE any upside-down or sideways stamps — these are break markings, not clock times.
-- Some days will have NO stamps (day off).
-- A day can have multiple IN/OUT pairs (split shifts — the employee left and came back).
+=== CARD LAYOUT ===
+- Employee name and store number at the top.
+- Rows for each day: MON, TUE, WED, THU, FRI, SAT, SUN.
+- Each day has IN and OUT columns stamped by a mechanical time clock.
+- Photo may show 1 week or 2 weeks side by side (Week 1 = LEFT, Week 2 = RIGHT).
+- IGNORE any upside-down or sideways stamps — those are break markings, not work times.
 
-STEP 2 — READ EVERY TIME WITH EXTREME CARE:
-For each stamped time:
-a) Read the HOUR digit(s) very carefully. Common confusions: 1↔7, 3↔8, 5↔6, 0↔8, 9↔4.
-b) Read the MINUTE digits. Common confusions: 03↔08, 30↔38, 00↔08.
-c) Read AM or PM (shown as A/P or AM/PM). Use logic: morning IN = AM, evening OUT = PM.
-   Typical retail shifts: arrive 8–10 AM, leave 4–9 PM. Lunch shifts possible.
-d) If the stamp is smudged or partially visible, use context to determine the most likely reading.
+=== CRITICAL: AM/PM RULES FOR THIS STORE ===
+This is a retail clothing store. Employees work daytime shifts only. There are NO overnight or early-morning shifts. Apply these rules with ZERO exceptions:
+- Hour 10 → ALWAYS AM (10:xx AM)
+- Hour 11 → ALWAYS AM (11:xx AM)
+- Hour 12 → ALWAYS PM (12:xx PM)
+- Hour 1 → ALWAYS PM (1:xx PM)
+- Hour 2 → ALWAYS PM (2:xx PM)
+- Hour 3 → ALWAYS PM (3:xx PM)
+- Hour 4 → ALWAYS PM (4:xx PM)
+- Hour 5 → ALWAYS PM (5:xx PM)
+- Hour 6 → ALWAYS PM (6:xx PM)
+- Hour 7 → ALWAYS PM (7:xx PM)
+- Hour 8 → ALWAYS PM (8:xx PM)
+- Hour 9 → ALWAYS PM (9:xx PM)
+Even if the stamp says "A" or "AM" for hours 12-9, override it to PM. Even if it says "P" or "PM" for hours 10-11, override it to AM. The store ONLY operates roughly 10 AM to 9 PM.
 
-STEP 3 — VERIFY BY RE-READING:
-After your first reading, go back and re-read every single time stamp a second time.
-Compare your two readings. If they differ, look more carefully and pick the correct one.
-For any time you are less than 95% confident about, add "?" after it (e.g., "4:08? PM").
+=== PUNCH CARD DIGIT RECOGNITION ===
+Mechanical time clocks use a specific typeface where certain digits look very similar. Apply these rules:
 
-STEP 4 — OUTPUT:
+MOST CONFUSED PAIRS:
+• 0 vs 8: Both are rounded. "0" is a clean oval with NO horizontal bar. "8" has a pinched middle or horizontal bar creating two loops. If you see a clean oval → 0. If you see any pinch or cross-bar → 8.
+• 2 vs 5: "2" curves at top and has a flat bottom stroke going RIGHT. "5" has a flat top stroke going RIGHT and curves at bottom. If the curve is on TOP → 2. If the curve is on BOTTOM → 5.
+
+OTHER CONFUSED PAIRS:
+• 1 vs 7: "1" is a straight vertical line. "7" has a horizontal top bar.
+• 3 vs 8: "3" is open on the left side. "8" is fully closed.
+• 6 vs 0: "6" has an open top or a smaller top loop. "0" is fully closed and symmetric.
+• 5 vs 6: "5" has a flat top bar. "6" has a curved/closed top loop.
+
+=== READING PROCEDURE ===
+For each stamped time on the card:
+1. Read the hour digit(s) — apply digit recognition rules above.
+2. Read the minute digits — pay special attention to :00 vs :08, :05 vs :06, :02 vs :05, :30 vs :38.
+3. Apply the AM/PM rules above based on the hour (IGNORE what's printed on the card for AM/PM).
+4. Sanity check: IN time should be earlier than OUT time. Typical shift is 4-9 hours.
+
+After reading all times, RE-READ each one to verify. If any digit is uncertain, append "?" (e.g., "5:08? PM").
+
+=== OUTPUT ===
 Return ONLY valid JSON. No markdown. No backticks. No explanation.
 {
   "employee_name": "string",
@@ -330,32 +309,26 @@ Return ONLY valid JSON. No markdown. No backticks. No explanation.
       "week_number": 1,
       "period": "M/D ~ M/D",
       "days": [
-        { "day": "MON", "shifts": [{ "in": "9:00 AM", "out": "5:30 PM" }] },
+        { "day": "MON", "shifts": [{ "in": "10:00 AM", "out": "6:30 PM" }] },
         { "day": "TUE", "shifts": [] }
       ]
     }
   ]
 }
-
-RULES:
-- Times MUST be in "H:MM AM/PM" format (e.g., "9:00 AM", "12:30 PM", "5:15 PM").
-- Include all 7 days MON–SUN per week. Empty shifts array for days off.
-- If 2 weeks visible, return both with week_number 1 and 2.
-- IGNORE upside-down/rotated stamps (these are break records, not work times).
-- Double-check every single digit before outputting.`;
+Include all 7 days per week. Empty shifts for days off. If 2 weeks visible, include both.`;
 
   const content=[
     {type:'image',source:{type:'base64',media_type:mediaType,data:imageBase64}},
     {type:'text',text:prompt}
   ];
 
-  const response=await fetch('https://api.anthropic.com/v1/messages',{
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})
   });
-  if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'API Error: '+response.status);}
-  const data=await response.json();
+  if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||'API Error: '+resp.status);}
+  const data=await resp.json();
   const text=data.content.map(c=>c.text||'').join('');
   return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
@@ -364,72 +337,57 @@ RULES:
 // VERIFY UI
 // ══════════════════════════════════════
 const DAYS=['MON','TUE','WED','THU','FRI','SAT','SUN'];
-
 function showVerifyUI(data){
   document.getElementById('vEmpName').value=data.employee_name||'';
   document.getElementById('vStore').value=data.store_number||localStorage.getItem('tc_store')||'7747';
-  const container=document.getElementById('verifyWeeks');container.innerHTML='';
-
+  const c=document.getElementById('verifyWeeks');c.innerHTML='';
   data.weeks.forEach((week,wi)=>{
     const wd=document.createElement('div');wd.className='verify-week';
     wd.innerHTML='<div class="verify-week-header"><span>Week '+(week.week_number||wi+1)+'</span><input class="period-input" data-week="'+wi+'" value="'+(week.period||'')+'" placeholder="M/D ~ M/D"></div>';
-    const dayMap={};(week.days||[]).forEach(d=>{dayMap[d.day.toUpperCase()]=d.shifts||[];});
-
-    DAYS.forEach(dayName=>{
-      const shifts=dayMap[dayName]||[];
+    const dm={};(week.days||[]).forEach(d=>{dm[d.day.toUpperCase()]=d.shifts||[];});
+    DAYS.forEach(dn=>{
+      const sh=dm[dn]||[];
       const dd=document.createElement('div');dd.className='verify-day';
-      dd.innerHTML='<div class="verify-day-name">'+dayName+'</div>';
-      const sd=document.createElement('div');sd.className='verify-shifts';sd.dataset.week=wi;sd.dataset.day=dayName;
-
-      if(shifts.length===0){sd.appendChild(makeShiftRow('',''));}
-      else{shifts.forEach(s=>{
+      dd.innerHTML='<div class="verify-day-name">'+dn+'</div>';
+      const sd=document.createElement('div');sd.className='verify-shifts';
+      if(sh.length===0)sd.appendChild(mkRow('',''));
+      else sh.forEach(s=>{
         const iv=(s.in||'').replace('?',''),ov=(s.out||'').replace('?','');
-        const row=makeShiftRow(iv,ov);
-        if((s.in||'').includes('?'))row.querySelector('.in-field').classList.add('error-field');
-        if((s.out||'').includes('?'))row.querySelector('.out-field').classList.add('error-field');
-        sd.appendChild(row);
-      });}
-
+        const r=mkRow(iv,ov);
+        if((s.in||'').includes('?'))r.querySelector('.in-field').classList.add('error-field');
+        if((s.out||'').includes('?'))r.querySelector('.out-field').classList.add('error-field');
+        sd.appendChild(r);
+      });
       const ab=document.createElement('button');ab.className='add-shift-btn';ab.textContent='+ Add shift';
-      ab.onclick=function(){sd.insertBefore(makeShiftRow('',''),ab);};
-      sd.appendChild(ab);dd.appendChild(sd);dd.innerHTML+='<div></div>';wd.appendChild(dd);
+      ab.onclick=function(){sd.insertBefore(mkRow('',''),ab);};sd.appendChild(ab);
+      dd.appendChild(sd);dd.innerHTML+='<div></div>';wd.appendChild(dd);
     });
-    container.appendChild(wd);
+    c.appendChild(wd);
   });
-
   document.getElementById('uploadSection').style.display='none';
   document.getElementById('resultsSection').classList.remove('visible');
   document.getElementById('verifySection').classList.add('visible');
   document.getElementById('verifySection').scrollIntoView({behavior:'smooth'});
 }
-
-function makeShiftRow(iv,ov){
-  const r=document.createElement('div');r.className='verify-shift-row';
-  r.innerHTML='<input class="in-field" value="'+esc(iv)+'" placeholder="IN"><span class="arrow">→</span><input class="out-field" value="'+esc(ov)+'" placeholder="OUT"><button class="remove-shift" onclick="this.parentElement.remove()">✕</button>';
-  return r;
-}
+function mkRow(iv,ov){const r=document.createElement('div');r.className='verify-shift-row';r.innerHTML='<input class="in-field" value="'+esc(iv)+'" placeholder="IN"><span class="arrow">→</span><input class="out-field" value="'+esc(ov)+'" placeholder="OUT"><button class="remove-shift" onclick="this.parentElement.remove()">✕</button>';return r;}
 function esc(s){return(s||'').replace(/"/g,'&quot;');}
 function goBackToScan(){document.getElementById('verifySection').classList.remove('visible');document.getElementById('uploadSection').style.display='';document.getElementById('resultsSection').classList.remove('visible');}
 function goBackToVerify(){document.getElementById('resultsSection').classList.remove('visible');document.getElementById('verifySection').classList.add('visible');document.getElementById('verifySection').scrollIntoView({behavior:'smooth'});}
-
-function collectVerifiedData(){
-  const name=document.getElementById('vEmpName').value.trim(),store=document.getElementById('vStore').value.trim(),weeks=[];
+function collectData(){
+  const nm=document.getElementById('vEmpName').value.trim(),st=document.getElementById('vStore').value.trim(),weeks=[];
   document.querySelectorAll('.verify-week').forEach((we,wi)=>{
-    const period=we.querySelector('.period-input').value.trim(),days=[];
+    const p=we.querySelector('.period-input').value.trim(),days=[];
     we.querySelectorAll('.verify-day').forEach(de=>{
       const dn=de.querySelector('.verify-day-name').textContent.trim(),shifts=[];
-      de.querySelectorAll('.verify-shift-row').forEach(r=>{
-        const i=r.querySelector('.in-field').value.trim(),o=r.querySelector('.out-field').value.trim();
-        if(i&&o)shifts.push({in:i,out:o});
-      });days.push({day:dn,shifts});
-    });weeks.push({week_number:wi+1,period,days});
-  });
-  return{employee_name:name,store_number:store,weeks};
+      de.querySelectorAll('.verify-shift-row').forEach(r=>{const i=r.querySelector('.in-field').value.trim(),o=r.querySelector('.out-field').value.trim();if(i&&o)shifts.push({in:i,out:o});});
+      days.push({day:dn,shifts});
+    });weeks.push({week_number:wi+1,period:p,days});
+  });return{employee_name:nm,store_number:st,weeks};
 }
-function calculateFromVerified(){renderResults(collectVerifiedData());document.getElementById('verifySection').classList.remove('visible');}
+function calculateFromVerified(){renderResults(collectData());document.getElementById('verifySection').classList.remove('visible');}
 
 // ══════════════════════════════════════
-// CALCULATION — BREAKS ARE FREE (NOT DEDUCTED)
+// CALCULATION — SIMPLE: total worked, daily OT >8h, weekly OT >40h
 // ══════════════════════════════════════
 function parseTime(str){
   if(!str)return null;
@@ -440,106 +398,65 @@ function parseTime(str){
   if((ap==='AM'||ap==='A')&&h===12)h=0;
   return h*60+min;
 }
-
 function calcDay(shifts){
   let total=0;const parsed=[];
-  for(const s of shifts){
-    const i=parseTime(s.in),o=parseTime(s.out);
-    if(i===null||o===null)continue;
-    let d=o-i;if(d<0)d+=1440;
-    total+=d;parsed.push({in:s.in,out:s.out,minutes:d});
-  }
-  // Paid break: FREE — not deducted from worked hours
-  // 4+ hrs worked → 10 min paid break
-  // 6+ hrs worked → 20 min paid break
-  let paidBreak=0;
-  if(total>=360)paidBreak=20;
-  else if(total>=240)paidBreak=10;
-
-  // Total worked = full IN-to-OUT time (break is NOT subtracted)
-  const worked=total;
-
-  // Daily OT: worked > 8 hours
-  const dailyOT=worked>480?worked-480:0;
-  const regular=worked-dailyOT;
-
-  return{shifts:parsed,worked,paidBreak,dailyOT,regular};
+  for(const s of shifts){const i=parseTime(s.in),o=parseTime(s.out);if(i===null||o===null)continue;let d=o-i;if(d<0)d+=1440;total+=d;parsed.push({in:s.in,out:s.out,minutes:d});}
+  const ot=total>480?total-480:0;
+  return{shifts:parsed,worked:total,ot,reg:total-ot};
 }
 
-// ── Render ──
 function renderResults(data){
   const sec=document.getElementById('resultsSection');sec.classList.add('visible');
   document.getElementById('empName').textContent=data.employee_name||'Unknown';
   document.getElementById('empStore').textContent='Store '+(data.store_number||'7747');
   document.getElementById('empPeriod').textContent=data.weeks.map(w=>w.period).join(' → ');
-
-  let gWorked=0,gOT=0,gReg=0,gBreak=0;
+  let gW=0,gOT=0,gReg=0;
   const wc=document.getElementById('weekCards');wc.innerHTML='';
 
   data.weeks.forEach((week,wi)=>{
-    let wWorked=0,wBreak=0;
-    const days=[];
-    for(const day of week.days){
-      const r=calcDay(day.shifts||[]);
-      days.push({day:day.day,...r});
-      wWorked+=r.worked;wBreak+=r.paidBreak;
-    }
-    // Weekly OT: total worked > 40 hrs, minus daily OT already counted
-    const sumDOT=days.reduce((a,d)=>a+d.dailyOT,0);
-    let wExtra=0;
-    if(wWorked>2400)wExtra=Math.max(0,wWorked-2400-sumDOT);
-    const wOT=sumDOT+wExtra;
-    const wReg=wWorked-wOT;
+    let wW=0;const days=[];
+    for(const day of week.days){const r=calcDay(day.shifts||[]);days.push({day:day.day,...r});wW+=r.worked;}
+    const sumDOT=days.reduce((a,d)=>a+d.ot,0);
+    let wExtra=0;if(wW>2400)wExtra=Math.max(0,wW-2400-sumDOT);
+    const wOT=sumDOT+wExtra,wReg=wW-wOT;
 
     const rows=days.map(d=>{
       const hw=d.shifts.length>0;
       const sh=d.shifts.map(s=>'<span class="shift">'+s.in+' → '+s.out+'</span>').join('');
       let hrs='';
-      if(hw){
-        hrs='<span class="regular">'+formatHMShort(d.worked)+'</span>';
-        if(d.dailyOT>0)hrs+='<span class="overtime-badge">+'+formatHMShort(d.dailyOT)+' OT</span>';
-        if(d.paidBreak>0)hrs+='<div class="break-info">Paid break: '+d.paidBreak+' min</div>';
-      }else{
-        hrs='<span class="regular" style="opacity:.4;">OFF</span>';
-      }
+      if(hw){hrs='<span class="regular">'+formatHMShort(d.worked)+'</span>';if(d.ot>0)hrs+='<span class="overtime-badge">+'+formatHMShort(d.ot)+' OT</span>';}
+      else hrs='<span class="regular" style="opacity:.4;">OFF</span>';
       return'<div class="day-row '+(hw?'':'no-work')+'"><div class="day-name">'+d.day+'</div><div class="day-times">'+sh+'</div><div class="day-hours">'+hrs+'</div></div>';
     }).join('');
 
     const card=document.createElement('div');card.className='week-card';
-    card.innerHTML='<div class="week-header"><h3>Week '+(week.week_number||wi+1)+' — '+week.period+'</h3><span class="week-total">'+formatHMShort(wWorked)+(wOT>0?' (OT: '+formatHMShort(wOT)+')':'')+'</span></div>'+rows;
+    card.innerHTML='<div class="week-header"><h3>Week '+(week.week_number||wi+1)+' — '+week.period+'</h3><span class="week-total">'+formatHMShort(wW)+(wOT>0?' (OT: '+formatHMShort(wOT)+')':'')+'</span></div>'+rows;
     wc.appendChild(card);
-
-    gWorked+=wWorked;gOT+=wOT;gReg+=wReg;gBreak+=wBreak;
+    gW+=wW;gOT+=wOT;gReg+=wReg;
   });
 
-  document.getElementById('sumTotal').textContent=formatHM(gWorked);
-  document.getElementById('sumOT').textContent=formatHM(gOT);
+  document.getElementById('sumTotal').textContent=formatHM(gW);
   document.getElementById('sumReg').textContent=formatHM(gReg);
-  document.getElementById('sumBreak').textContent=formatHM(gBreak);
+  document.getElementById('sumOT').textContent=formatHM(gOT);
 
   const lbl=data.weeks.length===1?'1-Week Summary':'2-Week Pay Period Summary';
   document.getElementById('grandTotal').innerHTML=
     '<h3>'+lbl+'</h3>'+
-    '<div class="totals-row"><span class="t-label">Total Hours Worked</span><span class="t-value">'+formatHM(gWorked)+'</span></div>'+
+    '<div class="totals-row"><span class="t-label">Total Hours Worked</span><span class="t-value">'+formatHM(gW)+'</span></div>'+
     '<div class="totals-row"><span class="t-label">Regular Hours</span><span class="t-value">'+formatHM(gReg)+'</span></div>'+
     '<div class="totals-row"><span class="t-label">Overtime Hours</span><span class="t-value" style="color:#ff9b9b;">'+formatHM(gOT)+'</span></div>'+
-    '<div class="totals-row"><span class="t-label">Paid Break (free)</span><span class="t-value" style="color:#7ddfb0;">'+formatHM(gBreak)+'</span></div>'+
-    '<div class="totals-row highlight"><span class="t-label">Total Paid Time</span><span class="t-value">'+formatHM(gWorked+gBreak)+'</span></div>';
+    '<div class="totals-row highlight"><span class="t-label">Total Hours</span><span class="t-value">'+formatHM(gW)+'</span></div>';
 
   sec.scrollIntoView({behavior:'smooth'});
 }
 
-// ── Main ──
 async function runScan(){
   const btn=document.getElementById('scanBtn'),msg=document.getElementById('statusMsg');
   if(!capturedBase64){msg.textContent='Please capture a timecard photo.';msg.className='status-msg error';return;}
   btn.classList.add('loading');btn.disabled=true;
-  msg.textContent='Reading timecard with AI — this may take a moment...';msg.className='status-msg';
-  try{
-    const data=await callClaude(capturedBase64);
-    msg.textContent='Read complete — please verify below.';msg.className='status-msg success';
-    showVerifyUI(data);
-  }catch(err){msg.textContent=err.message;msg.className='status-msg error';}
+  msg.textContent='Reading timecard — this may take a moment...';msg.className='status-msg';
+  try{const data=await callClaude(capturedBase64);msg.textContent='Read complete — please verify below.';msg.className='status-msg success';showVerifyUI(data);}
+  catch(err){msg.textContent=err.message;msg.className='status-msg error';}
   finally{btn.classList.remove('loading');btn.disabled=false;}
 }
 </script>
