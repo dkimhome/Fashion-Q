@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fashion Q - Timecard Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #f0ece4;
+    --surface: #ffffff;
+    --surface-alt: #f7f5f0;
+    --border: #d4cfc5;
+    --text: #2c2a25;
+    --text-muted: #7a756b;
+    --accent: #1a6b4e;
+    --accent-light: #e8f5ee;
+    --accent-dark: #0f4a35;
+    --warn: #c4540a;
+    --warn-light: #fff3eb;
+    --overtime: #9b2c2c;
+    --overtime-light: #fff5f5;
+    --blue: #2b5ea7;
+    --blue-light: #ebf1fa;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.08);
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--accent-dark);
+    color: white;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-logo {
+    width: 32px; height: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .header h1 span { font-weight: 300; opacity: 0.7; margin-left: 6px; }
+  .header-actions { display: flex; gap: 8px; }
+  .header-btn {
+    background: rgba(255,255,255,0.12);
+    border: none; color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .header-btn:hover { background: rgba(255,255,255,0.22); }
+
+  /* ── Login ── */
+  .login-overlay {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 40px 32px;
+    width: 100%; max-width: 360px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+  }
+  .login-icon {
+    width: 64px; height: 64px;
+    background: var(--accent-light);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+  }
+  .login-card h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .login-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .form-group {
+    margin-bottom: 14px;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    letter-spacing: 3px;
+    transition: border-color 0.2s;
+    outline: none;
+    background: var(--surface-alt);
+  }
+  .form-group input:focus {
+    border-color: var(--accent);
+    background: white;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-primary:active { transform: scale(0.98); }
+  .login-error {
+    color: var(--warn);
+    font-size: 13px;
+    margin-top: 10px;
+    min-height: 20px;
+  }
+
+  /* ── Settings Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 300;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 28px 24px;
+    width: 100%; max-width: 400px;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .modal .form-group input {
+    text-align: left;
+    letter-spacing: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  .modal-actions {
+    display: flex; gap: 10px; margin-top: 18px;
+  }
+  .modal-actions button {
+    flex: 1; padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: background 0.15s;
+  }
+  .btn-cancel {
+    background: var(--surface-alt);
+    color: var(--text);
+    border: 1.5px solid var(--border) !important;
+  }
+  .btn-cancel:hover { background: var(--border); }
+
+  /* ── Main Content ── */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* ── Upload Section ── */
+  .upload-section {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .upload-section h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .upload-section .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+  }
+  .photo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .photo-slot {
+    position: relative;
+    aspect-ratio: 3/4;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    overflow: hidden;
+    background: var(--surface-alt);
+  }
+  .photo-slot:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .photo-slot.has-photo {
+    border-style: solid;
+    border-color: var(--accent);
+  }
+  .photo-slot img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+  .photo-slot .remove-btn {
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 26px; height: 26px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 2;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .photo-slot.has-photo .remove-btn { display: flex; }
+  .photo-slot .slot-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+    opacity: 0.4;
+  }
+  .photo-slot .slot-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .photo-slot.has-photo .slot-icon,
+  .photo-slot.has-photo .slot-label { display: none; }
+
+  .btn-scan {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .btn-scan:hover { background: var(--accent-dark); }
+  .btn-scan:active { transform: scale(0.98); }
+  .btn-scan:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-scan .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .btn-scan.loading .spinner { display: block; }
+  .btn-scan.loading .btn-text { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Status Message ── */
+  .status-msg {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    min-height: 20px;
+  }
+  .status-msg.error { color: var(--warn); }
+  .status-msg.success { color: var(--accent); }
+
+  /* ── Results Section ── */
+  .results-section {
+    display: none;
+  }
+  .results-section.visible { display: block; }
+
+  .employee-banner {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .employee-banner .emp-info h3 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .employee-banner .emp-info p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+  .employee-banner .period-badge {
+    background: var(--accent-light);
+    color: var(--accent-dark);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Week Card ── */
+  .week-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .week-header {
+    background: var(--surface-alt);
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .week-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .week-header .week-total {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .day-row {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0ece4;
+    gap: 12px;
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-row.no-work { opacity: 0.4; }
+  .day-name {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .day-times {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+  }
+  .day-times .shift {
+    background: var(--surface-alt);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .day-hours {
+    text-align: right;
+    white-space: nowrap;
+  }
+  .day-hours .regular {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .day-hours .overtime-badge {
+    display: inline-block;
+    background: var(--overtime-light);
+    color: var(--overtime);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .day-hours .break-info {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ── Summary Cards ── */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .summary-card .label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .summary-card .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .summary-card .unit {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+  .summary-card.total-hours .value { color: var(--accent-dark); }
+  .summary-card.overtime .value { color: var(--overtime); }
+  .summary-card.regular .value { color: var(--blue); }
+  .summary-card.break-card .value { color: var(--warn); }
+
+  /* ── Grand Total ── */
+  .grand-total {
+    background: var(--accent-dark);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 20px;
+  }
+  .grand-total h3 {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .grand-total .totals-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .grand-total .totals-row:last-child { border-bottom: none; }
+  .grand-total .totals-row .t-label {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  .grand-total .totals-row .t-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .grand-total .totals-row.highlight .t-value {
+    color: #ffd700;
+    font-size: 22px;
+  }
+
+  /* ── Hidden File Input ── */
+  .file-input { display: none; }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .photo-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .day-row { grid-template-columns: 48px 1fr auto; padding: 10px 14px; gap: 8px; }
+    .container { padding: 14px; }
+    .employee-banner { flex-direction: column; gap: 10px; text-align: center; }
+  }
+
+  /* ── Print ── */
+  @media print {
+    .header, .upload-section, .header-actions { display: none; }
+    body { background: white; }
+    .results-section { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Login Overlay ── -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-icon">⏱</div>
+    <h2>Timecard Calculator</h2>
+    <p>Fashion Q · Store 7747</p>
+    <div class="form-group">
+      <label>Employee #</label>
+      <input type="text" id="loginEmp" placeholder="0000" maxlength="10" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>PIN</label>
+      <input type="password" id="loginPin" placeholder="····" maxlength="4" inputmode="numeric" autocomplete="off">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+    <div style="margin-top:18px; font-size:12px; color:var(--text-muted);">
+      Initial admin: EMP# <b>0000</b> / PIN <b>1234</b>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings Modal ── -->
+<div class="modal-overlay hidden" id="settingsModal">
+  <div class="modal">
+    <h3>Settings</h3>
+    <div class="form-group">
+      <label>Claude API Key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    </div>
+    <div class="form-group">
+      <label>Store Number</label>
+      <input type="text" id="storeNumInput" placeholder="7747" value="7747">
+    </div>
+    <h3 style="margin-top:18px;">Manage Users</h3>
+    <div class="form-group">
+      <label>New Employee #</label>
+      <input type="text" id="newEmpNum" placeholder="1234" maxlength="10" inputmode="numeric">
+    </div>
+    <div class="form-group">
+      <label>New PIN (4 digits)</label>
+      <input type="password" id="newEmpPin" placeholder="0000" maxlength="4" inputmode="numeric">
+    </div>
+    <button class="btn-primary" onclick="addUser()" style="margin-bottom:10px;">Add User</button>
+    <div id="userList" style="font-size:12px; color:var(--text-muted); max-height:100px; overflow-y:auto;"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
+      <button class="btn-primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ── -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">FQ</div>
+    <h1>Timecard<span>Calculator</span></h1>
+  </div>
+  <div class="header-actions">
+    <button class="header-btn" onclick="openSettings()">⚙</button>
+    <button class="header-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="container">
+
+  <!-- Upload Section -->
+  <div class="upload-section">
+    <h2>Scan Timecard</h2>
+    <p class="subtitle">Photograph both weeks of the timecard — tap each slot to capture or upload.</p>
+    <div class="photo-grid">
+      <div class="photo-slot" id="slot1" onclick="triggerCapture(1)">
+        <div class="slot-icon">📷</div>
+        <div class="slot-label">Week 1</div>
+        <button class="remove-btn" onclick="event.stopPropagation(); removePhoto(1)">✕</button>
+      </div>
+      <div class="photo-slot" id="slot2" onclick="triggerCapture(2)">
+        <div class="slot-icon">📷</div>
+        <div class="slot-label">Week 2</div>
+        <button class="remove-btn" onclick="event.stopPropagation(); removePhoto(2)">✕</button>
+      </div>
+    </div>
+    <input type="file" class="file-input" id="fileInput1" accept="image/*" capture="environment" onchange="handleFile(1, this)">
+    <input type="file" class="file-input" id="fileInput2" accept="image/*" capture="environment" onchange="handleFile(2, this)">
+    <button class="btn-scan" id="scanBtn" onclick="runScan()" disabled>
+      <span class="spinner"></span>
+      <span class="btn-text">Calculate Hours</span>
+    </button>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+
+  <!-- Results Section -->
+  <div class="results-section" id="resultsSection">
+
+    <div class="employee-banner" id="empBanner">
+      <div class="emp-info">
+        <h3 id="empName">—</h3>
+        <p id="empStore">Store 7747</p>
+      </div>
+      <div class="period-badge" id="empPeriod">—</div>
+    </div>
+
+    <div class="summary-grid" id="summaryGrid">
+      <div class="summary-card total-hours">
+        <div class="label">Total Hours</div>
+        <div class="value" id="sumTotal">0<span class="unit">h</span></div>
+      </div>
+      <div class="summary-card overtime">
+        <div class="label">Overtime</div>
+        <div class="value" id="sumOT">0<span class="unit">h</span></div>
+      </div>
+      <div class="summary-card regular">
+        <div class="label">Regular</div>
+        <div class="value" id="sumReg">0<span class="unit">h</span></div>
+      </div>
+      <div class="summary-card break-card">
+        <div class="label">Paid Breaks</div>
+        <div class="value" id="sumBreak">0<span class="unit">m</span></div>
+      </div>
+    </div>
+
+    <div id="weekCards"></div>
+
+    <div class="grand-total" id="grandTotal"></div>
+
+    <button class="btn-primary" onclick="window.print()" style="margin-top:10px;">Print Report</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════
+let photos = { 1: null, 2: null };
+let photoData = { 1: null, 2: null }; // base64
+
+function getUsers() {
+  return JSON.parse(localStorage.getItem('tc_users') || '{"0000":"1234"}');
+}
+function saveUsers(u) {
+  localStorage.setItem('tc_users', JSON.stringify(u));
+}
+
+// ══════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════
+function doLogin() {
+  const emp = document.getElementById('loginEmp').value.trim();
+  const pin = document.getElementById('loginPin').value.trim();
+  const users = getUsers();
+  if (users[emp] && users[emp] === pin) {
+    sessionStorage.setItem('tc_logged_in', emp);
+    document.getElementById('loginOverlay').classList.add('hidden');
+    document.getElementById('loginError').textContent = '';
+  } else {
+    document.getElementById('loginError').textContent = 'Invalid employee # or PIN.';
+  }
+}
+function doLogout() {
+  sessionStorage.removeItem('tc_logged_in');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+  document.getElementById('loginEmp').value = '';
+  document.getElementById('loginPin').value = '';
+}
+// Auto-check session
+if (sessionStorage.getItem('tc_logged_in')) {
+  document.getElementById('loginOverlay').classList.add('hidden');
+}
+// Enter key
+document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginEmp').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPin').focus(); });
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+function openSettings() {
+  document.getElementById('apiKeyInput').value = localStorage.getItem('tc_api_key') || '';
+  document.getElementById('storeNumInput').value = localStorage.getItem('tc_store') || '7747';
+  renderUserList();
+  document.getElementById('settingsModal').classList.remove('hidden');
+}
+function closeSettings() {
+  document.getElementById('settingsModal').classList.add('hidden');
+}
+function saveSettings() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  const store = document.getElementById('storeNumInput').value.trim();
+  if (key) localStorage.setItem('tc_api_key', key);
+  if (store) localStorage.setItem('tc_store', store);
+  closeSettings();
+}
+function addUser() {
+  const emp = document.getElementById('newEmpNum').value.trim();
+  const pin = document.getElementById('newEmpPin').value.trim();
+  if (!emp || pin.length !== 4) { alert('Enter valid employee # and 4-digit PIN'); return; }
+  const users = getUsers();
+  users[emp] = pin;
+  saveUsers(users);
+  document.getElementById('newEmpNum').value = '';
+  document.getElementById('newEmpPin').value = '';
+  renderUserList();
+}
+function removeUser(emp) {
+  if (emp === '0000') { alert('Cannot remove default admin.'); return; }
+  const users = getUsers();
+  delete users[emp];
+  saveUsers(users);
+  renderUserList();
+}
+function renderUserList() {
+  const users = getUsers();
+  const el = document.getElementById('userList');
+  el.innerHTML = Object.keys(users).map(e =>
+    `<div style="display:flex;justify-content:space-between;padding:3px 0;">
+      <span>EMP# ${e}</span>
+      ${e !== '0000' ? `<a href="#" onclick="event.preventDefault();removeUser('${e}')" style="color:var(--warn);">Remove</a>` : '<span style="opacity:0.4;">admin</span>'}
+    </div>`
+  ).join('');
+}
+
+// ══════════════════════════════════════════════
+// PHOTO CAPTURE
+// ══════════════════════════════════════════════
+function triggerCapture(n) {
+  document.getElementById('fileInput' + n).click();
+}
+function handleFile(n, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result;
+    photoData[n] = base64.split(',')[1];
+    const slot = document.getElementById('slot' + n);
+    let img = slot.querySelector('img');
+    if (!img) {
+      img = document.createElement('img');
+      slot.appendChild(img);
+    }
+    img.src = base64;
+    slot.classList.add('has-photo');
+    updateScanBtn();
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(n) {
+  photoData[n] = null;
+  const slot = document.getElementById('slot' + n);
+  const img = slot.querySelector('img');
+  if (img) img.remove();
+  slot.classList.remove('has-photo');
+  document.getElementById('fileInput' + n).value = '';
+  updateScanBtn();
+}
+function updateScanBtn() {
+  // At least one photo needed
+  const hasAny = photoData[1] || photoData[2];
+  document.getElementById('scanBtn').disabled = !hasAny;
+}
+
+// ══════════════════════════════════════════════
+// CLAUDE API CALL
+// ══════════════════════════════════════════════
+async function callClaude(images) {
+  const apiKey = localStorage.getItem('tc_api_key');
+  if (!apiKey) {
+    throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
+  }
+
+  const content = [];
+  images.forEach((img, i) => {
+    // Detect media type from base64 header or default to jpeg
+    let mediaType = 'image/jpeg';
+    // Check first bytes for PNG signature
+    if (img.startsWith('iVBOR')) mediaType = 'image/png';
+    else if (img.startsWith('UklGR')) mediaType = 'image/webp';
+
+    content.push({
+      type: 'image',
+      source: { type: 'base64', media_type: mediaType, data: img }
+    });
+  });
+
+  content.push({
+    type: 'text',
+    text: `You are reading a Fashion Q store timecard photograph. Extract ALL data precisely.
+
+Return ONLY valid JSON (no markdown, no backticks) in this exact format:
+{
+  "employee_name": "string",
+  "store_number": "string",
+  "weeks": [
+    {
+      "period": "M/D ~ M/D",
+      "days": [
+        {
+          "day": "MON|TUE|WED|THU|FRI|SAT|SUN",
+          "shifts": [
+            { "in": "HH:MM PM/AM", "out": "HH:MM PM/AM" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+- A day may have multiple shifts (multiple IN/OUT pairs). Include all of them.
+- If a day has no entries, return an empty shifts array.
+- Times are in 12-hour format with AM/PM exactly as printed.
+- The date stamps (like "26MAR10") indicate the date but the IN/OUT times are what matters.
+- Read carefully — each day has IN lines and OUT lines. Match them as pairs from top to bottom.
+- If two timecard images are provided, they represent Week 1 and Week 2 of the same pay period.
+- Include ALL days MON through SUN for each week, even if no hours worked.`
+  });
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `API Error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const text = data.content.map(c => c.text || '').join('');
+  const clean = text.replace(/```json|```/g, '').trim();
+  return JSON.parse(clean);
+}
+
+// ══════════════════════════════════════════════
+// CALCULATION ENGINE
+// ══════════════════════════════════════════════
+function parseTime(str) {
+  // "4:00 PM" → minutes since midnight
+  if (!str) return null;
+  const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!m) return null;
+  let h = parseInt(m[1]);
+  const min = parseInt(m[2]);
+  const ampm = m[3].toUpperCase();
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+function calcDay(shifts) {
+  let totalMinutes = 0;
+  const parsedShifts = [];
+
+  for (const s of shifts) {
+    const inM = parseTime(s.in);
+    const outM = parseTime(s.out);
+    if (inM === null || outM === null) continue;
+    let diff = outM - inM;
+    if (diff < 0) diff += 24 * 60; // overnight
+    totalMinutes += diff;
+    parsedShifts.push({ in: s.in, out: s.out, minutes: diff });
+  }
+
+  // Paid break calculation
+  let paidBreakMin = 0;
+  if (totalMinutes >= 360) { // 6 hours
+    paidBreakMin = 20;
+  } else if (totalMinutes >= 240) { // 4 hours
+    paidBreakMin = 10;
+  }
+
+  // Net worked = total - paid break (break is included in total time but is unpaid... 
+  // Actually: "공짜로 쉬는 시간" = free break time that should be deducted
+  // So net worked hours = totalMinutes - paidBreakMin
+  const netWorkedMinutes = totalMinutes - paidBreakMin;
+
+  // Daily overtime: if net worked > 8 hours (480 min)
+  let dailyOTMinutes = 0;
+  if (netWorkedMinutes > 480) {
+    dailyOTMinutes = netWorkedMinutes - 480;
+  }
+  const regularMinutes = netWorkedMinutes - dailyOTMinutes;
+
+  return {
+    shifts: parsedShifts,
+    grossMinutes: totalMinutes,
+    paidBreakMin,
+    netWorkedMinutes,
+    dailyOTMinutes,
+    regularMinutes
+  };
+}
+
+function formatHM(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function formatDecimal(minutes) {
+  return (minutes / 60).toFixed(2);
+}
+
+// ══════════════════════════════════════════════
+// RENDER RESULTS
+// ══════════════════════════════════════════════
+function renderResults(data) {
+  const section = document.getElementById('resultsSection');
+  section.classList.add('visible');
+
+  document.getElementById('empName').textContent = data.employee_name || 'Unknown';
+  document.getElementById('empStore').textContent = `Store ${data.store_number || localStorage.getItem('tc_store') || '7747'}`;
+
+  const periods = data.weeks.map(w => w.period).join('  →  ');
+  document.getElementById('empPeriod').textContent = periods;
+
+  let grandTotalNet = 0;
+  let grandTotalOT = 0;
+  let grandTotalReg = 0;
+  let grandTotalBreak = 0;
+
+  const weekCardsEl = document.getElementById('weekCards');
+  weekCardsEl.innerHTML = '';
+
+  data.weeks.forEach((week, wi) => {
+    let weekNet = 0;
+    let weekOT = 0;
+    let weekReg = 0;
+    let weekBreak = 0;
+
+    const dayRows = [];
+    const dayResults = [];
+
+    for (const day of week.days) {
+      const result = calcDay(day.shifts || []);
+      dayResults.push({ day: day.day, ...result });
+      weekNet += result.netWorkedMinutes;
+      weekBreak += result.paidBreakMin;
+    }
+
+    // Weekly overtime: if weekly total > 40 hours (2400 min)
+    // But we need to account for daily OT already counted
+    let sumDailyOT = dayResults.reduce((a, d) => a + d.dailyOTMinutes, 0);
+    let weeklyOTExtra = 0;
+    // Weekly OT = max(0, weekNet - 2400) that isn't already counted as daily OT
+    if (weekNet > 2400) {
+      const totalOTByWeekly = weekNet - 2400;
+      weeklyOTExtra = Math.max(0, totalOTByWeekly - sumDailyOT);
+    }
+    weekOT = sumDailyOT + weeklyOTExtra;
+    weekReg = weekNet - weekOT;
+
+    for (const d of dayResults) {
+      const hasWork = d.shifts.length > 0;
+      const shiftsHTML = d.shifts.map(s =>
+        `<span class="shift">${s.in} → ${s.out}</span>`
+      ).join('');
+
+      let hoursHTML = '';
+      if (hasWork) {
+        hoursHTML = `<span class="regular">${formatHM(d.netWorkedMinutes)}</span>`;
+        if (d.dailyOTMinutes > 0) {
+          hoursHTML += `<span class="overtime-badge">+${formatHM(d.dailyOTMinutes)} OT</span>`;
+        }
+        if (d.paidBreakMin > 0) {
+          hoursHTML += `<div class="break-info">Break: ${d.paidBreakMin}m deducted</div>`;
+        }
+      } else {
+        hoursHTML = `<span class="regular" style="opacity:0.4;">—</span>`;
+      }
+
+      dayRows.push(`
+        <div class="day-row ${hasWork ? '' : 'no-work'}">
+          <div class="day-name">${d.day}</div>
+          <div class="day-times">${shiftsHTML || '<span style="opacity:0.3;">Off</span>'}</div>
+          <div class="day-hours">${hoursHTML}</div>
+        </div>
+      `);
+    }
+
+    const weekCard = document.createElement('div');
+    weekCard.className = 'week-card';
+    weekCard.innerHTML = `
+      <div class="week-header">
+        <h3>Week ${wi + 1} — ${week.period}</h3>
+        <span class="week-total">${formatHM(weekNet)} ${weekOT > 0 ? `(OT: ${formatHM(weekOT)})` : ''}</span>
+      </div>
+      ${dayRows.join('')}
+    `;
+    weekCardsEl.appendChild(weekCard);
+
+    grandTotalNet += weekNet;
+    grandTotalOT += weekOT;
+    grandTotalReg += weekReg;
+    grandTotalBreak += weekBreak;
+  });
+
+  // Summary cards
+  document.getElementById('sumTotal').innerHTML = `${formatDecimal(grandTotalNet)}<span class="unit">h</span>`;
+  document.getElementById('sumOT').innerHTML = `${formatDecimal(grandTotalOT)}<span class="unit">h</span>`;
+  document.getElementById('sumReg').innerHTML = `${formatDecimal(grandTotalReg)}<span class="unit">h</span>`;
+  document.getElementById('sumBreak').innerHTML = `${grandTotalBreak}<span class="unit">m</span>`;
+
+  // Grand total
+  const gt = document.getElementById('grandTotal');
+  gt.innerHTML = `
+    <h3>2-Week Pay Period Summary</h3>
+    <div class="totals-row">
+      <span class="t-label">Gross Time (before breaks)</span>
+      <span class="t-value">${formatHM(grandTotalNet + grandTotalBreak)}</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">Paid Break Deductions</span>
+      <span class="t-value">−${grandTotalBreak}m</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">Regular Hours</span>
+      <span class="t-value">${formatDecimal(grandTotalReg)}h</span>
+    </div>
+    <div class="totals-row">
+      <span class="t-label">Overtime Hours</span>
+      <span class="t-value" style="color:#ff9b9b;">${formatDecimal(grandTotalOT)}h</span>
+    </div>
+    <div class="totals-row highlight">
+      <span class="t-label">Net Hours Worked</span>
+      <span class="t-value">${formatDecimal(grandTotalNet)}h</span>
+    </div>
+  `;
+
+  section.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+// MAIN SCAN
+// ══════════════════════════════════════════════
+async function runScan() {
+  const btn = document.getElementById('scanBtn');
+  const msg = document.getElementById('statusMsg');
+
+  const images = [];
+  if (photoData[1]) images.push(photoData[1]);
+  if (photoData[2]) images.push(photoData[2]);
+
+  if (images.length === 0) {
+    msg.textContent = 'Please capture at least one timecard photo.';
+    msg.className = 'status-msg error';
+    return;
+  }
+
+  btn.classList.add('loading');
+  btn.disabled = true;
+  msg.textContent = 'Reading timecard with Claude AI...';
+  msg.className = 'status-msg';
+
+  try {
+    const data = await callClaude(images);
+    msg.textContent = 'Timecard read successfully!';
+    msg.className = 'status-msg success';
+    renderResults(data);
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.className = 'status-msg error';
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
