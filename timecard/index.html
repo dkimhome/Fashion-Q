@@ -153,6 +153,28 @@
   .history-period-actions .h-export:hover{background:var(--accent-light);}
   .history-period-actions .h-delete{color:var(--warn);border-color:var(--warn);}
   .history-period-actions .h-delete:hover{background:#fff3eb;}
+  .h-view{color:var(--blue);border-color:var(--blue);}
+  .h-view:hover{background:var(--blue);color:#fff;}
+  .csv-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:350;padding:10px;}
+  .csv-viewer.visible{display:flex;align-items:flex-start;justify-content:center;padding-top:40px;}
+  .csv-viewer-inner{background:var(--surface);border-radius:12px;width:100%;max-width:900px;max-height:85vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden;}
+  .csv-viewer-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+  .csv-viewer-header h3{font-size:16px;font-weight:700;}
+  .csv-viewer-header .csv-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);padding:4px 8px;}
+  .csv-viewer-body{overflow:auto;flex:1;-webkit-overflow-scrolling:touch;}
+  .csv-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:12px;}
+  .csv-table th{background:var(--accent-dark);color:#fff;padding:8px 12px;text-align:left;position:sticky;top:0;white-space:nowrap;font-weight:600;font-size:11px;z-index:2;}
+  .csv-table td{padding:7px 12px;border-bottom:1px solid #f0ece4;white-space:nowrap;}
+  .csv-table tr:hover td{background:var(--accent-light);}
+  .csv-table .col-name{font-weight:600;position:sticky;left:0;background:var(--surface);z-index:1;}
+  .csv-table tr:hover .col-name{background:var(--accent-light);}
+  .csv-table .col-total{font-weight:700;color:var(--accent-dark);}
+  .csv-table .col-ot{color:var(--overtime);font-weight:600;}
+  .csv-viewer-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:10px;flex-shrink:0;}
+  .csv-viewer-footer button{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none;}
+  .csv-dl-btn{background:var(--accent);color:#fff;}
+  .csv-dl-btn:hover{background:var(--accent-dark);}
+  .csv-close-btn{background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important;}
   .history-records{max-height:0;overflow:hidden;transition:max-height .3s ease;}
   .history-records.open{max-height:2000px;}
   .history-record{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid #f0ece4;font-size:13px;}
@@ -269,6 +291,20 @@
 </div>
 
 <div class="saved-toast" id="savedToast">Saved!</div>
+
+<div class="csv-viewer" id="csvViewer">
+  <div class="csv-viewer-inner">
+    <div class="csv-viewer-header">
+      <h3 id="csvViewerTitle">Pay Period</h3>
+      <button class="csv-close" onclick="closeCsvViewer()">✕</button>
+    </div>
+    <div class="csv-viewer-body"><table class="csv-table" id="csvTable"></table></div>
+    <div class="csv-viewer-footer">
+      <button class="csv-close-btn" onclick="closeCsvViewer()">Close</button>
+      <button class="csv-dl-btn" id="csvDlBtn">Download CSV</button>
+    </div>
+  </div>
+</div>
 
 <script>
 let capturedBase64=null;
@@ -630,6 +666,7 @@ function renderHistory(){
       '<div class="history-period-header" onclick="togglePeriod(this)">'+
         '<div><h4>'+periodKey+'</h4><span class="h-count">'+recs.length+' employee'+(recs.length>1?'s':'')+' · Total: '+formatHMShort(totalAll)+(otAll>0?' · OT: '+formatHMShort(otAll):'')+'</span></div>'+
         '<div class="history-period-actions">'+
+          '<button class="h-export h-view" onclick="event.stopPropagation();viewPeriodCSV(\''+escQ(periodKey)+'\')">View</button>'+
           '<button class="h-export" onclick="event.stopPropagation();exportPeriodCSV(\''+escQ(periodKey)+'\')">CSV</button>'+
           '<button class="h-delete" onclick="event.stopPropagation();deletePeriod(\''+escQ(periodKey)+'\')">Delete</button>'+
         '</div>'+
@@ -710,6 +747,76 @@ function exportPeriodCSV(periodKey){
   a.href=url;a.download='Timecard_'+safeName+'.csv';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+let currentViewPeriod=null;
+function viewPeriodCSV(periodKey){
+  currentViewPeriod=periodKey;
+  const records=getSavedRecords();
+  const recs=records[periodKey];
+  if(!recs||recs.length===0)return;
+
+  document.getElementById('csvViewerTitle').textContent=periodKey;
+  document.getElementById('csvDlBtn').onclick=function(){exportPeriodCSV(periodKey);};
+
+  const maxWeeks=Math.max(...recs.map(r=>r.weeks.length));
+  const DNAMES=['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+  // Build table
+  let html='<thead><tr><th style="position:sticky;left:0;z-index:3;">Employee</th><th>Total</th><th>Regular</th><th>OT</th>';
+  for(let w=0;w<maxWeeks;w++){
+    html+='<th>W'+(w+1)+'</th><th>W'+(w+1)+' OT</th>';
+    DNAMES.forEach(d=>{html+='<th>'+d+'</th>';});
+  }
+  html+='</tr></thead><tbody>';
+
+  recs.forEach(r=>{
+    html+='<tr>';
+    html+='<td class="col-name">'+r.employee+'</td>';
+    html+='<td class="col-total">'+formatHMShort(r.totalWorked)+'</td>';
+    html+='<td>'+formatHMShort(r.regular)+'</td>';
+    html+='<td class="col-ot">'+(r.overtime>0?formatHMShort(r.overtime):'—')+'</td>';
+    for(let w=0;w<maxWeeks;w++){
+      const week=r.weeks[w];
+      if(week){
+        html+='<td class="col-total">'+formatHMShort(week.worked)+'</td>';
+        html+='<td class="col-ot">'+(week.ot>0?formatHMShort(week.ot):'—')+'</td>';
+        week.days.forEach(d=>{
+          if(d.shifts.length>0){
+            const times=d.shifts.map(s=>s.in+'→'+s.out).join(' ');
+            html+='<td title="'+times+'">'+formatHMShort(d.worked)+'</td>';
+          }else{
+            html+='<td style="opacity:.3;">—</td>';
+          }
+        });
+      }else{
+        html+='<td>—</td><td>—</td>';
+        for(let i=0;i<7;i++)html+='<td style="opacity:.3;">—</td>';
+      }
+    }
+    html+='</tr>';
+  });
+
+  // Totals row
+  const tW=recs.reduce((a,r)=>a+r.totalWorked,0);
+  const tR=recs.reduce((a,r)=>a+r.regular,0);
+  const tO=recs.reduce((a,r)=>a+r.overtime,0);
+  html+='<tr style="background:var(--surface-alt);font-weight:700;"><td class="col-name" style="background:var(--surface-alt);">TOTAL ('+recs.length+')</td>';
+  html+='<td class="col-total">'+formatHMShort(tW)+'</td>';
+  html+='<td>'+formatHMShort(tR)+'</td>';
+  html+='<td class="col-ot">'+(tO>0?formatHMShort(tO):'—')+'</td>';
+  // Empty cells for weekly columns
+  const extraCols=maxWeeks*(2+7);
+  for(let i=0;i<extraCols;i++)html+='<td></td>';
+  html+='</tr>';
+
+  html+='</tbody>';
+  document.getElementById('csvTable').innerHTML=html;
+  document.getElementById('csvViewer').classList.add('visible');
+}
+
+function closeCsvViewer(){
+  document.getElementById('csvViewer').classList.remove('visible');
 }
 
 async function runScan(){
