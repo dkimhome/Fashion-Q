@@ -310,8 +310,8 @@
 let capturedBase64=null;
 function getUsers(){return JSON.parse(localStorage.getItem('tc_users')||'{"0000":"1234"}');}
 function saveUsers(u){localStorage.setItem('tc_users',JSON.stringify(u));}
-function formatHM(m){if(m===0)return'0 minutes';const h=Math.floor(m/60),mm=m%60,p=[];if(h>0)p.push(h===1?'1 hour':h+' hours');if(mm>0)p.push(mm===1?'1 minute':mm+' minutes');return p.join(' ');}
-function formatHMShort(m){if(m===0)return'0 min';const h=Math.floor(m/60),mm=m%60;if(h===0)return mm+' min';if(mm===0)return h+' hr'+(h>1?'s':'');return h+' hr'+(h>1?'s':'')+' '+mm+' min';}
+function formatHM(m){return (m/60).toFixed(2)+' hrs';}
+function formatHMShort(m){return (m/60).toFixed(2);}
 
 function doLogin(){const e=document.getElementById('loginEmp').value.trim(),p=document.getElementById('loginPin').value.trim(),u=getUsers();if(u[e]&&u[e]===p){sessionStorage.setItem('tc_logged_in',e);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('loginError').textContent='';}else document.getElementById('loginError').textContent='Invalid employee # or PIN.';}
 function doLogout(){sessionStorage.removeItem('tc_logged_in');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('loginEmp').value='';document.getElementById('loginPin').value='';}
