@@ -18,558 +18,179 @@
     --accent-light: #e8f5ee;
     --accent-dark: #0f4a35;
     --warn: #c4540a;
-    --warn-light: #fff3eb;
     --overtime: #9b2c2c;
     --overtime-light: #fff5f5;
     --blue: #2b5ea7;
-    --blue-light: #ebf1fa;
     --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
     --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.08);
     --radius: 10px;
   }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; -webkit-font-smoothing:antialiased; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  .header { background:var(--accent-dark); color:white; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+  .header-left { display:flex; align-items:center; gap:12px; }
+  .header-logo { width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px; }
+  .header h1 { font-size:16px; font-weight:700; letter-spacing:-0.3px; }
+  .header h1 span { font-weight:300; opacity:0.7; margin-left:6px; }
+  .header-actions { display:flex; gap:8px; }
+  .header-btn { background:rgba(255,255,255,0.12); border:none; color:white; padding:6px 12px; border-radius:6px; font-size:13px; cursor:pointer; font-family:inherit; }
+  .header-btn:hover { background:rgba(255,255,255,0.22); }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100dvh;
-    -webkit-font-smoothing: antialiased;
-  }
+  /* Login */
+  .login-overlay { position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px; }
+  .login-overlay.hidden { display:none; }
+  .login-card { background:var(--surface);border-radius:16px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shadow-lg);text-align:center; }
+  .login-icon { width:64px;height:64px;background:var(--accent-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px; }
+  .login-card h2 { font-size:22px;font-weight:700;margin-bottom:4px; }
+  .login-card p { font-size:14px;color:var(--text-muted);margin-bottom:24px; }
+  .form-group { margin-bottom:14px;text-align:left; }
+  .form-group label { display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px; }
+  .form-group input { width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;font-family:'JetBrains Mono',monospace;text-align:center;letter-spacing:3px;outline:none;background:var(--surface-alt); }
+  .form-group input:focus { border-color:var(--accent);background:white; }
+  .btn-primary { width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px; }
+  .btn-primary:hover { background:var(--accent-dark); }
+  .btn-primary:active { transform:scale(0.98); }
+  .login-error { color:var(--warn);font-size:13px;margin-top:10px;min-height:20px; }
 
-  /* ── Header ── */
-  .header {
-    background: var(--accent-dark);
-    color: white;
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .header-logo {
-    width: 32px; height: 32px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 14px;
-  }
-  .header h1 {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-  .header h1 span { font-weight: 300; opacity: 0.7; margin-left: 6px; }
-  .header-actions { display: flex; gap: 8px; }
-  .header-btn {
-    background: rgba(255,255,255,0.12);
-    border: none; color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 0.15s;
-  }
-  .header-btn:hover { background: rgba(255,255,255,0.22); }
+  /* Modal */
+  .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px; }
+  .modal-overlay.hidden { display:none; }
+  .modal { background:var(--surface);border-radius:14px;padding:28px 24px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto; }
+  .modal h3 { font-size:18px;font-weight:700;margin-bottom:16px; }
+  .modal .form-group input { text-align:left;letter-spacing:0;font-size:13px; }
+  .modal-actions { display:flex;gap:10px;margin-top:18px; }
+  .modal-actions button { flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none; }
+  .btn-cancel { background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important; }
 
-  /* ── Login ── */
-  .login-overlay {
-    position: fixed; inset: 0;
-    background: var(--bg);
-    z-index: 200;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .login-overlay.hidden { display: none; }
-  .login-card {
-    background: var(--surface);
-    border-radius: 16px;
-    padding: 40px 32px;
-    width: 100%; max-width: 360px;
-    box-shadow: var(--shadow-lg);
-    text-align: center;
-  }
-  .login-icon {
-    width: 64px; height: 64px;
-    background: var(--accent-light);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 28px;
-  }
-  .login-card h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .login-card p {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 24px;
-  }
-  .form-group {
-    margin-bottom: 14px;
-    text-align: left;
-  }
-  .form-group label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .form-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-size: 16px;
-    font-family: 'JetBrains Mono', monospace;
-    text-align: center;
-    letter-spacing: 3px;
-    transition: border-color 0.2s;
-    outline: none;
-    background: var(--surface-alt);
-  }
-  .form-group input:focus {
-    border-color: var(--accent);
-    background: white;
-  }
-  .btn-primary {
-    width: 100%;
-    padding: 13px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    margin-top: 8px;
-    transition: background 0.15s, transform 0.1s;
-  }
-  .btn-primary:hover { background: var(--accent-dark); }
-  .btn-primary:active { transform: scale(0.98); }
-  .login-error {
-    color: var(--warn);
-    font-size: 13px;
-    margin-top: 10px;
-    min-height: 20px;
-  }
+  .container { max-width:800px;margin:0 auto;padding:20px; }
 
-  /* ── Settings Modal ── */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.4);
-    z-index: 300;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.hidden { display: none; }
-  .modal {
-    background: var(--surface);
-    border-radius: 14px;
-    padding: 28px 24px;
-    width: 100%; max-width: 400px;
-    box-shadow: var(--shadow-lg);
-  }
-  .modal h3 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-  .modal .form-group input {
-    text-align: left;
-    letter-spacing: 0;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-  }
-  .modal-actions {
-    display: flex; gap: 10px; margin-top: 18px;
-  }
-  .modal-actions button {
-    flex: 1; padding: 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    border: none;
-    transition: background 0.15s;
-  }
-  .btn-cancel {
-    background: var(--surface-alt);
-    color: var(--text);
-    border: 1.5px solid var(--border) !important;
-  }
-  .btn-cancel:hover { background: var(--border); }
+  /* Upload */
+  .upload-section { background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px; }
+  .upload-section h2 { font-size:17px;font-weight:700;margin-bottom:4px; }
+  .upload-section .subtitle { font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.5; }
+  .photo-area { position:relative;width:100%;min-height:200px;border:2px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--surface-alt);margin-bottom:16px;padding:30px 20px; }
+  .photo-area:hover { border-color:var(--accent);background:var(--accent-light); }
+  .photo-area.has-photo { border-style:solid;border-color:var(--accent);min-height:auto;padding:0; }
+  .photo-area img { width:100%;display:block;border-radius:10px; }
+  .photo-area .remove-btn { position:absolute;top:10px;right:10px;width:32px;height:32px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:16px;cursor:pointer;z-index:2;display:none;align-items:center;justify-content:center; }
+  .photo-area.has-photo .remove-btn { display:flex; }
+  .photo-area .area-icon { font-size:40px;margin-bottom:10px;opacity:0.35; }
+  .photo-area .area-label { font-size:15px;font-weight:600;color:var(--text-muted);margin-bottom:4px; }
+  .photo-area .area-hint { font-size:12px;color:var(--text-muted);opacity:0.7;text-align:center;line-height:1.4; }
+  .photo-area.has-photo .area-icon,.photo-area.has-photo .area-label,.photo-area.has-photo .area-hint { display:none; }
 
-  /* ── Main Content ── */
-  .container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-  }
+  .btn-scan { width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px; }
+  .btn-scan:hover { background:var(--accent-dark); }
+  .btn-scan:disabled { background:var(--border);cursor:not-allowed; }
+  .btn-scan .spinner { width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:none; }
+  .btn-scan.loading .spinner { display:block; }
+  .btn-scan.loading .btn-text { display:none; }
+  @keyframes spin { to { transform:rotate(360deg); } }
 
-  /* ── Upload Section ── */
-  .upload-section {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-  }
-  .upload-section h2 {
-    font-size: 17px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .upload-section .subtitle {
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-bottom: 18px;
-  }
-  .photo-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .photo-slot {
-    position: relative;
-    aspect-ratio: 3/4;
-    border: 2px dashed var(--border);
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-    overflow: hidden;
-    background: var(--surface-alt);
-  }
-  .photo-slot:hover {
-    border-color: var(--accent);
-    background: var(--accent-light);
-  }
-  .photo-slot.has-photo {
-    border-style: solid;
-    border-color: var(--accent);
-  }
-  .photo-slot img {
-    position: absolute;
-    inset: 0;
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-  .photo-slot .remove-btn {
-    position: absolute;
-    top: 6px; right: 6px;
-    width: 26px; height: 26px;
-    background: rgba(0,0,0,0.6);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 14px;
-    cursor: pointer;
-    z-index: 2;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-  }
-  .photo-slot.has-photo .remove-btn { display: flex; }
-  .photo-slot .slot-icon {
-    font-size: 28px;
-    margin-bottom: 6px;
-    opacity: 0.4;
-  }
-  .photo-slot .slot-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .photo-slot.has-photo .slot-icon,
-  .photo-slot.has-photo .slot-label { display: none; }
+  .status-msg { text-align:center;font-size:13px;color:var(--text-muted);margin-top:10px;min-height:20px; }
+  .status-msg.error { color:var(--warn); }
+  .status-msg.success { color:var(--accent); }
+  .file-input { display:none; }
 
-  .btn-scan {
-    width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: background 0.15s, transform 0.1s;
-  }
-  .btn-scan:hover { background: var(--accent-dark); }
-  .btn-scan:active { transform: scale(0.98); }
-  .btn-scan:disabled {
-    background: var(--border);
-    cursor: not-allowed;
-    transform: none;
-  }
-  .btn-scan .spinner {
-    width: 18px; height: 18px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  .btn-scan.loading .spinner { display: block; }
-  .btn-scan.loading .btn-text { display: none; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  /* ── Verify / Edit Section ── */
+  .verify-section { display:none; background:var(--surface); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-bottom:20px; }
+  .verify-section.visible { display:block; }
+  .verify-section h2 { font-size:17px; font-weight:700; margin-bottom:4px; }
+  .verify-section .subtitle { font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.5; }
+  .verify-emp { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .verify-emp .form-group { flex:1; min-width:120px; }
+  .verify-emp .form-group input { font-size:14px; letter-spacing:0; text-align:left; }
 
-  /* ── Status Message ── */
-  .status-msg {
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-muted);
-    margin-top: 10px;
-    min-height: 20px;
-  }
-  .status-msg.error { color: var(--warn); }
-  .status-msg.success { color: var(--accent); }
+  .verify-week { margin-bottom:18px; }
+  .verify-week-header { font-size:14px; font-weight:700; padding:8px 0; border-bottom:2px solid var(--accent); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+  .verify-week-header .period-input { font-family:'JetBrains Mono',monospace; font-size:12px; border:1px solid var(--border); border-radius:4px; padding:3px 8px; width:140px; text-align:center; outline:none; }
+  .verify-week-header .period-input:focus { border-color:var(--accent); }
 
-  /* ── Results Section ── */
-  .results-section {
-    display: none;
+  .verify-day { display:grid; grid-template-columns:50px 1fr 30px; gap:6px; align-items:start; padding:6px 0; border-bottom:1px solid #f0ece4; }
+  .verify-day:last-child { border-bottom:none; }
+  .verify-day-name { font-weight:700; font-size:12px; text-transform:uppercase; padding-top:8px; color:var(--text-muted); }
+  .verify-shifts { display:flex; flex-direction:column; gap:4px; }
+  .verify-shift-row { display:flex; gap:6px; align-items:center; }
+  .verify-shift-row input {
+    width:90px; padding:6px 8px; border:1.5px solid var(--border); border-radius:6px;
+    font-family:'JetBrains Mono',monospace; font-size:13px; text-align:center;
+    outline:none; background:var(--surface-alt);
   }
-  .results-section.visible { display: block; }
+  .verify-shift-row input:focus { border-color:var(--accent); background:white; }
+  .verify-shift-row input.error-field { border-color:var(--warn); background:#fff8f5; }
+  .verify-shift-row .arrow { color:var(--text-muted); font-size:12px; }
+  .verify-shift-row .remove-shift { background:none; border:none; color:var(--warn); cursor:pointer; font-size:16px; padding:2px 4px; }
+  .add-shift-btn { background:none; border:1px dashed var(--border); border-radius:4px; color:var(--text-muted); font-size:11px; padding:3px 8px; cursor:pointer; margin-top:2px; font-family:inherit; }
+  .add-shift-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .add-day-btn-wrap { display:flex; align-items:center; justify-content:center; padding-top:6px; }
 
-  .employee-banner {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .employee-banner .emp-info h3 {
-    font-size: 18px;
-    font-weight: 700;
-  }
-  .employee-banner .emp-info p {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-  .employee-banner .period-badge {
-    background: var(--accent-light);
-    color: var(--accent-dark);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'JetBrains Mono', monospace;
-  }
+  .verify-actions { display:flex; gap:10px; margin-top:16px; }
+  .verify-actions button { flex:1; padding:12px; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; border:none; }
+  .btn-calc { background:var(--accent); color:white; }
+  .btn-calc:hover { background:var(--accent-dark); }
+  .btn-rescan { background:var(--surface-alt); color:var(--text); border:1.5px solid var(--border)!important; }
 
-  /* ── Week Card ── */
-  .week-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
-    overflow: hidden;
-  }
-  .week-header {
-    background: var(--surface-alt);
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .week-header h3 {
-    font-size: 15px;
-    font-weight: 700;
-  }
-  .week-header .week-total {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--accent);
-  }
+  /* Results */
+  .results-section { display:none; }
+  .results-section.visible { display:block; }
+  .employee-banner { background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between; }
+  .employee-banner .emp-info h3 { font-size:18px;font-weight:700; }
+  .employee-banner .emp-info p { font-size:13px;color:var(--text-muted); }
+  .employee-banner .period-badge { background:var(--accent-light);color:var(--accent-dark);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;text-align:right; }
 
-  .day-row {
-    display: grid;
-    grid-template-columns: 60px 1fr auto;
-    align-items: center;
-    padding: 12px 20px;
-    border-bottom: 1px solid #f0ece4;
-    gap: 12px;
-  }
-  .day-row:last-child { border-bottom: none; }
-  .day-row.no-work { opacity: 0.4; }
-  .day-name {
-    font-weight: 700;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  .day-times {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 12px;
-  }
-  .day-times .shift {
-    background: var(--surface-alt);
-    padding: 2px 8px;
-    border-radius: 4px;
-  }
-  .day-hours {
-    text-align: right;
-    white-space: nowrap;
-  }
-  .day-hours .regular {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  .day-hours .overtime-badge {
-    display: inline-block;
-    background: var(--overtime-light);
-    color: var(--overtime);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 6px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .day-hours .break-info {
-    font-size: 11px;
-    color: var(--text-muted);
-    margin-top: 2px;
-  }
+  .week-card { background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden; }
+  .week-header { background:var(--surface-alt);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
+  .week-header h3 { font-size:15px;font-weight:700; }
+  .week-header .week-total { font-size:13px;font-weight:600;color:var(--accent); }
+  .day-row { display:grid;grid-template-columns:52px 1fr auto;align-items:center;padding:12px 20px;border-bottom:1px solid #f0ece4;gap:12px; }
+  .day-row:last-child { border-bottom:none; }
+  .day-row.no-work { opacity:0.4; }
+  .day-name { font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.3px; }
+  .day-times { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:4px 12px; }
+  .day-times .shift { background:var(--surface-alt);padding:2px 8px;border-radius:4px; }
+  .day-hours { text-align:right;white-space:nowrap; }
+  .day-hours .regular { font-size:13px;font-weight:600; }
+  .day-hours .overtime-badge { display:inline-block;background:var(--overtime-light);color:var(--overtime);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px; }
+  .day-hours .break-info { font-size:11px;color:var(--text-muted);margin-top:2px; }
 
-  /* ── Summary Cards ── */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .summary-card {
-    background: var(--surface);
-    border-radius: var(--radius);
-    padding: 18px;
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .summary-card .label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 6px;
-  }
-  .summary-card .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 26px;
-    font-weight: 700;
-  }
-  .summary-card .unit {
-    font-size: 13px;
-    font-weight: 400;
-    color: var(--text-muted);
-  }
-  .summary-card.total-hours .value { color: var(--accent-dark); }
-  .summary-card.overtime .value { color: var(--overtime); }
-  .summary-card.regular .value { color: var(--blue); }
-  .summary-card.break-card .value { color: var(--warn); }
+  .summary-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px; }
+  .summary-card { background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center; }
+  .summary-card .label { font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px; }
+  .summary-card .value { font-size:17px;font-weight:700;line-height:1.3; }
+  .summary-card.total-hours .value { color:var(--accent-dark); }
+  .summary-card.overtime .value { color:var(--overtime); }
+  .summary-card.regular .value { color:var(--blue); }
+  .summary-card.break-card .value { color:var(--warn); }
 
-  /* ── Grand Total ── */
-  .grand-total {
-    background: var(--accent-dark);
-    color: white;
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow-lg);
-    margin-bottom: 20px;
-  }
-  .grand-total h3 {
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 0.7;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-  }
-  .grand-total .totals-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-  .grand-total .totals-row:last-child { border-bottom: none; }
-  .grand-total .totals-row .t-label {
-    font-size: 14px;
-    opacity: 0.8;
-  }
-  .grand-total .totals-row .t-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 700;
-  }
-  .grand-total .totals-row.highlight .t-value {
-    color: #ffd700;
-    font-size: 22px;
-  }
+  .grand-total { background:var(--accent-dark);color:white;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);margin-bottom:20px; }
+  .grand-total h3 { font-size:13px;font-weight:500;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px; }
+  .grand-total .totals-row { display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1); }
+  .grand-total .totals-row:last-child { border-bottom:none; }
+  .grand-total .totals-row .t-label { font-size:14px;opacity:0.8; }
+  .grand-total .totals-row .t-value { font-size:15px;font-weight:700;text-align:right; }
+  .grand-total .totals-row.highlight .t-value { color:#ffd700;font-size:18px; }
 
-  /* ── Hidden File Input ── */
-  .file-input { display: none; }
-
-  /* ── Responsive ── */
-  @media (max-width: 480px) {
-    .photo-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
-    .day-row { grid-template-columns: 48px 1fr auto; padding: 10px 14px; gap: 8px; }
-    .container { padding: 14px; }
-    .employee-banner { flex-direction: column; gap: 10px; text-align: center; }
+  @media (max-width:480px) {
+    .summary-grid { gap:8px; }
+    .summary-card .value { font-size:15px; }
+    .day-row { grid-template-columns:44px 1fr auto;padding:10px 14px;gap:8px; }
+    .container { padding:14px; }
+    .employee-banner { flex-direction:column;gap:10px;text-align:center; }
+    .employee-banner .period-badge { text-align:center; }
+    .verify-shift-row input { width:80px; font-size:12px; }
+    .verify-emp { flex-direction:column; }
   }
-
-  /* ── Print ── */
   @media print {
-    .header, .upload-section, .header-actions { display: none; }
-    body { background: white; }
-    .results-section { display: block !important; }
+    .header,.upload-section,.verify-section { display:none; }
+    body { background:white; }
+    .results-section { display:block!important; }
   }
 </style>
 </head>
 <body>
 
-<!-- ── Login Overlay ── -->
+<!-- Login -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-icon">⏱</div>
@@ -585,13 +206,13 @@
     </div>
     <button class="btn-primary" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
-    <div style="margin-top:18px; font-size:12px; color:var(--text-muted);">
+    <div style="margin-top:18px;font-size:12px;color:var(--text-muted);">
       Initial admin: EMP# <b>0000</b> / PIN <b>1234</b>
     </div>
   </div>
 </div>
 
-<!-- ── Settings Modal ── -->
+<!-- Settings Modal -->
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
@@ -613,7 +234,7 @@
       <input type="password" id="newEmpPin" placeholder="0000" maxlength="4" inputmode="numeric">
     </div>
     <button class="btn-primary" onclick="addUser()" style="margin-bottom:10px;">Add User</button>
-    <div id="userList" style="font-size:12px; color:var(--text-muted); max-height:100px; overflow-y:auto;"></div>
+    <div id="userList" style="font-size:12px;color:var(--text-muted);max-height:100px;overflow-y:auto;"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
       <button class="btn-primary" onclick="saveSettings()">Save</button>
@@ -621,7 +242,7 @@
   </div>
 </div>
 
-<!-- ── Header ── -->
+<!-- Header -->
 <div class="header">
   <div class="header-left">
     <div class="header-logo">FQ</div>
@@ -633,89 +254,92 @@
   </div>
 </div>
 
-<!-- ── Main ── -->
 <div class="container">
 
-  <!-- Upload Section -->
-  <div class="upload-section">
+  <!-- Upload -->
+  <div class="upload-section" id="uploadSection">
     <h2>Scan Timecard</h2>
-    <p class="subtitle">Photograph both weeks of the timecard — tap each slot to capture or upload.</p>
-    <div class="photo-grid">
-      <div class="photo-slot" id="slot1" onclick="triggerCapture(1)">
-        <div class="slot-icon">📷</div>
-        <div class="slot-label">Week 1</div>
-        <button class="remove-btn" onclick="event.stopPropagation(); removePhoto(1)">✕</button>
-      </div>
-      <div class="photo-slot" id="slot2" onclick="triggerCapture(2)">
-        <div class="slot-icon">📷</div>
-        <div class="slot-label">Week 2</div>
-        <button class="remove-btn" onclick="event.stopPropagation(); removePhoto(2)">✕</button>
-      </div>
+    <p class="subtitle">Take one photo of the timecard. Both weeks side by side, or just one week.</p>
+    <div class="photo-area" id="photoArea" onclick="triggerCapture()">
+      <div class="area-icon">📷</div>
+      <div class="area-label">Tap to photograph timecard</div>
+      <div class="area-hint">Both weeks in one shot, or just one week</div>
+      <button class="remove-btn" onclick="event.stopPropagation();removePhoto()">✕</button>
     </div>
-    <input type="file" class="file-input" id="fileInput1" accept="image/*" capture="environment" onchange="handleFile(1, this)">
-    <input type="file" class="file-input" id="fileInput2" accept="image/*" capture="environment" onchange="handleFile(2, this)">
+    <input type="file" class="file-input" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(this)">
     <button class="btn-scan" id="scanBtn" onclick="runScan()" disabled>
       <span class="spinner"></span>
-      <span class="btn-text">Calculate Hours</span>
+      <span class="btn-text">Read Timecard</span>
     </button>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
-  <!-- Results Section -->
-  <div class="results-section" id="resultsSection">
-
-    <div class="employee-banner" id="empBanner">
-      <div class="emp-info">
-        <h3 id="empName">—</h3>
-        <p id="empStore">Store 7747</p>
+  <!-- Verify / Edit -->
+  <div class="verify-section" id="verifySection">
+    <h2>Verify & Edit</h2>
+    <p class="subtitle">Review the data below. Fix any errors before calculating.</p>
+    <div class="verify-emp">
+      <div class="form-group">
+        <label>Employee Name</label>
+        <input type="text" id="vEmpName">
       </div>
+      <div class="form-group">
+        <label>Store #</label>
+        <input type="text" id="vStore">
+      </div>
+    </div>
+    <div id="verifyWeeks"></div>
+    <div class="verify-actions">
+      <button class="btn-rescan" onclick="goBackToScan()">Re-scan</button>
+      <button class="btn-calc" onclick="calculateFromVerified()">Calculate Hours</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+    <div class="employee-banner">
+      <div class="emp-info"><h3 id="empName">—</h3><p id="empStore">Store 7747</p></div>
       <div class="period-badge" id="empPeriod">—</div>
     </div>
-
-    <div class="summary-grid" id="summaryGrid">
-      <div class="summary-card total-hours">
-        <div class="label">Total Hours</div>
-        <div class="value" id="sumTotal">0<span class="unit">h</span></div>
-      </div>
-      <div class="summary-card overtime">
-        <div class="label">Overtime</div>
-        <div class="value" id="sumOT">0<span class="unit">h</span></div>
-      </div>
-      <div class="summary-card regular">
-        <div class="label">Regular</div>
-        <div class="value" id="sumReg">0<span class="unit">h</span></div>
-      </div>
-      <div class="summary-card break-card">
-        <div class="label">Paid Breaks</div>
-        <div class="value" id="sumBreak">0<span class="unit">m</span></div>
-      </div>
+    <div class="summary-grid">
+      <div class="summary-card total-hours"><div class="label">Total Hours</div><div class="value" id="sumTotal">—</div></div>
+      <div class="summary-card overtime"><div class="label">Overtime</div><div class="value" id="sumOT">—</div></div>
+      <div class="summary-card regular"><div class="label">Regular</div><div class="value" id="sumReg">—</div></div>
+      <div class="summary-card break-card"><div class="label">Break Deducted</div><div class="value" id="sumBreak">—</div></div>
     </div>
-
     <div id="weekCards"></div>
-
     <div class="grand-total" id="grandTotal"></div>
-
-    <button class="btn-primary" onclick="window.print()" style="margin-top:10px;">Print Report</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn-primary" onclick="goBackToVerify()" style="background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border);">Edit Data</button>
+      <button class="btn-primary" onclick="window.print()">Print Report</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════
-// DATA & STATE
-// ══════════════════════════════════════════════
-let photos = { 1: null, 2: null };
-let photoData = { 1: null, 2: null }; // base64
+let capturedBase64 = null;
+let ocrData = null; // stores the raw OCR result for editing
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem('tc_users') || '{"0000":"1234"}');
+function getUsers() { return JSON.parse(localStorage.getItem('tc_users') || '{"0000":"1234"}'); }
+function saveUsers(u) { localStorage.setItem('tc_users', JSON.stringify(u)); }
+
+// ── Format ──
+function formatHM(m) {
+  if (m === 0) return '0 minutes';
+  const h = Math.floor(m/60), mm = m%60, p = [];
+  if (h > 0) p.push(h === 1 ? '1 hour' : h + ' hours');
+  if (mm > 0) p.push(mm === 1 ? '1 minute' : mm + ' minutes');
+  return p.join(' ');
 }
-function saveUsers(u) {
-  localStorage.setItem('tc_users', JSON.stringify(u));
+function formatHMShort(m) {
+  if (m === 0) return '0 min';
+  const h = Math.floor(m/60), mm = m%60;
+  if (h === 0) return mm + ' min';
+  if (mm === 0) return h + ' hr' + (h>1?'s':'');
+  return h + ' hr' + (h>1?'s':'') + ' ' + mm + ' min';
 }
 
-// ══════════════════════════════════════════════
-// LOGIN
-// ══════════════════════════════════════════════
+// ── Login ──
 function doLogin() {
   const emp = document.getElementById('loginEmp').value.trim();
   const pin = document.getElementById('loginPin').value.trim();
@@ -734,141 +358,118 @@ function doLogout() {
   document.getElementById('loginEmp').value = '';
   document.getElementById('loginPin').value = '';
 }
-// Auto-check session
-if (sessionStorage.getItem('tc_logged_in')) {
-  document.getElementById('loginOverlay').classList.add('hidden');
-}
-// Enter key
-document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('loginEmp').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPin').focus(); });
+if (sessionStorage.getItem('tc_logged_in')) document.getElementById('loginOverlay').classList.add('hidden');
+document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('loginEmp').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginPin').focus(); });
 
-// ══════════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════════
+// ── Settings ──
 function openSettings() {
   document.getElementById('apiKeyInput').value = localStorage.getItem('tc_api_key') || '';
   document.getElementById('storeNumInput').value = localStorage.getItem('tc_store') || '7747';
   renderUserList();
   document.getElementById('settingsModal').classList.remove('hidden');
 }
-function closeSettings() {
-  document.getElementById('settingsModal').classList.add('hidden');
-}
+function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
 function saveSettings() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  const store = document.getElementById('storeNumInput').value.trim();
-  if (key) localStorage.setItem('tc_api_key', key);
-  if (store) localStorage.setItem('tc_store', store);
+  const k = document.getElementById('apiKeyInput').value.trim();
+  const s = document.getElementById('storeNumInput').value.trim();
+  if (k) localStorage.setItem('tc_api_key', k);
+  if (s) localStorage.setItem('tc_store', s);
   closeSettings();
 }
 function addUser() {
-  const emp = document.getElementById('newEmpNum').value.trim();
-  const pin = document.getElementById('newEmpPin').value.trim();
-  if (!emp || pin.length !== 4) { alert('Enter valid employee # and 4-digit PIN'); return; }
-  const users = getUsers();
-  users[emp] = pin;
-  saveUsers(users);
+  const e = document.getElementById('newEmpNum').value.trim();
+  const p = document.getElementById('newEmpPin').value.trim();
+  if (!e || p.length !== 4) { alert('Enter valid employee # and 4-digit PIN'); return; }
+  const u = getUsers(); u[e] = p; saveUsers(u);
   document.getElementById('newEmpNum').value = '';
   document.getElementById('newEmpPin').value = '';
   renderUserList();
 }
-function removeUser(emp) {
-  if (emp === '0000') { alert('Cannot remove default admin.'); return; }
-  const users = getUsers();
-  delete users[emp];
-  saveUsers(users);
-  renderUserList();
+function removeUser(e) {
+  if (e === '0000') { alert('Cannot remove default admin.'); return; }
+  const u = getUsers(); delete u[e]; saveUsers(u); renderUserList();
 }
 function renderUserList() {
-  const users = getUsers();
-  const el = document.getElementById('userList');
-  el.innerHTML = Object.keys(users).map(e =>
-    `<div style="display:flex;justify-content:space-between;padding:3px 0;">
-      <span>EMP# ${e}</span>
-      ${e !== '0000' ? `<a href="#" onclick="event.preventDefault();removeUser('${e}')" style="color:var(--warn);">Remove</a>` : '<span style="opacity:0.4;">admin</span>'}
-    </div>`
+  const u = getUsers();
+  document.getElementById('userList').innerHTML = Object.keys(u).map(e =>
+    '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+
+    (e !== '0000' ? '<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>' : '<span style="opacity:0.4;">admin</span>')+
+    '</div>'
   ).join('');
 }
 
-// ══════════════════════════════════════════════
-// PHOTO CAPTURE
-// ══════════════════════════════════════════════
-function triggerCapture(n) {
-  document.getElementById('fileInput' + n).click();
-}
-function handleFile(n, input) {
+// ── Photo ──
+function triggerCapture() { document.getElementById('fileInput').click(); }
+function handleFile(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
-    const base64 = e.target.result;
-    photoData[n] = base64.split(',')[1];
-    const slot = document.getElementById('slot' + n);
-    let img = slot.querySelector('img');
-    if (!img) {
-      img = document.createElement('img');
-      slot.appendChild(img);
-    }
-    img.src = base64;
-    slot.classList.add('has-photo');
-    updateScanBtn();
+    const full = e.target.result;
+    capturedBase64 = full.split(',')[1];
+    const area = document.getElementById('photoArea');
+    let img = area.querySelector('img');
+    if (!img) { img = document.createElement('img'); area.appendChild(img); }
+    img.src = full;
+    area.classList.add('has-photo');
+    document.getElementById('scanBtn').disabled = false;
   };
   reader.readAsDataURL(file);
 }
-function removePhoto(n) {
-  photoData[n] = null;
-  const slot = document.getElementById('slot' + n);
-  const img = slot.querySelector('img');
+function removePhoto() {
+  capturedBase64 = null;
+  const area = document.getElementById('photoArea');
+  const img = area.querySelector('img');
   if (img) img.remove();
-  slot.classList.remove('has-photo');
-  document.getElementById('fileInput' + n).value = '';
-  updateScanBtn();
-}
-function updateScanBtn() {
-  // At least one photo needed
-  const hasAny = photoData[1] || photoData[2];
-  document.getElementById('scanBtn').disabled = !hasAny;
+  area.classList.remove('has-photo');
+  document.getElementById('fileInput').value = '';
+  document.getElementById('scanBtn').disabled = true;
 }
 
-// ══════════════════════════════════════════════
-// CLAUDE API CALL
-// ══════════════════════════════════════════════
-async function callClaude(images) {
+// ── Claude API — Improved OCR Prompt ──
+async function callClaude(imageBase64) {
   const apiKey = localStorage.getItem('tc_api_key');
-  if (!apiKey) {
-    throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
-  }
+  if (!apiKey) throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
 
-  const content = [];
-  images.forEach((img, i) => {
-    // Detect media type from base64 header or default to jpeg
-    let mediaType = 'image/jpeg';
-    // Check first bytes for PNG signature
-    if (img.startsWith('iVBOR')) mediaType = 'image/png';
-    else if (img.startsWith('UklGR')) mediaType = 'image/webp';
+  let mediaType = 'image/jpeg';
+  if (imageBase64.startsWith('iVBOR')) mediaType = 'image/png';
+  else if (imageBase64.startsWith('UklGR')) mediaType = 'image/webp';
 
-    content.push({
-      type: 'image',
-      source: { type: 'base64', media_type: mediaType, data: img }
-    });
-  });
+  const prompt = `You are an expert OCR system reading a Fashion Q clothing store timecard. Your task is to extract clock-in and clock-out times with 100% accuracy.
 
-  content.push({
-    type: 'text',
-    text: `You are reading a Fashion Q store timecard photograph. Extract ALL data precisely.
+TIMECARD FORMAT:
+- The timecard is a physical punch card with pre-printed day rows (MON through SUN).
+- Each day row has columns for IN time and OUT time.
+- Times are printed/stamped by a time clock in format like "8:30A" or "5:15P" (A=AM, P=PM), or "8:30 AM" / "5:15 PM".
+- The photo may show ONE week or TWO weeks side by side (Week 1 = LEFT side, Week 2 = RIGHT side).
+- Some days will be blank (no punches = day off).
+- A single day may have multiple IN/OUT pairs if the employee clocked out and back in (split shift).
 
-Return ONLY valid JSON (no markdown, no backticks) in this exact format:
+READING INSTRUCTIONS — BE EXTREMELY CAREFUL:
+1. First, identify the employee name and store number at the top of the card.
+2. For each week visible, identify the date range (pay period).
+3. For EACH day row, read the IN and OUT times VERY carefully:
+   - Zoom into each number mentally. Distinguish 1 vs 7, 3 vs 8, 5 vs 6, 0 vs 8.
+   - Confirm AM vs PM — morning shifts typically start 6-10 AM, evening ends 5-11 PM.
+   - If the time says "4:00P", that means 4:00 PM.
+   - If you see "10:03A", that means 10:03 AM.
+4. If a time is unclear, make your best reading but mark it with a "?" suffix (e.g., "4:00? PM").
+5. Pair IN/OUT times from top to bottom for each day.
+
+OUTPUT FORMAT — Return ONLY valid JSON, no markdown, no backticks:
 {
   "employee_name": "string",
   "store_number": "string",
   "weeks": [
     {
+      "week_number": 1,
       "period": "M/D ~ M/D",
       "days": [
         {
-          "day": "MON|TUE|WED|THU|FRI|SAT|SUN",
+          "day": "MON",
           "shifts": [
-            { "in": "HH:MM PM/AM", "out": "HH:MM PM/AM" }
+            { "in": "8:30 AM", "out": "5:00 PM" }
           ]
         }
       ]
@@ -876,15 +477,17 @@ Return ONLY valid JSON (no markdown, no backticks) in this exact format:
   ]
 }
 
-Rules:
-- A day may have multiple shifts (multiple IN/OUT pairs). Include all of them.
-- If a day has no entries, return an empty shifts array.
-- Times are in 12-hour format with AM/PM exactly as printed.
-- The date stamps (like "26MAR10") indicate the date but the IN/OUT times are what matters.
-- Read carefully — each day has IN lines and OUT lines. Match them as pairs from top to bottom.
-- If two timecard images are provided, they represent Week 1 and Week 2 of the same pay period.
-- Include ALL days MON through SUN for each week, even if no hours worked.`
-  });
+CRITICAL RULES:
+- ALL times must be in "H:MM AM/PM" or "HH:MM AM/PM" format.
+- Include all 7 days (MON-SUN) per week, even blank days (empty shifts array).
+- If two weeks are visible, include both with week_number 1 and 2.
+- Double-check every digit before outputting. Accuracy is critical.
+- Common mistakes to avoid: reading 3 as 8, reading 1 as 7, reading 5 as 6, missing AM/PM.`;
+
+  const content = [
+    { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
+    { type: 'text', text: prompt }
+  ];
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -894,257 +497,264 @@ Rules:
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      messages: [{ role: 'user', content }]
-    })
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4096, messages: [{ role: 'user', content }] })
   });
 
   if (!response.ok) {
     const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API Error: ${response.status}`);
+    throw new Error(err.error?.message || 'API Error: ' + response.status);
   }
 
   const data = await response.json();
   const text = data.content.map(c => c.text || '').join('');
-  const clean = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(clean);
+  return JSON.parse(text.replace(/```json|```/g, '').trim());
 }
 
 // ══════════════════════════════════════════════
-// CALCULATION ENGINE
+// VERIFY / EDIT UI
+// ══════════════════════════════════════════════
+const DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+function showVerifyUI(data) {
+  ocrData = data;
+  document.getElementById('vEmpName').value = data.employee_name || '';
+  document.getElementById('vStore').value = data.store_number || localStorage.getItem('tc_store') || '7747';
+
+  const container = document.getElementById('verifyWeeks');
+  container.innerHTML = '';
+
+  data.weeks.forEach((week, wi) => {
+    const weekDiv = document.createElement('div');
+    weekDiv.className = 'verify-week';
+
+    let header = '<div class="verify-week-header"><span>Week ' + (week.week_number || wi+1) + '</span>';
+    header += '<input class="period-input" data-week="'+wi+'" value="'+(week.period||'')+'" placeholder="M/D ~ M/D"></div>';
+    weekDiv.innerHTML = header;
+
+    // Ensure all 7 days exist
+    const dayMap = {};
+    (week.days || []).forEach(d => { dayMap[d.day.toUpperCase()] = d.shifts || []; });
+
+    DAYS.forEach(dayName => {
+      const shifts = dayMap[dayName] || [];
+      const dayDiv = document.createElement('div');
+      dayDiv.className = 'verify-day';
+      dayDiv.innerHTML = '<div class="verify-day-name">' + dayName + '</div>';
+
+      const shiftsDiv = document.createElement('div');
+      shiftsDiv.className = 'verify-shifts';
+      shiftsDiv.dataset.week = wi;
+      shiftsDiv.dataset.day = dayName;
+
+      if (shifts.length === 0) {
+        // Add one empty row for easy entry
+        shiftsDiv.appendChild(makeShiftRow('', ''));
+      } else {
+        shifts.forEach(s => {
+          const inVal = (s.in || '').replace('?', '');
+          const outVal = (s.out || '').replace('?', '');
+          const row = makeShiftRow(inVal, outVal);
+          // Mark uncertain values
+          if ((s.in || '').includes('?')) row.querySelector('.in-field').classList.add('error-field');
+          if ((s.out || '').includes('?')) row.querySelector('.out-field').classList.add('error-field');
+          shiftsDiv.appendChild(row);
+        });
+      }
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'add-shift-btn';
+      addBtn.textContent = '+ Add shift';
+      addBtn.onclick = function() {
+        shiftsDiv.insertBefore(makeShiftRow('', ''), addBtn);
+      };
+      shiftsDiv.appendChild(addBtn);
+
+      dayDiv.appendChild(shiftsDiv);
+      dayDiv.innerHTML += '<div></div>'; // spacer for grid
+      weekDiv.appendChild(dayDiv);
+    });
+
+    container.appendChild(weekDiv);
+  });
+
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('verifySection').classList.add('visible');
+  document.getElementById('verifySection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function makeShiftRow(inVal, outVal) {
+  const row = document.createElement('div');
+  row.className = 'verify-shift-row';
+  row.innerHTML =
+    '<input class="in-field" value="' + escAttr(inVal) + '" placeholder="IN">' +
+    '<span class="arrow">→</span>' +
+    '<input class="out-field" value="' + escAttr(outVal) + '" placeholder="OUT">' +
+    '<button class="remove-shift" onclick="this.parentElement.remove()">✕</button>';
+  return row;
+}
+function escAttr(s) { return (s||'').replace(/"/g, '&quot;'); }
+
+function goBackToScan() {
+  document.getElementById('verifySection').classList.remove('visible');
+  document.getElementById('uploadSection').style.display = '';
+  document.getElementById('resultsSection').classList.remove('visible');
+}
+function goBackToVerify() {
+  document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('verifySection').classList.add('visible');
+  document.getElementById('verifySection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Collect verified data ──
+function collectVerifiedData() {
+  const name = document.getElementById('vEmpName').value.trim();
+  const store = document.getElementById('vStore').value.trim();
+  const weeks = [];
+
+  document.querySelectorAll('.verify-week').forEach((weekEl, wi) => {
+    const period = weekEl.querySelector('.period-input').value.trim();
+    const days = [];
+
+    weekEl.querySelectorAll('.verify-day').forEach(dayEl => {
+      const dayName = dayEl.querySelector('.verify-day-name').textContent.trim();
+      const shifts = [];
+      dayEl.querySelectorAll('.verify-shift-row').forEach(row => {
+        const inV = row.querySelector('.in-field').value.trim();
+        const outV = row.querySelector('.out-field').value.trim();
+        if (inV && outV) shifts.push({ in: inV, out: outV });
+      });
+      days.push({ day: dayName, shifts });
+    });
+
+    weeks.push({ week_number: wi + 1, period, days });
+  });
+
+  return { employee_name: name, store_number: store, weeks };
+}
+
+function calculateFromVerified() {
+  const data = collectVerifiedData();
+  renderResults(data);
+  document.getElementById('verifySection').classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════
+// CALCULATION
 // ══════════════════════════════════════════════
 function parseTime(str) {
-  // "4:00 PM" → minutes since midnight
   if (!str) return null;
-  const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM|A|P)/i);
   if (!m) return null;
   let h = parseInt(m[1]);
   const min = parseInt(m[2]);
-  const ampm = m[3].toUpperCase();
-  if (ampm === 'PM' && h !== 12) h += 12;
-  if (ampm === 'AM' && h === 12) h = 0;
+  const ap = m[3].toUpperCase();
+  if ((ap === 'PM' || ap === 'P') && h !== 12) h += 12;
+  if ((ap === 'AM' || ap === 'A') && h === 12) h = 0;
   return h * 60 + min;
 }
 
 function calcDay(shifts) {
-  let totalMinutes = 0;
-  const parsedShifts = [];
-
+  let total = 0;
+  const parsed = [];
   for (const s of shifts) {
-    const inM = parseTime(s.in);
-    const outM = parseTime(s.out);
-    if (inM === null || outM === null) continue;
-    let diff = outM - inM;
-    if (diff < 0) diff += 24 * 60; // overnight
-    totalMinutes += diff;
-    parsedShifts.push({ in: s.in, out: s.out, minutes: diff });
+    const i = parseTime(s.in), o = parseTime(s.out);
+    if (i === null || o === null) continue;
+    let d = o - i; if (d < 0) d += 1440;
+    total += d;
+    parsed.push({ in: s.in, out: s.out, minutes: d });
   }
-
-  // Paid break calculation
-  let paidBreakMin = 0;
-  if (totalMinutes >= 360) { // 6 hours
-    paidBreakMin = 20;
-  } else if (totalMinutes >= 240) { // 4 hours
-    paidBreakMin = 10;
-  }
-
-  // Net worked = total - paid break (break is included in total time but is unpaid... 
-  // Actually: "공짜로 쉬는 시간" = free break time that should be deducted
-  // So net worked hours = totalMinutes - paidBreakMin
-  const netWorkedMinutes = totalMinutes - paidBreakMin;
-
-  // Daily overtime: if net worked > 8 hours (480 min)
-  let dailyOTMinutes = 0;
-  if (netWorkedMinutes > 480) {
-    dailyOTMinutes = netWorkedMinutes - 480;
-  }
-  const regularMinutes = netWorkedMinutes - dailyOTMinutes;
-
-  return {
-    shifts: parsedShifts,
-    grossMinutes: totalMinutes,
-    paidBreakMin,
-    netWorkedMinutes,
-    dailyOTMinutes,
-    regularMinutes
-  };
+  let brk = 0;
+  if (total >= 360) brk = 20;
+  else if (total >= 240) brk = 10;
+  const net = total - brk;
+  const ot = net > 480 ? net - 480 : 0;
+  return { shifts: parsed, gross: total, brk, net, ot, reg: net - ot };
 }
 
-function formatHM(minutes) {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  if (m === 0) return `${h}h`;
-  return `${h}h ${m}m`;
-}
-
-function formatDecimal(minutes) {
-  return (minutes / 60).toFixed(2);
-}
-
-// ══════════════════════════════════════════════
-// RENDER RESULTS
-// ══════════════════════════════════════════════
+// ── Render Results ──
 function renderResults(data) {
-  const section = document.getElementById('resultsSection');
-  section.classList.add('visible');
-
+  const sec = document.getElementById('resultsSection');
+  sec.classList.add('visible');
   document.getElementById('empName').textContent = data.employee_name || 'Unknown';
-  document.getElementById('empStore').textContent = `Store ${data.store_number || localStorage.getItem('tc_store') || '7747'}`;
+  document.getElementById('empStore').textContent = 'Store ' + (data.store_number || '7747');
+  document.getElementById('empPeriod').textContent = data.weeks.map(w => w.period).join(' → ');
 
-  const periods = data.weeks.map(w => w.period).join('  →  ');
-  document.getElementById('empPeriod').textContent = periods;
-
-  let grandTotalNet = 0;
-  let grandTotalOT = 0;
-  let grandTotalReg = 0;
-  let grandTotalBreak = 0;
-
-  const weekCardsEl = document.getElementById('weekCards');
-  weekCardsEl.innerHTML = '';
+  let gNet=0, gOT=0, gReg=0, gBrk=0;
+  const wc = document.getElementById('weekCards');
+  wc.innerHTML = '';
 
   data.weeks.forEach((week, wi) => {
-    let weekNet = 0;
-    let weekOT = 0;
-    let weekReg = 0;
-    let weekBreak = 0;
-
-    const dayRows = [];
-    const dayResults = [];
-
+    let wNet=0, wBrk=0;
+    const days = [];
     for (const day of week.days) {
-      const result = calcDay(day.shifts || []);
-      dayResults.push({ day: day.day, ...result });
-      weekNet += result.netWorkedMinutes;
-      weekBreak += result.paidBreakMin;
+      const r = calcDay(day.shifts || []);
+      days.push({ day: day.day, ...r });
+      wNet += r.net; wBrk += r.brk;
     }
+    const sumDOT = days.reduce((a,d) => a + d.ot, 0);
+    let wExtra = 0;
+    if (wNet > 2400) wExtra = Math.max(0, wNet - 2400 - sumDOT);
+    const wOT = sumDOT + wExtra;
+    const wReg = wNet - wOT;
 
-    // Weekly overtime: if weekly total > 40 hours (2400 min)
-    // But we need to account for daily OT already counted
-    let sumDailyOT = dayResults.reduce((a, d) => a + d.dailyOTMinutes, 0);
-    let weeklyOTExtra = 0;
-    // Weekly OT = max(0, weekNet - 2400) that isn't already counted as daily OT
-    if (weekNet > 2400) {
-      const totalOTByWeekly = weekNet - 2400;
-      weeklyOTExtra = Math.max(0, totalOTByWeekly - sumDailyOT);
-    }
-    weekOT = sumDailyOT + weeklyOTExtra;
-    weekReg = weekNet - weekOT;
-
-    for (const d of dayResults) {
-      const hasWork = d.shifts.length > 0;
-      const shiftsHTML = d.shifts.map(s =>
-        `<span class="shift">${s.in} → ${s.out}</span>`
-      ).join('');
-
-      let hoursHTML = '';
-      if (hasWork) {
-        hoursHTML = `<span class="regular">${formatHM(d.netWorkedMinutes)}</span>`;
-        if (d.dailyOTMinutes > 0) {
-          hoursHTML += `<span class="overtime-badge">+${formatHM(d.dailyOTMinutes)} OT</span>`;
-        }
-        if (d.paidBreakMin > 0) {
-          hoursHTML += `<div class="break-info">Break: ${d.paidBreakMin}m deducted</div>`;
-        }
+    const rows = days.map(d => {
+      const hw = d.shifts.length > 0;
+      const sh = d.shifts.map(s => '<span class="shift">'+s.in+' → '+s.out+'</span>').join('');
+      let hrs = '';
+      if (hw) {
+        hrs = '<span class="regular">'+formatHMShort(d.net)+'</span>';
+        if (d.ot > 0) hrs += '<span class="overtime-badge">+'+formatHMShort(d.ot)+' OT</span>';
+        if (d.brk > 0) hrs += '<div class="break-info">Break: −'+d.brk+' min</div>';
       } else {
-        hoursHTML = `<span class="regular" style="opacity:0.4;">—</span>`;
+        hrs = '<span class="regular" style="opacity:0.4;">OFF</span>';
       }
+      return '<div class="day-row '+(hw?'':'no-work')+'"><div class="day-name">'+d.day+'</div><div class="day-times">'+sh+'</div><div class="day-hours">'+hrs+'</div></div>';
+    }).join('');
 
-      dayRows.push(`
-        <div class="day-row ${hasWork ? '' : 'no-work'}">
-          <div class="day-name">${d.day}</div>
-          <div class="day-times">${shiftsHTML || '<span style="opacity:0.3;">Off</span>'}</div>
-          <div class="day-hours">${hoursHTML}</div>
-        </div>
-      `);
-    }
+    const card = document.createElement('div');
+    card.className = 'week-card';
+    card.innerHTML = '<div class="week-header"><h3>Week '+(week.week_number||wi+1)+' — '+week.period+'</h3><span class="week-total">'+formatHMShort(wNet)+(wOT>0?' (OT: '+formatHMShort(wOT)+')':'')+'</span></div>'+rows;
+    wc.appendChild(card);
 
-    const weekCard = document.createElement('div');
-    weekCard.className = 'week-card';
-    weekCard.innerHTML = `
-      <div class="week-header">
-        <h3>Week ${wi + 1} — ${week.period}</h3>
-        <span class="week-total">${formatHM(weekNet)} ${weekOT > 0 ? `(OT: ${formatHM(weekOT)})` : ''}</span>
-      </div>
-      ${dayRows.join('')}
-    `;
-    weekCardsEl.appendChild(weekCard);
-
-    grandTotalNet += weekNet;
-    grandTotalOT += weekOT;
-    grandTotalReg += weekReg;
-    grandTotalBreak += weekBreak;
+    gNet+=wNet; gOT+=wOT; gReg+=wReg; gBrk+=wBrk;
   });
 
-  // Summary cards
-  document.getElementById('sumTotal').innerHTML = `${formatDecimal(grandTotalNet)}<span class="unit">h</span>`;
-  document.getElementById('sumOT').innerHTML = `${formatDecimal(grandTotalOT)}<span class="unit">h</span>`;
-  document.getElementById('sumReg').innerHTML = `${formatDecimal(grandTotalReg)}<span class="unit">h</span>`;
-  document.getElementById('sumBreak').innerHTML = `${grandTotalBreak}<span class="unit">m</span>`;
+  document.getElementById('sumTotal').textContent = formatHM(gNet);
+  document.getElementById('sumOT').textContent = formatHM(gOT);
+  document.getElementById('sumReg').textContent = formatHM(gReg);
+  document.getElementById('sumBreak').textContent = formatHM(gBrk);
 
-  // Grand total
-  const gt = document.getElementById('grandTotal');
-  gt.innerHTML = `
-    <h3>2-Week Pay Period Summary</h3>
-    <div class="totals-row">
-      <span class="t-label">Gross Time (before breaks)</span>
-      <span class="t-value">${formatHM(grandTotalNet + grandTotalBreak)}</span>
-    </div>
-    <div class="totals-row">
-      <span class="t-label">Paid Break Deductions</span>
-      <span class="t-value">−${grandTotalBreak}m</span>
-    </div>
-    <div class="totals-row">
-      <span class="t-label">Regular Hours</span>
-      <span class="t-value">${formatDecimal(grandTotalReg)}h</span>
-    </div>
-    <div class="totals-row">
-      <span class="t-label">Overtime Hours</span>
-      <span class="t-value" style="color:#ff9b9b;">${formatDecimal(grandTotalOT)}h</span>
-    </div>
-    <div class="totals-row highlight">
-      <span class="t-label">Net Hours Worked</span>
-      <span class="t-value">${formatDecimal(grandTotalNet)}h</span>
-    </div>
-  `;
+  const lbl = data.weeks.length === 1 ? '1-Week Summary' : '2-Week Pay Period Summary';
+  document.getElementById('grandTotal').innerHTML =
+    '<h3>'+lbl+'</h3>'+
+    '<div class="totals-row"><span class="t-label">Gross Time (before breaks)</span><span class="t-value">'+formatHM(gNet+gBrk)+'</span></div>'+
+    '<div class="totals-row"><span class="t-label">Break Deductions</span><span class="t-value">−'+formatHM(gBrk)+'</span></div>'+
+    '<div class="totals-row"><span class="t-label">Regular Hours</span><span class="t-value">'+formatHM(gReg)+'</span></div>'+
+    '<div class="totals-row"><span class="t-label">Overtime Hours</span><span class="t-value" style="color:#ff9b9b;">'+formatHM(gOT)+'</span></div>'+
+    '<div class="totals-row highlight"><span class="t-label">Net Hours Worked</span><span class="t-value">'+formatHM(gNet)+'</span></div>';
 
-  section.scrollIntoView({ behavior: 'smooth' });
+  sec.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ══════════════════════════════════════════════
-// MAIN SCAN
-// ══════════════════════════════════════════════
+// ── Main Scan ──
 async function runScan() {
   const btn = document.getElementById('scanBtn');
   const msg = document.getElementById('statusMsg');
-
-  const images = [];
-  if (photoData[1]) images.push(photoData[1]);
-  if (photoData[2]) images.push(photoData[2]);
-
-  if (images.length === 0) {
-    msg.textContent = 'Please capture at least one timecard photo.';
-    msg.className = 'status-msg error';
-    return;
-  }
-
-  btn.classList.add('loading');
-  btn.disabled = true;
-  msg.textContent = 'Reading timecard with Claude AI...';
+  if (!capturedBase64) { msg.textContent='Please capture a timecard photo.'; msg.className='status-msg error'; return; }
+  btn.classList.add('loading'); btn.disabled = true;
+  msg.textContent = 'Reading timecard with AI — this may take a moment...';
   msg.className = 'status-msg';
-
   try {
-    const data = await callClaude(images);
-    msg.textContent = 'Timecard read successfully!';
+    const data = await callClaude(capturedBase64);
+    msg.textContent = 'Read complete — please verify the data below.';
     msg.className = 'status-msg success';
-    renderResults(data);
+    showVerifyUI(data);
   } catch (err) {
     msg.textContent = err.message;
     msg.className = 'status-msg error';
   } finally {
-    btn.classList.remove('loading');
-    btn.disabled = false;
+    btn.classList.remove('loading'); btn.disabled = false;
   }
 }
 </script>
