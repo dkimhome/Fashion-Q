@@ -6,257 +6,180 @@
 <title>Fashion Q - Timecard Calculator</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap');
-
   :root {
-    --bg: #f0ece4;
-    --surface: #ffffff;
-    --surface-alt: #f7f5f0;
-    --border: #d4cfc5;
-    --text: #2c2a25;
-    --text-muted: #7a756b;
-    --accent: #1a6b4e;
-    --accent-light: #e8f5ee;
-    --accent-dark: #0f4a35;
-    --warn: #c4540a;
-    --overtime: #9b2c2c;
-    --overtime-light: #fff5f5;
-    --blue: #2b5ea7;
-    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
-    --shadow-lg: 0 4px 6px rgba(0,0,0,0.05), 0 10px 30px rgba(0,0,0,0.08);
-    --radius: 10px;
+    --bg:#f0ece4;--surface:#fff;--surface-alt:#f7f5f0;--border:#d4cfc5;--text:#2c2a25;--text-muted:#7a756b;
+    --accent:#1a6b4e;--accent-light:#e8f5ee;--accent-dark:#0f4a35;--warn:#c4540a;
+    --overtime:#9b2c2c;--overtime-light:#fff5f5;--blue:#2b5ea7;
+    --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 12px rgba(0,0,0,0.04);
+    --shadow-lg:0 4px 6px rgba(0,0,0,0.05),0 10px 30px rgba(0,0,0,0.08);--radius:10px;
   }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100dvh; -webkit-font-smoothing:antialiased; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;-webkit-font-smoothing:antialiased;}
+  .header{background:var(--accent-dark);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .header-left{display:flex;align-items:center;gap:12px;}
+  .header-logo{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+  .header h1{font-size:16px;font-weight:700;letter-spacing:-.3px;}
+  .header h1 span{font-weight:300;opacity:.7;margin-left:6px;}
+  .header-actions{display:flex;gap:8px;}
+  .header-btn{background:rgba(255,255,255,.12);border:none;color:#fff;padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;}
+  .header-btn:hover{background:rgba(255,255,255,.22);}
+  .login-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .login-overlay.hidden{display:none;}
+  .login-card{background:var(--surface);border-radius:16px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shadow-lg);text-align:center;}
+  .login-icon{width:64px;height:64px;background:var(--accent-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;}
+  .login-card h2{font-size:22px;font-weight:700;margin-bottom:4px;}
+  .login-card p{font-size:14px;color:var(--text-muted);margin-bottom:24px;}
+  .form-group{margin-bottom:14px;text-align:left;}
+  .form-group label{display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+  .form-group input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;font-family:'JetBrains Mono',monospace;text-align:center;letter-spacing:3px;outline:none;background:var(--surface-alt);}
+  .form-group input:focus{border-color:var(--accent);background:#fff;}
+  .btn-primary{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-primary:active{transform:scale(.98);}
+  .login-error{color:var(--warn);font-size:13px;margin-top:10px;min-height:20px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.hidden{display:none;}
+  .modal{background:var(--surface);border-radius:14px;padding:28px 24px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto;}
+  .modal h3{font-size:18px;font-weight:700;margin-bottom:16px;}
+  .modal .form-group input{text-align:left;letter-spacing:0;font-size:13px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .modal-actions button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none;}
+  .btn-cancel{background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important;}
+  .container{max-width:800px;margin:0 auto;padding:20px;}
+  .upload-section{background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+  .upload-section h2{font-size:17px;font-weight:700;margin-bottom:4px;}
+  .upload-section .subtitle{font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.5;}
+  .photo-area{position:relative;width:100%;min-height:200px;border:2px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--surface-alt);margin-bottom:16px;padding:30px 20px;}
+  .photo-area:hover{border-color:var(--accent);background:var(--accent-light);}
+  .photo-area.has-photo{border-style:solid;border-color:var(--accent);min-height:auto;padding:0;}
+  .photo-area img{width:100%;display:block;border-radius:10px;}
+  .photo-area .remove-btn{position:absolute;top:10px;right:10px;width:32px;height:32px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;font-size:16px;cursor:pointer;z-index:2;display:none;align-items:center;justify-content:center;}
+  .photo-area.has-photo .remove-btn{display:flex;}
+  .photo-area .area-icon{font-size:40px;margin-bottom:10px;opacity:.35;}
+  .photo-area .area-label{font-size:15px;font-weight:600;color:var(--text-muted);margin-bottom:4px;}
+  .photo-area .area-hint{font-size:12px;color:var(--text-muted);opacity:.7;text-align:center;line-height:1.4;}
+  .photo-area.has-photo .area-icon,.photo-area.has-photo .area-label,.photo-area.has-photo .area-hint{display:none;}
+  .btn-scan{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-scan:hover{background:var(--accent-dark);}
+  .btn-scan:disabled{background:var(--border);cursor:not-allowed;}
+  .btn-scan .spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+  .btn-scan.loading .spinner{display:block;}
+  .btn-scan.loading .btn-text{display:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .status-msg{text-align:center;font-size:13px;color:var(--text-muted);margin-top:10px;min-height:20px;}
+  .status-msg.error{color:var(--warn);}
+  .status-msg.success{color:var(--accent);}
+  .file-input{display:none;}
 
-  .header { background:var(--accent-dark); color:white; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
-  .header-left { display:flex; align-items:center; gap:12px; }
-  .header-logo { width:32px;height:32px;background:rgba(255,255,255,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px; }
-  .header h1 { font-size:16px; font-weight:700; letter-spacing:-0.3px; }
-  .header h1 span { font-weight:300; opacity:0.7; margin-left:6px; }
-  .header-actions { display:flex; gap:8px; }
-  .header-btn { background:rgba(255,255,255,0.12); border:none; color:white; padding:6px 12px; border-radius:6px; font-size:13px; cursor:pointer; font-family:inherit; }
-  .header-btn:hover { background:rgba(255,255,255,0.22); }
+  .verify-section{display:none;background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+  .verify-section.visible{display:block;}
+  .verify-section h2{font-size:17px;font-weight:700;margin-bottom:4px;}
+  .verify-section .subtitle{font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.5;}
+  .verify-emp{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .verify-emp .form-group{flex:1;min-width:120px;}
+  .verify-emp .form-group input{font-size:14px;letter-spacing:0;text-align:left;}
+  .verify-week{margin-bottom:18px;}
+  .verify-week-header{font-size:14px;font-weight:700;padding:8px 0;border-bottom:2px solid var(--accent);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+  .verify-week-header .period-input{font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:4px;padding:3px 8px;width:140px;text-align:center;outline:none;}
+  .verify-week-header .period-input:focus{border-color:var(--accent);}
+  .verify-day{display:grid;grid-template-columns:50px 1fr 30px;gap:6px;align-items:start;padding:6px 0;border-bottom:1px solid #f0ece4;}
+  .verify-day:last-child{border-bottom:none;}
+  .verify-day-name{font-weight:700;font-size:12px;text-transform:uppercase;padding-top:8px;color:var(--text-muted);}
+  .verify-shifts{display:flex;flex-direction:column;gap:4px;}
+  .verify-shift-row{display:flex;gap:6px;align-items:center;}
+  .verify-shift-row input{width:90px;padding:6px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center;outline:none;background:var(--surface-alt);}
+  .verify-shift-row input:focus{border-color:var(--accent);background:#fff;}
+  .verify-shift-row input.error-field{border-color:var(--warn);background:#fff8f5;}
+  .verify-shift-row .arrow{color:var(--text-muted);font-size:12px;}
+  .verify-shift-row .remove-shift{background:none;border:none;color:var(--warn);cursor:pointer;font-size:16px;padding:2px 4px;}
+  .add-shift-btn{background:none;border:1px dashed var(--border);border-radius:4px;color:var(--text-muted);font-size:11px;padding:3px 8px;cursor:pointer;margin-top:2px;font-family:inherit;}
+  .add-shift-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .verify-actions{display:flex;gap:10px;margin-top:16px;}
+  .verify-actions button{flex:1;padding:12px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;border:none;}
+  .btn-calc{background:var(--accent);color:#fff;}
+  .btn-calc:hover{background:var(--accent-dark);}
+  .btn-rescan{background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important;}
 
-  /* Login */
-  .login-overlay { position:fixed;inset:0;background:var(--bg);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px; }
-  .login-overlay.hidden { display:none; }
-  .login-card { background:var(--surface);border-radius:16px;padding:40px 32px;width:100%;max-width:360px;box-shadow:var(--shadow-lg);text-align:center; }
-  .login-icon { width:64px;height:64px;background:var(--accent-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px; }
-  .login-card h2 { font-size:22px;font-weight:700;margin-bottom:4px; }
-  .login-card p { font-size:14px;color:var(--text-muted);margin-bottom:24px; }
-  .form-group { margin-bottom:14px;text-align:left; }
-  .form-group label { display:block;font-size:12px;font-weight:500;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px; }
-  .form-group input { width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;font-family:'JetBrains Mono',monospace;text-align:center;letter-spacing:3px;outline:none;background:var(--surface-alt); }
-  .form-group input:focus { border-color:var(--accent);background:white; }
-  .btn-primary { width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px; }
-  .btn-primary:hover { background:var(--accent-dark); }
-  .btn-primary:active { transform:scale(0.98); }
-  .login-error { color:var(--warn);font-size:13px;margin-top:10px;min-height:20px; }
-
-  /* Modal */
-  .modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px; }
-  .modal-overlay.hidden { display:none; }
-  .modal { background:var(--surface);border-radius:14px;padding:28px 24px;width:100%;max-width:400px;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto; }
-  .modal h3 { font-size:18px;font-weight:700;margin-bottom:16px; }
-  .modal .form-group input { text-align:left;letter-spacing:0;font-size:13px; }
-  .modal-actions { display:flex;gap:10px;margin-top:18px; }
-  .modal-actions button { flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;border:none; }
-  .btn-cancel { background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border)!important; }
-
-  .container { max-width:800px;margin:0 auto;padding:20px; }
-
-  /* Upload */
-  .upload-section { background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px; }
-  .upload-section h2 { font-size:17px;font-weight:700;margin-bottom:4px; }
-  .upload-section .subtitle { font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.5; }
-  .photo-area { position:relative;width:100%;min-height:200px;border:2px dashed var(--border);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--surface-alt);margin-bottom:16px;padding:30px 20px; }
-  .photo-area:hover { border-color:var(--accent);background:var(--accent-light); }
-  .photo-area.has-photo { border-style:solid;border-color:var(--accent);min-height:auto;padding:0; }
-  .photo-area img { width:100%;display:block;border-radius:10px; }
-  .photo-area .remove-btn { position:absolute;top:10px;right:10px;width:32px;height:32px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;font-size:16px;cursor:pointer;z-index:2;display:none;align-items:center;justify-content:center; }
-  .photo-area.has-photo .remove-btn { display:flex; }
-  .photo-area .area-icon { font-size:40px;margin-bottom:10px;opacity:0.35; }
-  .photo-area .area-label { font-size:15px;font-weight:600;color:var(--text-muted);margin-bottom:4px; }
-  .photo-area .area-hint { font-size:12px;color:var(--text-muted);opacity:0.7;text-align:center;line-height:1.4; }
-  .photo-area.has-photo .area-icon,.photo-area.has-photo .area-label,.photo-area.has-photo .area-hint { display:none; }
-
-  .btn-scan { width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px; }
-  .btn-scan:hover { background:var(--accent-dark); }
-  .btn-scan:disabled { background:var(--border);cursor:not-allowed; }
-  .btn-scan .spinner { width:18px;height:18px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:none; }
-  .btn-scan.loading .spinner { display:block; }
-  .btn-scan.loading .btn-text { display:none; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  .status-msg { text-align:center;font-size:13px;color:var(--text-muted);margin-top:10px;min-height:20px; }
-  .status-msg.error { color:var(--warn); }
-  .status-msg.success { color:var(--accent); }
-  .file-input { display:none; }
-
-  /* ── Verify / Edit Section ── */
-  .verify-section { display:none; background:var(--surface); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow); margin-bottom:20px; }
-  .verify-section.visible { display:block; }
-  .verify-section h2 { font-size:17px; font-weight:700; margin-bottom:4px; }
-  .verify-section .subtitle { font-size:13px; color:var(--text-muted); margin-bottom:16px; line-height:1.5; }
-  .verify-emp { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
-  .verify-emp .form-group { flex:1; min-width:120px; }
-  .verify-emp .form-group input { font-size:14px; letter-spacing:0; text-align:left; }
-
-  .verify-week { margin-bottom:18px; }
-  .verify-week-header { font-size:14px; font-weight:700; padding:8px 0; border-bottom:2px solid var(--accent); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
-  .verify-week-header .period-input { font-family:'JetBrains Mono',monospace; font-size:12px; border:1px solid var(--border); border-radius:4px; padding:3px 8px; width:140px; text-align:center; outline:none; }
-  .verify-week-header .period-input:focus { border-color:var(--accent); }
-
-  .verify-day { display:grid; grid-template-columns:50px 1fr 30px; gap:6px; align-items:start; padding:6px 0; border-bottom:1px solid #f0ece4; }
-  .verify-day:last-child { border-bottom:none; }
-  .verify-day-name { font-weight:700; font-size:12px; text-transform:uppercase; padding-top:8px; color:var(--text-muted); }
-  .verify-shifts { display:flex; flex-direction:column; gap:4px; }
-  .verify-shift-row { display:flex; gap:6px; align-items:center; }
-  .verify-shift-row input {
-    width:90px; padding:6px 8px; border:1.5px solid var(--border); border-radius:6px;
-    font-family:'JetBrains Mono',monospace; font-size:13px; text-align:center;
-    outline:none; background:var(--surface-alt);
+  .results-section{display:none;}
+  .results-section.visible{display:block;}
+  .employee-banner{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+  .employee-banner .emp-info h3{font-size:18px;font-weight:700;}
+  .employee-banner .emp-info p{font-size:13px;color:var(--text-muted);}
+  .employee-banner .period-badge{background:var(--accent-light);color:var(--accent-dark);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;text-align:right;}
+  .week-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;}
+  .week-header{background:var(--surface-alt);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .week-header h3{font-size:15px;font-weight:700;}
+  .week-header .week-total{font-size:13px;font-weight:600;color:var(--accent);}
+  .day-row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;padding:12px 20px;border-bottom:1px solid #f0ece4;gap:12px;}
+  .day-row:last-child{border-bottom:none;}
+  .day-row.no-work{opacity:.4;}
+  .day-name{font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.3px;}
+  .day-times{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:4px 12px;}
+  .day-times .shift{background:var(--surface-alt);padding:2px 8px;border-radius:4px;}
+  .day-hours{text-align:right;white-space:nowrap;}
+  .day-hours .regular{font-size:13px;font-weight:600;}
+  .day-hours .overtime-badge{display:inline-block;background:var(--overtime-light);color:var(--overtime);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px;}
+  .day-hours .break-info{font-size:11px;color:var(--accent);margin-top:2px;font-weight:500;}
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .summary-card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center;}
+  .summary-card .label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .summary-card .value{font-size:17px;font-weight:700;line-height:1.3;}
+  .summary-card.total-hours .value{color:var(--accent-dark);}
+  .summary-card.overtime .value{color:var(--overtime);}
+  .summary-card.regular .value{color:var(--blue);}
+  .summary-card.break-card .value{color:var(--accent);}
+  .grand-total{background:var(--accent-dark);color:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);margin-bottom:20px;}
+  .grand-total h3{font-size:13px;font-weight:500;opacity:.7;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+  .grand-total .totals-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1);}
+  .grand-total .totals-row:last-child{border-bottom:none;}
+  .grand-total .totals-row .t-label{font-size:14px;opacity:.8;}
+  .grand-total .totals-row .t-value{font-size:15px;font-weight:700;text-align:right;}
+  .grand-total .totals-row.highlight .t-value{color:#ffd700;font-size:18px;}
+  @media(max-width:480px){
+    .summary-grid{gap:8px;}.summary-card .value{font-size:15px;}
+    .day-row{grid-template-columns:44px 1fr auto;padding:10px 14px;gap:8px;}
+    .container{padding:14px;}.employee-banner{flex-direction:column;gap:10px;text-align:center;}
+    .employee-banner .period-badge{text-align:center;}
+    .verify-shift-row input{width:80px;font-size:12px;}.verify-emp{flex-direction:column;}
   }
-  .verify-shift-row input:focus { border-color:var(--accent); background:white; }
-  .verify-shift-row input.error-field { border-color:var(--warn); background:#fff8f5; }
-  .verify-shift-row .arrow { color:var(--text-muted); font-size:12px; }
-  .verify-shift-row .remove-shift { background:none; border:none; color:var(--warn); cursor:pointer; font-size:16px; padding:2px 4px; }
-  .add-shift-btn { background:none; border:1px dashed var(--border); border-radius:4px; color:var(--text-muted); font-size:11px; padding:3px 8px; cursor:pointer; margin-top:2px; font-family:inherit; }
-  .add-shift-btn:hover { border-color:var(--accent); color:var(--accent); }
-  .add-day-btn-wrap { display:flex; align-items:center; justify-content:center; padding-top:6px; }
-
-  .verify-actions { display:flex; gap:10px; margin-top:16px; }
-  .verify-actions button { flex:1; padding:12px; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit; border:none; }
-  .btn-calc { background:var(--accent); color:white; }
-  .btn-calc:hover { background:var(--accent-dark); }
-  .btn-rescan { background:var(--surface-alt); color:var(--text); border:1.5px solid var(--border)!important; }
-
-  /* Results */
-  .results-section { display:none; }
-  .results-section.visible { display:block; }
-  .employee-banner { background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between; }
-  .employee-banner .emp-info h3 { font-size:18px;font-weight:700; }
-  .employee-banner .emp-info p { font-size:13px;color:var(--text-muted); }
-  .employee-banner .period-badge { background:var(--accent-light);color:var(--accent-dark);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;text-align:right; }
-
-  .week-card { background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden; }
-  .week-header { background:var(--surface-alt);padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between; }
-  .week-header h3 { font-size:15px;font-weight:700; }
-  .week-header .week-total { font-size:13px;font-weight:600;color:var(--accent); }
-  .day-row { display:grid;grid-template-columns:52px 1fr auto;align-items:center;padding:12px 20px;border-bottom:1px solid #f0ece4;gap:12px; }
-  .day-row:last-child { border-bottom:none; }
-  .day-row.no-work { opacity:0.4; }
-  .day-name { font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.3px; }
-  .day-times { font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-muted);display:flex;flex-wrap:wrap;gap:4px 12px; }
-  .day-times .shift { background:var(--surface-alt);padding:2px 8px;border-radius:4px; }
-  .day-hours { text-align:right;white-space:nowrap; }
-  .day-hours .regular { font-size:13px;font-weight:600; }
-  .day-hours .overtime-badge { display:inline-block;background:var(--overtime-light);color:var(--overtime);font-size:11px;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:6px; }
-  .day-hours .break-info { font-size:11px;color:var(--text-muted);margin-top:2px; }
-
-  .summary-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px; }
-  .summary-card { background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center; }
-  .summary-card .label { font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px; }
-  .summary-card .value { font-size:17px;font-weight:700;line-height:1.3; }
-  .summary-card.total-hours .value { color:var(--accent-dark); }
-  .summary-card.overtime .value { color:var(--overtime); }
-  .summary-card.regular .value { color:var(--blue); }
-  .summary-card.break-card .value { color:var(--warn); }
-
-  .grand-total { background:var(--accent-dark);color:white;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-lg);margin-bottom:20px; }
-  .grand-total h3 { font-size:13px;font-weight:500;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px; }
-  .grand-total .totals-row { display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.1); }
-  .grand-total .totals-row:last-child { border-bottom:none; }
-  .grand-total .totals-row .t-label { font-size:14px;opacity:0.8; }
-  .grand-total .totals-row .t-value { font-size:15px;font-weight:700;text-align:right; }
-  .grand-total .totals-row.highlight .t-value { color:#ffd700;font-size:18px; }
-
-  @media (max-width:480px) {
-    .summary-grid { gap:8px; }
-    .summary-card .value { font-size:15px; }
-    .day-row { grid-template-columns:44px 1fr auto;padding:10px 14px;gap:8px; }
-    .container { padding:14px; }
-    .employee-banner { flex-direction:column;gap:10px;text-align:center; }
-    .employee-banner .period-badge { text-align:center; }
-    .verify-shift-row input { width:80px; font-size:12px; }
-    .verify-emp { flex-direction:column; }
-  }
-  @media print {
-    .header,.upload-section,.verify-section { display:none; }
-    body { background:white; }
-    .results-section { display:block!important; }
-  }
+  @media print{.header,.upload-section,.verify-section{display:none;}body{background:#fff;}.results-section{display:block!important;}}
 </style>
 </head>
 <body>
 
-<!-- Login -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-card">
     <div class="login-icon">⏱</div>
     <h2>Timecard Calculator</h2>
     <p>Fashion Q · Store 7747</p>
-    <div class="form-group">
-      <label>Employee #</label>
-      <input type="text" id="loginEmp" placeholder="0000" maxlength="10" inputmode="numeric" autocomplete="off">
-    </div>
-    <div class="form-group">
-      <label>PIN</label>
-      <input type="password" id="loginPin" placeholder="····" maxlength="4" inputmode="numeric" autocomplete="off">
-    </div>
+    <div class="form-group"><label>Employee #</label><input type="text" id="loginEmp" placeholder="0000" maxlength="10" inputmode="numeric" autocomplete="off"></div>
+    <div class="form-group"><label>PIN</label><input type="password" id="loginPin" placeholder="····" maxlength="4" inputmode="numeric" autocomplete="off"></div>
     <button class="btn-primary" onclick="doLogin()">Sign In</button>
     <div class="login-error" id="loginError"></div>
-    <div style="margin-top:18px;font-size:12px;color:var(--text-muted);">
-      Initial admin: EMP# <b>0000</b> / PIN <b>1234</b>
-    </div>
+    <div style="margin-top:18px;font-size:12px;color:var(--text-muted);">Initial admin: EMP# <b>0000</b> / PIN <b>1234</b></div>
   </div>
 </div>
 
-<!-- Settings Modal -->
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
-    <div class="form-group">
-      <label>Claude API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
-    </div>
-    <div class="form-group">
-      <label>Store Number</label>
-      <input type="text" id="storeNumInput" placeholder="7747" value="7747">
-    </div>
+    <div class="form-group"><label>Claude API Key</label><input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..."></div>
+    <div class="form-group"><label>Store Number</label><input type="text" id="storeNumInput" placeholder="7747" value="7747"></div>
     <h3 style="margin-top:18px;">Manage Users</h3>
-    <div class="form-group">
-      <label>New Employee #</label>
-      <input type="text" id="newEmpNum" placeholder="1234" maxlength="10" inputmode="numeric">
-    </div>
-    <div class="form-group">
-      <label>New PIN (4 digits)</label>
-      <input type="password" id="newEmpPin" placeholder="0000" maxlength="4" inputmode="numeric">
-    </div>
+    <div class="form-group"><label>New Employee #</label><input type="text" id="newEmpNum" placeholder="1234" maxlength="10" inputmode="numeric"></div>
+    <div class="form-group"><label>New PIN (4 digits)</label><input type="password" id="newEmpPin" placeholder="0000" maxlength="4" inputmode="numeric"></div>
     <button class="btn-primary" onclick="addUser()" style="margin-bottom:10px;">Add User</button>
     <div id="userList" style="font-size:12px;color:var(--text-muted);max-height:100px;overflow-y:auto;"></div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeSettings()">Cancel</button>
-      <button class="btn-primary" onclick="saveSettings()">Save</button>
-    </div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeSettings()">Cancel</button><button class="btn-primary" onclick="saveSettings()">Save</button></div>
   </div>
 </div>
 
-<!-- Header -->
 <div class="header">
-  <div class="header-left">
-    <div class="header-logo">FQ</div>
-    <h1>Timecard<span>Calculator</span></h1>
-  </div>
-  <div class="header-actions">
-    <button class="header-btn" onclick="openSettings()">⚙</button>
-    <button class="header-btn" onclick="doLogout()">Sign Out</button>
-  </div>
+  <div class="header-left"><div class="header-logo">FQ</div><h1>Timecard<span>Calculator</span></h1></div>
+  <div class="header-actions"><button class="header-btn" onclick="openSettings()">⚙</button><button class="header-btn" onclick="doLogout()">Sign Out</button></div>
 </div>
 
 <div class="container">
-
-  <!-- Upload -->
   <div class="upload-section" id="uploadSection">
     <h2>Scan Timecard</h2>
     <p class="subtitle">Take one photo of the timecard. Both weeks side by side, or just one week.</p>
@@ -268,25 +191,17 @@
     </div>
     <input type="file" class="file-input" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(this)">
     <button class="btn-scan" id="scanBtn" onclick="runScan()" disabled>
-      <span class="spinner"></span>
-      <span class="btn-text">Read Timecard</span>
+      <span class="spinner"></span><span class="btn-text">Read Timecard</span>
     </button>
     <div class="status-msg" id="statusMsg"></div>
   </div>
 
-  <!-- Verify / Edit -->
   <div class="verify-section" id="verifySection">
     <h2>Verify & Edit</h2>
-    <p class="subtitle">Review the data below. Fix any errors before calculating.</p>
+    <p class="subtitle">Check each time against the photo. Fix any errors, then calculate.</p>
     <div class="verify-emp">
-      <div class="form-group">
-        <label>Employee Name</label>
-        <input type="text" id="vEmpName">
-      </div>
-      <div class="form-group">
-        <label>Store #</label>
-        <input type="text" id="vStore">
-      </div>
+      <div class="form-group"><label>Employee Name</label><input type="text" id="vEmpName"></div>
+      <div class="form-group"><label>Store #</label><input type="text" id="vStore"></div>
     </div>
     <div id="verifyWeeks"></div>
     <div class="verify-actions">
@@ -295,17 +210,16 @@
     </div>
   </div>
 
-  <!-- Results -->
   <div class="results-section" id="resultsSection">
     <div class="employee-banner">
       <div class="emp-info"><h3 id="empName">—</h3><p id="empStore">Store 7747</p></div>
       <div class="period-badge" id="empPeriod">—</div>
     </div>
     <div class="summary-grid">
-      <div class="summary-card total-hours"><div class="label">Total Hours</div><div class="value" id="sumTotal">—</div></div>
+      <div class="summary-card total-hours"><div class="label">Total Worked</div><div class="value" id="sumTotal">—</div></div>
       <div class="summary-card overtime"><div class="label">Overtime</div><div class="value" id="sumOT">—</div></div>
       <div class="summary-card regular"><div class="label">Regular</div><div class="value" id="sumReg">—</div></div>
-      <div class="summary-card break-card"><div class="label">Break Deducted</div><div class="value" id="sumBreak">—</div></div>
+      <div class="summary-card break-card"><div class="label">Paid Breaks</div><div class="value" id="sumBreak">—</div></div>
     </div>
     <div id="weekCards"></div>
     <div class="grand-total" id="grandTotal"></div>
@@ -317,147 +231,97 @@
 </div>
 
 <script>
-let capturedBase64 = null;
-let ocrData = null; // stores the raw OCR result for editing
+let capturedBase64=null;
+function getUsers(){return JSON.parse(localStorage.getItem('tc_users')||'{"0000":"1234"}');}
+function saveUsers(u){localStorage.setItem('tc_users',JSON.stringify(u));}
 
-function getUsers() { return JSON.parse(localStorage.getItem('tc_users') || '{"0000":"1234"}'); }
-function saveUsers(u) { localStorage.setItem('tc_users', JSON.stringify(u)); }
-
-// ── Format ──
-function formatHM(m) {
-  if (m === 0) return '0 minutes';
-  const h = Math.floor(m/60), mm = m%60, p = [];
-  if (h > 0) p.push(h === 1 ? '1 hour' : h + ' hours');
-  if (mm > 0) p.push(mm === 1 ? '1 minute' : mm + ' minutes');
+function formatHM(m){
+  if(m===0)return'0 minutes';
+  const h=Math.floor(m/60),mm=m%60,p=[];
+  if(h>0)p.push(h===1?'1 hour':h+' hours');
+  if(mm>0)p.push(mm===1?'1 minute':mm+' minutes');
   return p.join(' ');
 }
-function formatHMShort(m) {
-  if (m === 0) return '0 min';
-  const h = Math.floor(m/60), mm = m%60;
-  if (h === 0) return mm + ' min';
-  if (mm === 0) return h + ' hr' + (h>1?'s':'');
-  return h + ' hr' + (h>1?'s':'') + ' ' + mm + ' min';
+function formatHMShort(m){
+  if(m===0)return'0 min';
+  const h=Math.floor(m/60),mm=m%60;
+  if(h===0)return mm+' min';
+  if(mm===0)return h+' hr'+(h>1?'s':'');
+  return h+' hr'+(h>1?'s':'')+' '+mm+' min';
 }
 
 // ── Login ──
-function doLogin() {
-  const emp = document.getElementById('loginEmp').value.trim();
-  const pin = document.getElementById('loginPin').value.trim();
-  const users = getUsers();
-  if (users[emp] && users[emp] === pin) {
-    sessionStorage.setItem('tc_logged_in', emp);
-    document.getElementById('loginOverlay').classList.add('hidden');
-    document.getElementById('loginError').textContent = '';
-  } else {
-    document.getElementById('loginError').textContent = 'Invalid employee # or PIN.';
-  }
+function doLogin(){
+  const e=document.getElementById('loginEmp').value.trim(),p=document.getElementById('loginPin').value.trim(),u=getUsers();
+  if(u[e]&&u[e]===p){sessionStorage.setItem('tc_logged_in',e);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('loginError').textContent='';}
+  else document.getElementById('loginError').textContent='Invalid employee # or PIN.';
 }
-function doLogout() {
-  sessionStorage.removeItem('tc_logged_in');
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  document.getElementById('loginEmp').value = '';
-  document.getElementById('loginPin').value = '';
-}
-if (sessionStorage.getItem('tc_logged_in')) document.getElementById('loginOverlay').classList.add('hidden');
-document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
-document.getElementById('loginEmp').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginPin').focus(); });
+function doLogout(){sessionStorage.removeItem('tc_logged_in');document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('loginEmp').value='';document.getElementById('loginPin').value='';}
+if(sessionStorage.getItem('tc_logged_in'))document.getElementById('loginOverlay').classList.add('hidden');
+document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginEmp').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 
 // ── Settings ──
-function openSettings() {
-  document.getElementById('apiKeyInput').value = localStorage.getItem('tc_api_key') || '';
-  document.getElementById('storeNumInput').value = localStorage.getItem('tc_store') || '7747';
-  renderUserList();
-  document.getElementById('settingsModal').classList.remove('hidden');
-}
-function closeSettings() { document.getElementById('settingsModal').classList.add('hidden'); }
-function saveSettings() {
-  const k = document.getElementById('apiKeyInput').value.trim();
-  const s = document.getElementById('storeNumInput').value.trim();
-  if (k) localStorage.setItem('tc_api_key', k);
-  if (s) localStorage.setItem('tc_store', s);
-  closeSettings();
-}
-function addUser() {
-  const e = document.getElementById('newEmpNum').value.trim();
-  const p = document.getElementById('newEmpPin').value.trim();
-  if (!e || p.length !== 4) { alert('Enter valid employee # and 4-digit PIN'); return; }
-  const u = getUsers(); u[e] = p; saveUsers(u);
-  document.getElementById('newEmpNum').value = '';
-  document.getElementById('newEmpPin').value = '';
-  renderUserList();
-}
-function removeUser(e) {
-  if (e === '0000') { alert('Cannot remove default admin.'); return; }
-  const u = getUsers(); delete u[e]; saveUsers(u); renderUserList();
-}
-function renderUserList() {
-  const u = getUsers();
-  document.getElementById('userList').innerHTML = Object.keys(u).map(e =>
-    '<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+
-    (e !== '0000' ? '<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>' : '<span style="opacity:0.4;">admin</span>')+
-    '</div>'
-  ).join('');
-}
+function openSettings(){document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
+function closeSettings(){document.getElementById('settingsModal').classList.add('hidden');}
+function saveSettings(){const k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
+function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=document.getElementById('newEmpPin').value.trim();if(!e||p.length!==4){alert('Enter valid employee # and 4-digit PIN');return;}const u=getUsers();u[e]=p;saveUsers(u);document.getElementById('newEmpNum').value='';document.getElementById('newEmpPin').value='';renderUserList();}
+function removeUser(e){if(e==='0000'){alert('Cannot remove default admin.');return;}const u=getUsers();delete u[e];saveUsers(u);renderUserList();}
+function renderUserList(){const u=getUsers();document.getElementById('userList').innerHTML=Object.keys(u).map(e=>'<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+(e!=='0000'?'<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>':'<span style="opacity:0.4;">admin</span>')+'</div>').join('');}
 
 // ── Photo ──
-function triggerCapture() { document.getElementById('fileInput').click(); }
-function handleFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const full = e.target.result;
-    capturedBase64 = full.split(',')[1];
-    const area = document.getElementById('photoArea');
-    let img = area.querySelector('img');
-    if (!img) { img = document.createElement('img'); area.appendChild(img); }
-    img.src = full;
-    area.classList.add('has-photo');
-    document.getElementById('scanBtn').disabled = false;
-  };
-  reader.readAsDataURL(file);
+function triggerCapture(){document.getElementById('fileInput').click();}
+function handleFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const full=e.target.result;capturedBase64=full.split(',')[1];
+    const area=document.getElementById('photoArea');
+    let img=area.querySelector('img');if(!img){img=document.createElement('img');area.appendChild(img);}
+    img.src=full;area.classList.add('has-photo');document.getElementById('scanBtn').disabled=false;
+  };reader.readAsDataURL(file);
 }
-function removePhoto() {
-  capturedBase64 = null;
-  const area = document.getElementById('photoArea');
-  const img = area.querySelector('img');
-  if (img) img.remove();
-  area.classList.remove('has-photo');
-  document.getElementById('fileInput').value = '';
-  document.getElementById('scanBtn').disabled = true;
-}
+function removePhoto(){capturedBase64=null;const a=document.getElementById('photoArea'),i=a.querySelector('img');if(i)i.remove();a.classList.remove('has-photo');document.getElementById('fileInput').value='';document.getElementById('scanBtn').disabled=true;}
 
-// ── Claude API — Improved OCR Prompt ──
-async function callClaude(imageBase64) {
-  const apiKey = localStorage.getItem('tc_api_key');
-  if (!apiKey) throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
+// ══════════════════════════════════════
+// CLAUDE API — DOUBLE-READ OCR
+// ══════════════════════════════════════
+async function callClaude(imageBase64){
+  const apiKey=localStorage.getItem('tc_api_key');
+  if(!apiKey)throw new Error('API key not set. Go to Settings (⚙) to enter your Claude API key.');
+  let mediaType='image/jpeg';
+  if(imageBase64.startsWith('iVBOR'))mediaType='image/png';
+  else if(imageBase64.startsWith('UklGR'))mediaType='image/webp';
 
-  let mediaType = 'image/jpeg';
-  if (imageBase64.startsWith('iVBOR')) mediaType = 'image/png';
-  else if (imageBase64.startsWith('UklGR')) mediaType = 'image/webp';
+  const prompt=`You are an expert OCR system. You will read a Fashion Q store employee timecard photograph with extreme precision.
 
-  const prompt = `You are an expert OCR system reading a Fashion Q clothing store timecard. Your task is to extract clock-in and clock-out times with 100% accuracy.
+STEP 1 — UNDERSTAND THE CARD LAYOUT:
+A Fashion Q timecard is a physical card punched through a time clock machine.
+- The card has the employee name and store number printed at the top.
+- It has rows for each day of the week: MON, TUE, WED, THU, FRI, SAT, SUN.
+- Each day has IN and OUT columns where the time clock stamps times.
+- Stamped times look like "8:30A" (meaning 8:30 AM) or "5:15P" (meaning 5:15 PM).
+- Sometimes times are printed as "10:03 AM" with a space before AM/PM.
+- The card may show 1 week or 2 weeks side by side (Week 1 = LEFT, Week 2 = RIGHT).
+- IGNORE any upside-down or sideways stamps — these are break markings, not clock times.
+- Some days will have NO stamps (day off).
+- A day can have multiple IN/OUT pairs (split shifts — the employee left and came back).
 
-TIMECARD FORMAT:
-- The timecard is a physical punch card with pre-printed day rows (MON through SUN).
-- Each day row has columns for IN time and OUT time.
-- Times are printed/stamped by a time clock in format like "8:30A" or "5:15P" (A=AM, P=PM), or "8:30 AM" / "5:15 PM".
-- The photo may show ONE week or TWO weeks side by side (Week 1 = LEFT side, Week 2 = RIGHT side).
-- Some days will be blank (no punches = day off).
-- A single day may have multiple IN/OUT pairs if the employee clocked out and back in (split shift).
+STEP 2 — READ EVERY TIME WITH EXTREME CARE:
+For each stamped time:
+a) Read the HOUR digit(s) very carefully. Common confusions: 1↔7, 3↔8, 5↔6, 0↔8, 9↔4.
+b) Read the MINUTE digits. Common confusions: 03↔08, 30↔38, 00↔08.
+c) Read AM or PM (shown as A/P or AM/PM). Use logic: morning IN = AM, evening OUT = PM.
+   Typical retail shifts: arrive 8–10 AM, leave 4–9 PM. Lunch shifts possible.
+d) If the stamp is smudged or partially visible, use context to determine the most likely reading.
 
-READING INSTRUCTIONS — BE EXTREMELY CAREFUL:
-1. First, identify the employee name and store number at the top of the card.
-2. For each week visible, identify the date range (pay period).
-3. For EACH day row, read the IN and OUT times VERY carefully:
-   - Zoom into each number mentally. Distinguish 1 vs 7, 3 vs 8, 5 vs 6, 0 vs 8.
-   - Confirm AM vs PM — morning shifts typically start 6-10 AM, evening ends 5-11 PM.
-   - If the time says "4:00P", that means 4:00 PM.
-   - If you see "10:03A", that means 10:03 AM.
-4. If a time is unclear, make your best reading but mark it with a "?" suffix (e.g., "4:00? PM").
-5. Pair IN/OUT times from top to bottom for each day.
+STEP 3 — VERIFY BY RE-READING:
+After your first reading, go back and re-read every single time stamp a second time.
+Compare your two readings. If they differ, look more carefully and pick the correct one.
+For any time you are less than 95% confident about, add "?" after it (e.g., "4:08? PM").
 
-OUTPUT FORMAT — Return ONLY valid JSON, no markdown, no backticks:
+STEP 4 — OUTPUT:
+Return ONLY valid JSON. No markdown. No backticks. No explanation.
 {
   "employee_name": "string",
   "store_number": "string",
@@ -466,296 +330,217 @@ OUTPUT FORMAT — Return ONLY valid JSON, no markdown, no backticks:
       "week_number": 1,
       "period": "M/D ~ M/D",
       "days": [
-        {
-          "day": "MON",
-          "shifts": [
-            { "in": "8:30 AM", "out": "5:00 PM" }
-          ]
-        }
+        { "day": "MON", "shifts": [{ "in": "9:00 AM", "out": "5:30 PM" }] },
+        { "day": "TUE", "shifts": [] }
       ]
     }
   ]
 }
 
-CRITICAL RULES:
-- ALL times must be in "H:MM AM/PM" or "HH:MM AM/PM" format.
-- Include all 7 days (MON-SUN) per week, even blank days (empty shifts array).
-- If two weeks are visible, include both with week_number 1 and 2.
-- Double-check every digit before outputting. Accuracy is critical.
-- Common mistakes to avoid: reading 3 as 8, reading 1 as 7, reading 5 as 6, missing AM/PM.`;
+RULES:
+- Times MUST be in "H:MM AM/PM" format (e.g., "9:00 AM", "12:30 PM", "5:15 PM").
+- Include all 7 days MON–SUN per week. Empty shifts array for days off.
+- If 2 weeks visible, return both with week_number 1 and 2.
+- IGNORE upside-down/rotated stamps (these are break records, not work times).
+- Double-check every single digit before outputting.`;
 
-  const content = [
-    { type: 'image', source: { type: 'base64', media_type: mediaType, data: imageBase64 } },
-    { type: 'text', text: prompt }
+  const content=[
+    {type:'image',source:{type:'base64',media_type:mediaType,data:imageBase64}},
+    {type:'text',text:prompt}
   ];
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4096, messages: [{ role: 'user', content }] })
+  const response=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})
   });
-
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'API Error: ' + response.status);
-  }
-
-  const data = await response.json();
-  const text = data.content.map(c => c.text || '').join('');
-  return JSON.parse(text.replace(/```json|```/g, '').trim());
+  if(!response.ok){const err=await response.json().catch(()=>({}));throw new Error(err.error?.message||'API Error: '+response.status);}
+  const data=await response.json();
+  const text=data.content.map(c=>c.text||'').join('');
+  return JSON.parse(text.replace(/```json|```/g,'').trim());
 }
 
-// ══════════════════════════════════════════════
-// VERIFY / EDIT UI
-// ══════════════════════════════════════════════
-const DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+// ══════════════════════════════════════
+// VERIFY UI
+// ══════════════════════════════════════
+const DAYS=['MON','TUE','WED','THU','FRI','SAT','SUN'];
 
-function showVerifyUI(data) {
-  ocrData = data;
-  document.getElementById('vEmpName').value = data.employee_name || '';
-  document.getElementById('vStore').value = data.store_number || localStorage.getItem('tc_store') || '7747';
+function showVerifyUI(data){
+  document.getElementById('vEmpName').value=data.employee_name||'';
+  document.getElementById('vStore').value=data.store_number||localStorage.getItem('tc_store')||'7747';
+  const container=document.getElementById('verifyWeeks');container.innerHTML='';
 
-  const container = document.getElementById('verifyWeeks');
-  container.innerHTML = '';
+  data.weeks.forEach((week,wi)=>{
+    const wd=document.createElement('div');wd.className='verify-week';
+    wd.innerHTML='<div class="verify-week-header"><span>Week '+(week.week_number||wi+1)+'</span><input class="period-input" data-week="'+wi+'" value="'+(week.period||'')+'" placeholder="M/D ~ M/D"></div>';
+    const dayMap={};(week.days||[]).forEach(d=>{dayMap[d.day.toUpperCase()]=d.shifts||[];});
 
-  data.weeks.forEach((week, wi) => {
-    const weekDiv = document.createElement('div');
-    weekDiv.className = 'verify-week';
+    DAYS.forEach(dayName=>{
+      const shifts=dayMap[dayName]||[];
+      const dd=document.createElement('div');dd.className='verify-day';
+      dd.innerHTML='<div class="verify-day-name">'+dayName+'</div>';
+      const sd=document.createElement('div');sd.className='verify-shifts';sd.dataset.week=wi;sd.dataset.day=dayName;
 
-    let header = '<div class="verify-week-header"><span>Week ' + (week.week_number || wi+1) + '</span>';
-    header += '<input class="period-input" data-week="'+wi+'" value="'+(week.period||'')+'" placeholder="M/D ~ M/D"></div>';
-    weekDiv.innerHTML = header;
+      if(shifts.length===0){sd.appendChild(makeShiftRow('',''));}
+      else{shifts.forEach(s=>{
+        const iv=(s.in||'').replace('?',''),ov=(s.out||'').replace('?','');
+        const row=makeShiftRow(iv,ov);
+        if((s.in||'').includes('?'))row.querySelector('.in-field').classList.add('error-field');
+        if((s.out||'').includes('?'))row.querySelector('.out-field').classList.add('error-field');
+        sd.appendChild(row);
+      });}
 
-    // Ensure all 7 days exist
-    const dayMap = {};
-    (week.days || []).forEach(d => { dayMap[d.day.toUpperCase()] = d.shifts || []; });
-
-    DAYS.forEach(dayName => {
-      const shifts = dayMap[dayName] || [];
-      const dayDiv = document.createElement('div');
-      dayDiv.className = 'verify-day';
-      dayDiv.innerHTML = '<div class="verify-day-name">' + dayName + '</div>';
-
-      const shiftsDiv = document.createElement('div');
-      shiftsDiv.className = 'verify-shifts';
-      shiftsDiv.dataset.week = wi;
-      shiftsDiv.dataset.day = dayName;
-
-      if (shifts.length === 0) {
-        // Add one empty row for easy entry
-        shiftsDiv.appendChild(makeShiftRow('', ''));
-      } else {
-        shifts.forEach(s => {
-          const inVal = (s.in || '').replace('?', '');
-          const outVal = (s.out || '').replace('?', '');
-          const row = makeShiftRow(inVal, outVal);
-          // Mark uncertain values
-          if ((s.in || '').includes('?')) row.querySelector('.in-field').classList.add('error-field');
-          if ((s.out || '').includes('?')) row.querySelector('.out-field').classList.add('error-field');
-          shiftsDiv.appendChild(row);
-        });
-      }
-
-      const addBtn = document.createElement('button');
-      addBtn.className = 'add-shift-btn';
-      addBtn.textContent = '+ Add shift';
-      addBtn.onclick = function() {
-        shiftsDiv.insertBefore(makeShiftRow('', ''), addBtn);
-      };
-      shiftsDiv.appendChild(addBtn);
-
-      dayDiv.appendChild(shiftsDiv);
-      dayDiv.innerHTML += '<div></div>'; // spacer for grid
-      weekDiv.appendChild(dayDiv);
+      const ab=document.createElement('button');ab.className='add-shift-btn';ab.textContent='+ Add shift';
+      ab.onclick=function(){sd.insertBefore(makeShiftRow('',''),ab);};
+      sd.appendChild(ab);dd.appendChild(sd);dd.innerHTML+='<div></div>';wd.appendChild(dd);
     });
-
-    container.appendChild(weekDiv);
+    container.appendChild(wd);
   });
 
-  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('uploadSection').style.display='none';
   document.getElementById('resultsSection').classList.remove('visible');
   document.getElementById('verifySection').classList.add('visible');
-  document.getElementById('verifySection').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('verifySection').scrollIntoView({behavior:'smooth'});
 }
 
-function makeShiftRow(inVal, outVal) {
-  const row = document.createElement('div');
-  row.className = 'verify-shift-row';
-  row.innerHTML =
-    '<input class="in-field" value="' + escAttr(inVal) + '" placeholder="IN">' +
-    '<span class="arrow">→</span>' +
-    '<input class="out-field" value="' + escAttr(outVal) + '" placeholder="OUT">' +
-    '<button class="remove-shift" onclick="this.parentElement.remove()">✕</button>';
-  return row;
+function makeShiftRow(iv,ov){
+  const r=document.createElement('div');r.className='verify-shift-row';
+  r.innerHTML='<input class="in-field" value="'+esc(iv)+'" placeholder="IN"><span class="arrow">→</span><input class="out-field" value="'+esc(ov)+'" placeholder="OUT"><button class="remove-shift" onclick="this.parentElement.remove()">✕</button>';
+  return r;
 }
-function escAttr(s) { return (s||'').replace(/"/g, '&quot;'); }
+function esc(s){return(s||'').replace(/"/g,'&quot;');}
+function goBackToScan(){document.getElementById('verifySection').classList.remove('visible');document.getElementById('uploadSection').style.display='';document.getElementById('resultsSection').classList.remove('visible');}
+function goBackToVerify(){document.getElementById('resultsSection').classList.remove('visible');document.getElementById('verifySection').classList.add('visible');document.getElementById('verifySection').scrollIntoView({behavior:'smooth'});}
 
-function goBackToScan() {
-  document.getElementById('verifySection').classList.remove('visible');
-  document.getElementById('uploadSection').style.display = '';
-  document.getElementById('resultsSection').classList.remove('visible');
-}
-function goBackToVerify() {
-  document.getElementById('resultsSection').classList.remove('visible');
-  document.getElementById('verifySection').classList.add('visible');
-  document.getElementById('verifySection').scrollIntoView({ behavior: 'smooth' });
-}
-
-// ── Collect verified data ──
-function collectVerifiedData() {
-  const name = document.getElementById('vEmpName').value.trim();
-  const store = document.getElementById('vStore').value.trim();
-  const weeks = [];
-
-  document.querySelectorAll('.verify-week').forEach((weekEl, wi) => {
-    const period = weekEl.querySelector('.period-input').value.trim();
-    const days = [];
-
-    weekEl.querySelectorAll('.verify-day').forEach(dayEl => {
-      const dayName = dayEl.querySelector('.verify-day-name').textContent.trim();
-      const shifts = [];
-      dayEl.querySelectorAll('.verify-shift-row').forEach(row => {
-        const inV = row.querySelector('.in-field').value.trim();
-        const outV = row.querySelector('.out-field').value.trim();
-        if (inV && outV) shifts.push({ in: inV, out: outV });
-      });
-      days.push({ day: dayName, shifts });
-    });
-
-    weeks.push({ week_number: wi + 1, period, days });
+function collectVerifiedData(){
+  const name=document.getElementById('vEmpName').value.trim(),store=document.getElementById('vStore').value.trim(),weeks=[];
+  document.querySelectorAll('.verify-week').forEach((we,wi)=>{
+    const period=we.querySelector('.period-input').value.trim(),days=[];
+    we.querySelectorAll('.verify-day').forEach(de=>{
+      const dn=de.querySelector('.verify-day-name').textContent.trim(),shifts=[];
+      de.querySelectorAll('.verify-shift-row').forEach(r=>{
+        const i=r.querySelector('.in-field').value.trim(),o=r.querySelector('.out-field').value.trim();
+        if(i&&o)shifts.push({in:i,out:o});
+      });days.push({day:dn,shifts});
+    });weeks.push({week_number:wi+1,period,days});
   });
+  return{employee_name:name,store_number:store,weeks};
+}
+function calculateFromVerified(){renderResults(collectVerifiedData());document.getElementById('verifySection').classList.remove('visible');}
 
-  return { employee_name: name, store_number: store, weeks };
+// ══════════════════════════════════════
+// CALCULATION — BREAKS ARE FREE (NOT DEDUCTED)
+// ══════════════════════════════════════
+function parseTime(str){
+  if(!str)return null;
+  const m=str.match(/(\d{1,2}):(\d{2})\s*(AM|PM|A|P)/i);
+  if(!m)return null;
+  let h=parseInt(m[1]);const min=parseInt(m[2]),ap=m[3].toUpperCase();
+  if((ap==='PM'||ap==='P')&&h!==12)h+=12;
+  if((ap==='AM'||ap==='A')&&h===12)h=0;
+  return h*60+min;
 }
 
-function calculateFromVerified() {
-  const data = collectVerifiedData();
-  renderResults(data);
-  document.getElementById('verifySection').classList.remove('visible');
-}
-
-// ══════════════════════════════════════════════
-// CALCULATION
-// ══════════════════════════════════════════════
-function parseTime(str) {
-  if (!str) return null;
-  const m = str.match(/(\d{1,2}):(\d{2})\s*(AM|PM|A|P)/i);
-  if (!m) return null;
-  let h = parseInt(m[1]);
-  const min = parseInt(m[2]);
-  const ap = m[3].toUpperCase();
-  if ((ap === 'PM' || ap === 'P') && h !== 12) h += 12;
-  if ((ap === 'AM' || ap === 'A') && h === 12) h = 0;
-  return h * 60 + min;
-}
-
-function calcDay(shifts) {
-  let total = 0;
-  const parsed = [];
-  for (const s of shifts) {
-    const i = parseTime(s.in), o = parseTime(s.out);
-    if (i === null || o === null) continue;
-    let d = o - i; if (d < 0) d += 1440;
-    total += d;
-    parsed.push({ in: s.in, out: s.out, minutes: d });
+function calcDay(shifts){
+  let total=0;const parsed=[];
+  for(const s of shifts){
+    const i=parseTime(s.in),o=parseTime(s.out);
+    if(i===null||o===null)continue;
+    let d=o-i;if(d<0)d+=1440;
+    total+=d;parsed.push({in:s.in,out:s.out,minutes:d});
   }
-  let brk = 0;
-  if (total >= 360) brk = 20;
-  else if (total >= 240) brk = 10;
-  const net = total - brk;
-  const ot = net > 480 ? net - 480 : 0;
-  return { shifts: parsed, gross: total, brk, net, ot, reg: net - ot };
+  // Paid break: FREE — not deducted from worked hours
+  // 4+ hrs worked → 10 min paid break
+  // 6+ hrs worked → 20 min paid break
+  let paidBreak=0;
+  if(total>=360)paidBreak=20;
+  else if(total>=240)paidBreak=10;
+
+  // Total worked = full IN-to-OUT time (break is NOT subtracted)
+  const worked=total;
+
+  // Daily OT: worked > 8 hours
+  const dailyOT=worked>480?worked-480:0;
+  const regular=worked-dailyOT;
+
+  return{shifts:parsed,worked,paidBreak,dailyOT,regular};
 }
 
-// ── Render Results ──
-function renderResults(data) {
-  const sec = document.getElementById('resultsSection');
-  sec.classList.add('visible');
-  document.getElementById('empName').textContent = data.employee_name || 'Unknown';
-  document.getElementById('empStore').textContent = 'Store ' + (data.store_number || '7747');
-  document.getElementById('empPeriod').textContent = data.weeks.map(w => w.period).join(' → ');
+// ── Render ──
+function renderResults(data){
+  const sec=document.getElementById('resultsSection');sec.classList.add('visible');
+  document.getElementById('empName').textContent=data.employee_name||'Unknown';
+  document.getElementById('empStore').textContent='Store '+(data.store_number||'7747');
+  document.getElementById('empPeriod').textContent=data.weeks.map(w=>w.period).join(' → ');
 
-  let gNet=0, gOT=0, gReg=0, gBrk=0;
-  const wc = document.getElementById('weekCards');
-  wc.innerHTML = '';
+  let gWorked=0,gOT=0,gReg=0,gBreak=0;
+  const wc=document.getElementById('weekCards');wc.innerHTML='';
 
-  data.weeks.forEach((week, wi) => {
-    let wNet=0, wBrk=0;
-    const days = [];
-    for (const day of week.days) {
-      const r = calcDay(day.shifts || []);
-      days.push({ day: day.day, ...r });
-      wNet += r.net; wBrk += r.brk;
+  data.weeks.forEach((week,wi)=>{
+    let wWorked=0,wBreak=0;
+    const days=[];
+    for(const day of week.days){
+      const r=calcDay(day.shifts||[]);
+      days.push({day:day.day,...r});
+      wWorked+=r.worked;wBreak+=r.paidBreak;
     }
-    const sumDOT = days.reduce((a,d) => a + d.ot, 0);
-    let wExtra = 0;
-    if (wNet > 2400) wExtra = Math.max(0, wNet - 2400 - sumDOT);
-    const wOT = sumDOT + wExtra;
-    const wReg = wNet - wOT;
+    // Weekly OT: total worked > 40 hrs, minus daily OT already counted
+    const sumDOT=days.reduce((a,d)=>a+d.dailyOT,0);
+    let wExtra=0;
+    if(wWorked>2400)wExtra=Math.max(0,wWorked-2400-sumDOT);
+    const wOT=sumDOT+wExtra;
+    const wReg=wWorked-wOT;
 
-    const rows = days.map(d => {
-      const hw = d.shifts.length > 0;
-      const sh = d.shifts.map(s => '<span class="shift">'+s.in+' → '+s.out+'</span>').join('');
-      let hrs = '';
-      if (hw) {
-        hrs = '<span class="regular">'+formatHMShort(d.net)+'</span>';
-        if (d.ot > 0) hrs += '<span class="overtime-badge">+'+formatHMShort(d.ot)+' OT</span>';
-        if (d.brk > 0) hrs += '<div class="break-info">Break: −'+d.brk+' min</div>';
-      } else {
-        hrs = '<span class="regular" style="opacity:0.4;">OFF</span>';
+    const rows=days.map(d=>{
+      const hw=d.shifts.length>0;
+      const sh=d.shifts.map(s=>'<span class="shift">'+s.in+' → '+s.out+'</span>').join('');
+      let hrs='';
+      if(hw){
+        hrs='<span class="regular">'+formatHMShort(d.worked)+'</span>';
+        if(d.dailyOT>0)hrs+='<span class="overtime-badge">+'+formatHMShort(d.dailyOT)+' OT</span>';
+        if(d.paidBreak>0)hrs+='<div class="break-info">Paid break: '+d.paidBreak+' min</div>';
+      }else{
+        hrs='<span class="regular" style="opacity:.4;">OFF</span>';
       }
-      return '<div class="day-row '+(hw?'':'no-work')+'"><div class="day-name">'+d.day+'</div><div class="day-times">'+sh+'</div><div class="day-hours">'+hrs+'</div></div>';
+      return'<div class="day-row '+(hw?'':'no-work')+'"><div class="day-name">'+d.day+'</div><div class="day-times">'+sh+'</div><div class="day-hours">'+hrs+'</div></div>';
     }).join('');
 
-    const card = document.createElement('div');
-    card.className = 'week-card';
-    card.innerHTML = '<div class="week-header"><h3>Week '+(week.week_number||wi+1)+' — '+week.period+'</h3><span class="week-total">'+formatHMShort(wNet)+(wOT>0?' (OT: '+formatHMShort(wOT)+')':'')+'</span></div>'+rows;
+    const card=document.createElement('div');card.className='week-card';
+    card.innerHTML='<div class="week-header"><h3>Week '+(week.week_number||wi+1)+' — '+week.period+'</h3><span class="week-total">'+formatHMShort(wWorked)+(wOT>0?' (OT: '+formatHMShort(wOT)+')':'')+'</span></div>'+rows;
     wc.appendChild(card);
 
-    gNet+=wNet; gOT+=wOT; gReg+=wReg; gBrk+=wBrk;
+    gWorked+=wWorked;gOT+=wOT;gReg+=wReg;gBreak+=wBreak;
   });
 
-  document.getElementById('sumTotal').textContent = formatHM(gNet);
-  document.getElementById('sumOT').textContent = formatHM(gOT);
-  document.getElementById('sumReg').textContent = formatHM(gReg);
-  document.getElementById('sumBreak').textContent = formatHM(gBrk);
+  document.getElementById('sumTotal').textContent=formatHM(gWorked);
+  document.getElementById('sumOT').textContent=formatHM(gOT);
+  document.getElementById('sumReg').textContent=formatHM(gReg);
+  document.getElementById('sumBreak').textContent=formatHM(gBreak);
 
-  const lbl = data.weeks.length === 1 ? '1-Week Summary' : '2-Week Pay Period Summary';
-  document.getElementById('grandTotal').innerHTML =
+  const lbl=data.weeks.length===1?'1-Week Summary':'2-Week Pay Period Summary';
+  document.getElementById('grandTotal').innerHTML=
     '<h3>'+lbl+'</h3>'+
-    '<div class="totals-row"><span class="t-label">Gross Time (before breaks)</span><span class="t-value">'+formatHM(gNet+gBrk)+'</span></div>'+
-    '<div class="totals-row"><span class="t-label">Break Deductions</span><span class="t-value">−'+formatHM(gBrk)+'</span></div>'+
+    '<div class="totals-row"><span class="t-label">Total Hours Worked</span><span class="t-value">'+formatHM(gWorked)+'</span></div>'+
     '<div class="totals-row"><span class="t-label">Regular Hours</span><span class="t-value">'+formatHM(gReg)+'</span></div>'+
     '<div class="totals-row"><span class="t-label">Overtime Hours</span><span class="t-value" style="color:#ff9b9b;">'+formatHM(gOT)+'</span></div>'+
-    '<div class="totals-row highlight"><span class="t-label">Net Hours Worked</span><span class="t-value">'+formatHM(gNet)+'</span></div>';
+    '<div class="totals-row"><span class="t-label">Paid Break (free)</span><span class="t-value" style="color:#7ddfb0;">'+formatHM(gBreak)+'</span></div>'+
+    '<div class="totals-row highlight"><span class="t-label">Total Paid Time</span><span class="t-value">'+formatHM(gWorked+gBreak)+'</span></div>';
 
-  sec.scrollIntoView({ behavior: 'smooth' });
+  sec.scrollIntoView({behavior:'smooth'});
 }
 
-// ── Main Scan ──
-async function runScan() {
-  const btn = document.getElementById('scanBtn');
-  const msg = document.getElementById('statusMsg');
-  if (!capturedBase64) { msg.textContent='Please capture a timecard photo.'; msg.className='status-msg error'; return; }
-  btn.classList.add('loading'); btn.disabled = true;
-  msg.textContent = 'Reading timecard with AI — this may take a moment...';
-  msg.className = 'status-msg';
-  try {
-    const data = await callClaude(capturedBase64);
-    msg.textContent = 'Read complete — please verify the data below.';
-    msg.className = 'status-msg success';
+// ── Main ──
+async function runScan(){
+  const btn=document.getElementById('scanBtn'),msg=document.getElementById('statusMsg');
+  if(!capturedBase64){msg.textContent='Please capture a timecard photo.';msg.className='status-msg error';return;}
+  btn.classList.add('loading');btn.disabled=true;
+  msg.textContent='Reading timecard with AI — this may take a moment...';msg.className='status-msg';
+  try{
+    const data=await callClaude(capturedBase64);
+    msg.textContent='Read complete — please verify below.';msg.className='status-msg success';
     showVerifyUI(data);
-  } catch (err) {
-    msg.textContent = err.message;
-    msg.className = 'status-msg error';
-  } finally {
-    btn.classList.remove('loading'); btn.disabled = false;
-  }
+  }catch(err){msg.textContent=err.message;msg.className='status-msg error';}
+  finally{btn.classList.remove('loading');btn.disabled=false;}
 }
 </script>
 </body>
