@@ -52,7 +52,12 @@
   .photo-area .area-icon{font-size:40px;margin-bottom:10px;opacity:.35;}
   .photo-area .area-label{font-size:15px;font-weight:600;color:var(--text-muted);margin-bottom:4px;}
   .photo-area .area-hint{font-size:12px;color:var(--text-muted);opacity:.7;text-align:center;line-height:1.4;}
-  .photo-area.has-photo .area-icon,.photo-area.has-photo .area-label,.photo-area.has-photo .area-hint{display:none;}
+  .photo-area.has-photo .area-icon,.photo-area.has-photo .area-label,.photo-area.has-photo .area-hint,.photo-area.has-photo .capture-btns{display:none;}
+  .capture-btns{display:flex;gap:10px;width:100%;margin-top:8px;}
+  .capture-btn{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .2s,background .2s;}
+  .capture-btn:hover{border-color:var(--accent);background:var(--accent-light);}
+  .capture-btn .cb-icon{font-size:22px;}
+  .capture-btn .cb-label{font-size:12px;color:var(--text-muted);}
   .btn-scan{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;}
   .btn-scan:hover{background:var(--accent-dark);}
   .btn-scan:disabled{background:var(--border);cursor:not-allowed;}
@@ -203,13 +208,18 @@
   <div class="upload-section" id="uploadSection">
     <h2>Scan Timecard</h2>
     <p class="subtitle">Take a photo or upload an image of the timecard. Both weeks side by side, or just one week.</p>
-    <div class="photo-area" id="photoArea" onclick="triggerCapture()">
+    <div class="photo-area" id="photoArea">
       <div class="area-icon">📷</div>
-      <div class="area-label">Tap to take photo or upload</div>
+      <div class="area-label">Timecard Photo</div>
       <div class="area-hint">Both weeks in one shot, or just one week</div>
+      <div class="capture-btns">
+        <button class="capture-btn" onclick="triggerCamera()"><span class="cb-icon">📷</span><span class="cb-label">Camera</span></button>
+        <button class="capture-btn" onclick="triggerUpload()"><span class="cb-icon">🖼</span><span class="cb-label">Upload Photo</span></button>
+      </div>
       <button class="remove-btn" onclick="event.stopPropagation();removePhoto()">✕</button>
     </div>
-    <input type="file" class="file-input" id="fileInput" accept="image/*" onchange="handleFile(this)">
+    <input type="file" class="file-input" id="cameraInput" accept="image/*" capture="environment" onchange="handleFile(this)">
+    <input type="file" class="file-input" id="uploadInput" accept="image/*" onchange="handleFile(this)">
     <button class="btn-scan" id="scanBtn" onclick="runScan()" disabled>
       <span class="spinner"></span><span class="btn-text">Read Timecard</span>
     </button>
@@ -278,9 +288,10 @@ function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=d
 function removeUser(e){if(e==='0000'){alert('Cannot remove default admin.');return;}const u=getUsers();delete u[e];saveUsers(u);renderUserList();}
 function renderUserList(){const u=getUsers();document.getElementById('userList').innerHTML=Object.keys(u).map(e=>'<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+(e!=='0000'?'<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>':'<span style="opacity:0.4;">admin</span>')+'</div>').join('');}
 
-function triggerCapture(){document.getElementById('fileInput').click();}
+function triggerCamera(){document.getElementById('cameraInput').click();}
+function triggerUpload(){document.getElementById('uploadInput').click();}
 function handleFile(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=function(e){const full=e.target.result;capturedBase64=full.split(',')[1];const area=document.getElementById('photoArea');let img=area.querySelector('img');if(!img){img=document.createElement('img');area.appendChild(img);}img.src=full;area.classList.add('has-photo');document.getElementById('scanBtn').disabled=false;};reader.readAsDataURL(file);}
-function removePhoto(){capturedBase64=null;const a=document.getElementById('photoArea'),i=a.querySelector('img');if(i)i.remove();a.classList.remove('has-photo');document.getElementById('fileInput').value='';document.getElementById('scanBtn').disabled=true;}
+function removePhoto(){capturedBase64=null;const a=document.getElementById('photoArea'),i=a.querySelector('img');if(i)i.remove();a.classList.remove('has-photo');document.getElementById('cameraInput').value='';document.getElementById('uploadInput').value='';document.getElementById('scanBtn').disabled=true;}
 
 // ══════════════════════════════════════
 // CLAUDE API — PUNCH CARD SPECIFIC OCR
