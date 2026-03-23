@@ -131,7 +131,38 @@
     .container{padding:14px;}.employee-banner{flex-direction:column;gap:10px;text-align:center;}
     .verify-shift-row input{width:80px;font-size:12px;}.verify-emp{flex-direction:column;}
   }
-  @media print{.header,.upload-section,.verify-section{display:none;}body{background:#fff;}.results-section{display:block!important;}}
+  /* History */
+  .history-section{display:none;background:var(--surface);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+  .history-section.visible{display:block;}
+  .history-section h2{font-size:17px;font-weight:700;margin-bottom:4px;}
+  .history-section .subtitle{font-size:13px;color:var(--text-muted);margin-bottom:16px;}
+  .history-empty{text-align:center;padding:30px;color:var(--text-muted);font-size:14px;}
+  .history-period{margin-bottom:16px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .history-period-header{background:var(--surface-alt);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;border-bottom:1px solid var(--border);}
+  .history-period-header:hover{background:var(--accent-light);}
+  .history-period-header h4{font-size:14px;font-weight:700;}
+  .history-period-header .h-count{font-size:12px;color:var(--text-muted);}
+  .history-period-actions{display:flex;gap:6px;}
+  .history-period-actions button{padding:4px 10px;font-size:12px;border-radius:5px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-family:inherit;font-weight:600;}
+  .history-period-actions .h-export{color:var(--accent);border-color:var(--accent);}
+  .history-period-actions .h-export:hover{background:var(--accent-light);}
+  .history-period-actions .h-delete{color:var(--warn);border-color:var(--warn);}
+  .history-period-actions .h-delete:hover{background:#fff3eb;}
+  .history-records{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+  .history-records.open{max-height:2000px;}
+  .history-record{display:grid;grid-template-columns:1fr auto auto auto;gap:10px;align-items:center;padding:10px 16px;border-bottom:1px solid #f0ece4;font-size:13px;}
+  .history-record:last-child{border-bottom:none;}
+  .history-record .hr-name{font-weight:600;}
+  .history-record .hr-total{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent-dark);}
+  .history-record .hr-ot{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--overtime);}
+  .history-record .hr-del{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;padding:2px 4px;}
+  .history-record .hr-del:hover{color:var(--warn);}
+  .saved-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--accent-dark);color:#fff;padding:10px 24px;border-radius:20px;font-size:14px;font-weight:600;box-shadow:var(--shadow-lg);z-index:400;opacity:0;transition:opacity .3s;pointer-events:none;}
+  .saved-toast.show{opacity:1;}
+  .history-back-row{margin-top:14px;}
+  .history-back-row button{width:100%;padding:12px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;border:none;background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border);}
+  .history-back-row button:hover{background:var(--border);}
+  @media print{.header,.upload-section,.verify-section,.history-section{display:none;}body{background:#fff;}.results-section{display:block!important;}}
 </style>
 </head>
 <body>
@@ -165,20 +196,20 @@
 
 <div class="header">
   <div class="header-left"><div class="header-logo">FQ</div><h1>Timecard<span>Calculator</span></h1></div>
-  <div class="header-actions"><button class="header-btn" onclick="openSettings()">⚙</button><button class="header-btn" onclick="doLogout()">Sign Out</button></div>
+  <div class="header-actions"><button class="header-btn" onclick="showHistory()">📋</button><button class="header-btn" onclick="openSettings()">⚙</button><button class="header-btn" onclick="doLogout()">Sign Out</button></div>
 </div>
 
 <div class="container">
   <div class="upload-section" id="uploadSection">
     <h2>Scan Timecard</h2>
-    <p class="subtitle">Take one photo of the timecard. Both weeks side by side, or just one week.</p>
+    <p class="subtitle">Take a photo or upload an image of the timecard. Both weeks side by side, or just one week.</p>
     <div class="photo-area" id="photoArea" onclick="triggerCapture()">
       <div class="area-icon">📷</div>
-      <div class="area-label">Tap to photograph timecard</div>
+      <div class="area-label">Tap to take photo or upload</div>
       <div class="area-hint">Both weeks in one shot, or just one week</div>
       <button class="remove-btn" onclick="event.stopPropagation();removePhoto()">✕</button>
     </div>
-    <input type="file" class="file-input" id="fileInput" accept="image/*" capture="environment" onchange="handleFile(this)">
+    <input type="file" class="file-input" id="fileInput" accept="image/*" onchange="handleFile(this)">
     <button class="btn-scan" id="scanBtn" onclick="runScan()" disabled>
       <span class="spinner"></span><span class="btn-text">Read Timecard</span>
     </button>
@@ -213,10 +244,19 @@
     <div class="grand-total" id="grandTotal"></div>
     <div style="display:flex;gap:10px;">
       <button class="btn-primary" onclick="goBackToVerify()" style="background:var(--surface-alt);color:var(--text);border:1.5px solid var(--border);">Edit Data</button>
-      <button class="btn-primary" onclick="window.print()">Print Report</button>
+      <button class="btn-primary" onclick="saveAndNext()" style="background:var(--blue);">Save & Next Employee</button>
     </div>
   </div>
+
+  <div class="history-section" id="historySection">
+    <h2>Saved Records</h2>
+    <p class="subtitle">Pay period results. Tap a period to expand. Export as CSV for payroll.</p>
+    <div id="historyList"></div>
+    <div class="history-back-row"><button onclick="hideHistory()">Back</button></div>
+  </div>
 </div>
+
+<div class="saved-toast" id="savedToast">Saved!</div>
 
 <script>
 let capturedBase64=null;
@@ -373,6 +413,7 @@ function mkRow(iv,ov){const r=document.createElement('div');r.className='verify-
 function esc(s){return(s||'').replace(/"/g,'&quot;');}
 function goBackToScan(){document.getElementById('verifySection').classList.remove('visible');document.getElementById('uploadSection').style.display='';document.getElementById('resultsSection').classList.remove('visible');}
 function goBackToVerify(){document.getElementById('resultsSection').classList.remove('visible');document.getElementById('verifySection').classList.add('visible');document.getElementById('verifySection').scrollIntoView({behavior:'smooth'});}
+function startFresh(){removePhoto();document.getElementById('verifySection').classList.remove('visible');document.getElementById('resultsSection').classList.remove('visible');document.getElementById('historySection').classList.remove('visible');document.getElementById('uploadSection').style.display='';document.getElementById('statusMsg').textContent='';document.getElementById('statusMsg').className='status-msg';window.scrollTo({top:0,behavior:'smooth'});}
 function collectData(){
   const nm=document.getElementById('vEmpName').value.trim(),st=document.getElementById('vStore').value.trim(),weeks=[];
   document.querySelectorAll('.verify-week').forEach((we,wi)=>{
@@ -405,6 +446,8 @@ function calcDay(shifts){
   return{shifts:parsed,worked:total,ot,reg:total-ot};
 }
 
+let lastCalcData=null,lastCalcResults=null;
+
 function renderResults(data){
   const sec=document.getElementById('resultsSection');sec.classList.add('visible');
   document.getElementById('empName').textContent=data.employee_name||'Unknown';
@@ -412,6 +455,7 @@ function renderResults(data){
   document.getElementById('empPeriod').textContent=data.weeks.map(w=>w.period).join(' → ');
   let gW=0,gOT=0,gReg=0;
   const wc=document.getElementById('weekCards');wc.innerHTML='';
+  const weekResults=[];
 
   data.weeks.forEach((week,wi)=>{
     let wW=0;const days=[];
@@ -419,6 +463,7 @@ function renderResults(data){
     const sumDOT=days.reduce((a,d)=>a+d.ot,0);
     let wExtra=0;if(wW>2400)wExtra=Math.max(0,wW-2400-sumDOT);
     const wOT=sumDOT+wExtra,wReg=wW-wOT;
+    weekResults.push({weekNum:week.week_number||wi+1,period:week.period,worked:wW,ot:wOT,reg:wReg,days});
 
     const rows=days.map(d=>{
       const hw=d.shifts.length>0;
@@ -447,7 +492,168 @@ function renderResults(data){
     '<div class="totals-row"><span class="t-label">Overtime Hours</span><span class="t-value" style="color:#ff9b9b;">'+formatHM(gOT)+'</span></div>'+
     '<div class="totals-row highlight"><span class="t-label">Total Hours</span><span class="t-value">'+formatHM(gW)+'</span></div>';
 
+  lastCalcData=data;
+  lastCalcResults={employee:data.employee_name,store:data.store_number,periods:data.weeks.map(w=>w.period).join(' → '),totalWorked:gW,regular:gReg,overtime:gOT,weeks:weekResults};
   sec.scrollIntoView({behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+// SAVE & HISTORY
+// ══════════════════════════════════════
+function getSavedRecords(){return JSON.parse(localStorage.getItem('tc_records')||'{}');}
+function setSavedRecords(r){localStorage.setItem('tc_records',JSON.stringify(r));}
+
+function makePeriodKey(data){
+  // Use the pay period string as the grouping key
+  const periods=data.weeks.map(w=>w.period).join(' → ');
+  return periods||('Unknown_'+Date.now());
+}
+
+function saveCurrentResult(){
+  if(!lastCalcResults)return;
+  const records=getSavedRecords();
+  const periodKey=lastCalcResults.periods;
+  if(!records[periodKey])records[periodKey]=[];
+  // Check if this employee already saved in this period — update if so
+  const idx=records[periodKey].findIndex(r=>r.employee===lastCalcResults.employee);
+  const entry={
+    employee:lastCalcResults.employee,
+    store:lastCalcResults.store,
+    totalWorked:lastCalcResults.totalWorked,
+    regular:lastCalcResults.regular,
+    overtime:lastCalcResults.overtime,
+    weeks:lastCalcResults.weeks.map(w=>({weekNum:w.weekNum,period:w.period,worked:w.worked,ot:w.ot,reg:w.reg,
+      days:w.days.map(d=>({day:d.day,worked:d.worked,ot:d.ot,shifts:d.shifts.map(s=>({in:s.in,out:s.out}))}))})),
+    savedAt:new Date().toISOString()
+  };
+  if(idx>=0)records[periodKey][idx]=entry;
+  else records[periodKey].push(entry);
+  setSavedRecords(records);
+  showToast('Saved — '+lastCalcResults.employee);
+}
+
+function saveAndNext(){
+  saveCurrentResult();
+  startFresh();
+}
+
+function showToast(msg){
+  const t=document.getElementById('savedToast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function showHistory(){
+  document.getElementById('uploadSection').style.display='none';
+  document.getElementById('verifySection').classList.remove('visible');
+  document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('historySection').classList.add('visible');
+  renderHistory();
+}
+function hideHistory(){
+  document.getElementById('historySection').classList.remove('visible');
+  document.getElementById('uploadSection').style.display='';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderHistory(){
+  const records=getSavedRecords();
+  const el=document.getElementById('historyList');
+  const keys=Object.keys(records).sort().reverse();
+  if(keys.length===0){el.innerHTML='<div class="history-empty">No saved records yet.<br>Calculate a timecard and tap "Save & Next Employee" to start.</div>';return;}
+
+  el.innerHTML=keys.map(periodKey=>{
+    const recs=records[periodKey];
+    const totalAll=recs.reduce((a,r)=>a+r.totalWorked,0);
+    const otAll=recs.reduce((a,r)=>a+r.overtime,0);
+    return'<div class="history-period">'+
+      '<div class="history-period-header" onclick="togglePeriod(this)">'+
+        '<div><h4>'+periodKey+'</h4><span class="h-count">'+recs.length+' employee'+(recs.length>1?'s':'')+' · Total: '+formatHMShort(totalAll)+(otAll>0?' · OT: '+formatHMShort(otAll):'')+'</span></div>'+
+        '<div class="history-period-actions">'+
+          '<button class="h-export" onclick="event.stopPropagation();exportPeriodCSV(\''+escQ(periodKey)+'\')">CSV</button>'+
+          '<button class="h-delete" onclick="event.stopPropagation();deletePeriod(\''+escQ(periodKey)+'\')">Delete</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="history-records">'+
+        recs.map((r,i)=>
+          '<div class="history-record">'+
+            '<span class="hr-name">'+r.employee+'</span>'+
+            '<span class="hr-total">'+formatHMShort(r.totalWorked)+'</span>'+
+            '<span class="hr-ot">'+(r.overtime>0?'OT: '+formatHMShort(r.overtime):'—')+'</span>'+
+            '<button class="hr-del" onclick="deleteRecord(\''+escQ(periodKey)+'\','+i+')" title="Delete">✕</button>'+
+          '</div>'
+        ).join('')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+function escQ(s){return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+
+function togglePeriod(headerEl){
+  const records=headerEl.nextElementSibling;
+  records.classList.toggle('open');
+}
+
+function deletePeriod(periodKey){
+  if(!confirm('Delete all records for "'+periodKey+'"?'))return;
+  const records=getSavedRecords();delete records[periodKey];setSavedRecords(records);renderHistory();
+}
+function deleteRecord(periodKey,idx){
+  const records=getSavedRecords();
+  if(!records[periodKey])return;
+  records[periodKey].splice(idx,1);
+  if(records[periodKey].length===0)delete records[periodKey];
+  setSavedRecords(records);renderHistory();
+}
+
+function mToDecimal(m){return(m/60).toFixed(2);}
+
+function exportPeriodCSV(periodKey){
+  const records=getSavedRecords();
+  const recs=records[periodKey];
+  if(!recs||recs.length===0)return;
+
+  // Build CSV: one row per employee with daily breakdown
+  let csv='Pay Period,Employee,';
+  // Day columns — up to 2 weeks x 7 days
+  const maxWeeks=Math.max(...recs.map(r=>r.weeks.length));
+  for(let w=0;w<maxWeeks;w++){
+    ['MON','TUE','WED','THU','FRI','SAT','SUN'].forEach(d=>{
+      csv+='W'+(w+1)+' '+d+' In,W'+(w+1)+' '+d+' Out,W'+(w+1)+' '+d+' Hours,';
+    });
+    csv+='W'+(w+1)+' Total,W'+(w+1)+' OT,';
+  }
+  csv+='Total Hours,Regular Hours,Overtime Hours\r\n';
+
+  recs.forEach(r=>{
+    csv+='"'+periodKey+'","'+r.employee+'",';
+    for(let w=0;w<maxWeeks;w++){
+      const week=r.weeks[w];
+      if(week){
+        week.days.forEach(d=>{
+          if(d.shifts.length>0){
+            csv+='"'+d.shifts.map(s=>s.in).join('; ')+'","'+d.shifts.map(s=>s.out).join('; ')+'",'+mToDecimal(d.worked)+',';
+          }else{
+            csv+=',,,';
+          }
+        });
+        csv+=mToDecimal(week.worked)+','+mToDecimal(week.ot)+',';
+      }else{
+        for(let i=0;i<7;i++)csv+=',,,';
+        csv+=',,';
+      }
+    }
+    csv+=mToDecimal(r.totalWorked)+','+mToDecimal(r.regular)+','+mToDecimal(r.overtime)+'\r\n';
+  });
+
+  // Download
+  const safeName=periodKey.replace(/[^a-zA-Z0-9]/g,'_');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='Timecard_'+safeName+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 async function runScan(){
