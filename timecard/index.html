@@ -210,8 +210,12 @@
 <div class="modal-overlay hidden" id="settingsModal">
   <div class="modal">
     <h3>Settings</h3>
+    <div class="form-group"><label>Proxy URL (Cloudflare Worker)</label><input type="text" id="workerUrlInput" placeholder="https://your-worker.workers.dev" style="letter-spacing:0;text-align:left;font-size:13px;"></div>
+    <details style="margin-top:4px;margin-bottom:14px;"><summary style="font-size:12px;color:var(--text-muted);cursor:pointer;">Or enter API keys directly (advanced)</summary>
+    <div style="margin-top:10px;">
     <div class="form-group"><label>Google Vision API Key</label><input type="password" id="gvKeyInput" placeholder="AIza..."></div>
     <div class="form-group"><label>Claude API Key</label><input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..."></div>
+    </div></details>
     <div class="form-group"><label>Store Number</label><input type="text" id="storeNumInput" placeholder="7747" value="7747"></div>
     <h3 style="margin-top:18px;">Manage Users</h3>
     <div class="form-group"><label>New Employee #</label><input type="text" id="newEmpNum" placeholder="1234" maxlength="10" inputmode="numeric"></div>
@@ -319,9 +323,9 @@ if(sessionStorage.getItem('tc_logged_in'))document.getElementById('loginOverlay'
 document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginEmp').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 
-function openSettings(){document.getElementById('gvKeyInput').value=localStorage.getItem('tc_gv_key')||'';document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
+function openSettings(){document.getElementById('workerUrlInput').value=localStorage.getItem('tc_worker_url')||'';document.getElementById('gvKeyInput').value=localStorage.getItem('tc_gv_key')||'';document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
 function closeSettings(){document.getElementById('settingsModal').classList.add('hidden');}
-function saveSettings(){const g=document.getElementById('gvKeyInput').value.trim(),k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(g)localStorage.setItem('tc_gv_key',g);if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
+function saveSettings(){const w=document.getElementById('workerUrlInput').value.trim().replace(/\/$/,''),g=document.getElementById('gvKeyInput').value.trim(),k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(w)localStorage.setItem('tc_worker_url',w);else localStorage.removeItem('tc_worker_url');if(g)localStorage.setItem('tc_gv_key',g);if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
 function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=document.getElementById('newEmpPin').value.trim();if(!e||p.length!==4){alert('Enter valid employee # and 4-digit PIN');return;}const u=getUsers();u[e]=p;saveUsers(u);document.getElementById('newEmpNum').value='';document.getElementById('newEmpPin').value='';renderUserList();}
 function removeUser(e){if(e==='0000'){alert('Cannot remove default admin.');return;}const u=getUsers();delete u[e];saveUsers(u);renderUserList();}
 function renderUserList(){const u=getUsers();document.getElementById('userList').innerHTML=Object.keys(u).map(e=>'<div style="display:flex;justify-content:space-between;padding:3px 0;"><span>EMP# '+e+'</span>'+(e!=='0000'?'<a href="#" onclick="event.preventDefault();removeUser(\''+e+'\')" style="color:var(--warn);">Remove</a>':'<span style="opacity:0.4;">admin</span>')+'</div>').join('');}
@@ -364,8 +368,9 @@ function compressImage(base64,maxBytes){
 // STEP 1: GOOGLE VISION OCR
 // ══════════════════════════════════════
 async function callGoogleVision(imageBase64){
+  const workerUrl=localStorage.getItem('tc_worker_url');
   const gvKey=localStorage.getItem('tc_gv_key');
-  if(!gvKey)throw new Error('Google Vision API key not set. Go to Settings (⚙).');
+  if(!workerUrl&&!gvKey)throw new Error('No API configured. Go to Settings (⚙) and enter a Proxy URL or Google Vision API key.');
 
   const body={
     requests:[{
@@ -374,11 +379,10 @@ async function callGoogleVision(imageBase64){
     }]
   };
 
-  const resp=await fetch('https://vision.googleapis.com/v1/images:annotate?key='+gvKey,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(body)
-  });
+  const url=workerUrl?workerUrl+'/vision':'https://vision.googleapis.com/v1/images:annotate?key='+gvKey;
+  const headers={'Content-Type':'application/json'};
+
+  const resp=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});
   if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error('Google Vision Error: '+(err.error?.message||resp.status));}
   const data=await resp.json();
   const ann=data.responses&&data.responses[0];
@@ -390,29 +394,40 @@ async function callGoogleVision(imageBase64){
 // STEP 2: CLAUDE STRUCTURES THE OCR TEXT
 // ══════════════════════════════════════
 async function callClaude(ocrText,imageBase64){
+  const workerUrl=localStorage.getItem('tc_worker_url');
   const apiKey=localStorage.getItem('tc_api_key');
-  if(!apiKey)throw new Error('Claude API key not set. Go to Settings (⚙).');
+  if(!workerUrl&&!apiKey)throw new Error('No API configured. Go to Settings (⚙) and enter a Proxy URL or Claude API key.');
 
   let mediaType='image/jpeg';
   if(imageBase64&&imageBase64.startsWith('iVBOR'))mediaType='image/png';
   else if(imageBase64&&imageBase64.startsWith('UklGR'))mediaType='image/webp';
 
   const prompt=`You are parsing a Fashion Q store employee punch card timecard. You have TWO sources:
-1. The PHOTO of the card (attached image) — use this to see the LAYOUT and which times are on which day rows.
-2. The RAW OCR TEXT below — use this for precise digit reading, as it is more accurate for numbers.
-
-CROSS-REFERENCE both sources. The image shows which row each time belongs to. The OCR text has more accurate digits.
+1. The PHOTO of the card (attached image) — use this to see the LAYOUT and which row has stamps.
+2. The RAW OCR TEXT below — use this for precise digit reading.
 
 === RAW OCR TEXT ===
 ${ocrText}
 === END OCR TEXT ===
 
-=== CRITICAL: DAY-TO-TIME MATCHING ===
-Each punch card row has a day label (MON, TUE, WED, THU, FRI, SAT, SUN) on the LEFT, and IN/OUT times on the SAME ROW to the RIGHT.
+=== STEP-BY-STEP PROCEDURE (FOLLOW EXACTLY) ===
 
-LOOK AT THE IMAGE to confirm which times belong to which day. If a row is BLANK in the image, that day is OFF — return empty shifts. Do NOT shift times from the next day into an empty day.
+STEP 1: Look at the IMAGE. The card has 7 rows labeled MON, TUE, WED, THU, FRI, SAT, SUN.
+For EACH week visible (Week 1 = left side, Week 2 = right side), identify:
+- Which rows have time stamps printed on them (= worked days)
+- Which rows are BLANK / EMPTY (= days off)
+A blank row means NO stamps AT ALL on that row — not even faint ones.
 
-For 2-week cards: Week 1 is on the LEFT side, Week 2 on the RIGHT side. Match each side's times to the correct days independently.
+STEP 2: For each row that HAS stamps, read the IN and OUT times.
+- Use the OCR TEXT for the digit values (it's more accurate).
+- Use the IMAGE to confirm which row each time belongs to.
+- Count rows from the top: Row 1=MON, Row 2=TUE, Row 3=WED, Row 4=THU, Row 5=FRI, Row 6=SAT, Row 7=SUN.
+
+STEP 3: THE MOST IMPORTANT RULE — DO NOT SHIFT DATA BETWEEN ROWS.
+- If MON row is blank → MON has empty shifts. Do NOT put TUE's data in MON.
+- If THU row is blank → THU has empty shifts. Do NOT put FRI's data in THU.
+- Each time stamp belongs ONLY to the physical row it appears on.
+- If you count 5 sets of times but 7 rows, then 2 rows are blank — figure out WHICH 2 by looking at the image.
 
 === AM/PM RULES (NO EXCEPTIONS) ===
 Retail store, open ~10 AM to 9 PM only:
@@ -420,9 +435,9 @@ Retail store, open ~10 AM to 9 PM only:
 - Hour 12, 1, 2, 3, 4, 5, 6, 7, 8, 9 → ALWAYS PM
 
 === OCR DIGIT CORRECTIONS ===
-- "0" misread as "8" or "O" → :00 is far more common than :08
-- "3" misread as "8" or "0" → :30 is more common than :80
-- "5" misread as "2" → check context
+- "0" vs "8": :00 is far more common than :08
+- "3" vs "8" vs "0": :30 is more common than :80 or :00 for minutes
+- "5" vs "2": check context
 - Minutes >59 → fix the most likely digit
 - IN is typically 10 AM–1 PM, OUT is typically 4–9 PM
 
@@ -437,12 +452,17 @@ Return ONLY valid JSON. No markdown. No backticks.
       "period": "M/D ~ M/D",
       "days": [
         { "day": "MON", "shifts": [{ "in": "10:00 AM", "out": "6:30 PM" }] },
-        { "day": "TUE", "shifts": [] }
+        { "day": "TUE", "shifts": [] },
+        { "day": "WED", "shifts": [{ "in": "11:00 AM", "out": "7:00 PM" }] },
+        { "day": "THU", "shifts": [] },
+        { "day": "FRI", "shifts": [{ "in": "10:00 AM", "out": "6:00 PM" }] },
+        { "day": "SAT", "shifts": [] },
+        { "day": "SUN", "shifts": [] }
       ]
     }
   ]
 }
-ALL 7 days MON–SUN per week. Empty shifts = day off. DO NOT SHIFT times between days.`;
+ALWAYS include all 7 days. Empty shifts [] = day off. NEVER shift times between rows.`;
 
   const content=[];
   if(imageBase64){
@@ -450,11 +470,22 @@ ALL 7 days MON–SUN per week. Empty shifts = day off. DO NOT SHIFT times betwee
   }
   content.push({type:'text',text:prompt});
 
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]})
-  });
+  const reqBody={model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content}]};
+
+  let resp;
+  if(workerUrl){
+    resp=await fetch(workerUrl+'/claude',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(reqBody)
+    });
+  }else{
+    resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify(reqBody)
+    });
+  }
   if(!resp.ok){const err=await resp.json().catch(()=>({}));throw new Error(err.error?.message||'Claude API Error: '+resp.status);}
   const data=await resp.json();
   const text=data.content.map(c=>c.text||'').join('');
@@ -599,18 +630,74 @@ function renderResults(data){
 function getSavedRecords(){return JSON.parse(localStorage.getItem('tc_records')||'{}');}
 function setSavedRecords(r){localStorage.setItem('tc_records',JSON.stringify(r));}
 
-function makePeriodKey(data){
-  // Use the pay period string as the grouping key
-  const periods=data.weeks.map(w=>w.period).join(' → ');
-  return periods||('Unknown_'+Date.now());
+// Parse "M/D" or "M/D ~ M/D" into a Date (uses current year)
+function parsePeriodDate(str){
+  if(!str)return null;
+  const m=str.match(/(\d{1,2})\/(\d{1,2})/);
+  if(!m)return null;
+  const now=new Date();
+  return new Date(now.getFullYear(),parseInt(m[1])-1,parseInt(m[2]));
+}
+
+// Find the Monday that starts the 2-week pay period containing a given date
+function getPeriodMonday(date){
+  if(!date||isNaN(date))return null;
+  const d=new Date(date);
+  const day=d.getDay(); // 0=Sun,1=Mon...
+  // Go back to Monday
+  const diff=day===0?6:day-1;
+  d.setDate(d.getDate()-diff);
+  // Now d is the Monday of this week. But we need to align to 2-week cycles.
+  // Use a known reference Monday. Let's use Jan 1, 2024 (which was a Monday).
+  const ref=new Date(2024,0,1);
+  const diffDays=Math.floor((d-ref)/(86400000));
+  const weeksSinceRef=Math.floor(diffDays/7);
+  // If weeksSinceRef is odd, go back one more week to get the start of the 2-week period
+  if(weeksSinceRef%2!==0){d.setDate(d.getDate()-7);}
+  return d;
+}
+
+function formatPeriodKey(monday){
+  if(!monday)return null;
+  const sun=new Date(monday);
+  sun.setDate(sun.getDate()+13); // 2 weeks later = Sunday
+  const m1=monday.getMonth()+1,d1=monday.getDate();
+  const m2=sun.getMonth()+1,d2=sun.getDate();
+  return m1+'/'+d1+' ~ '+m2+'/'+d2;
+}
+
+// Find matching period key in existing records (same 2-week window)
+function findMatchingPeriodKey(periodStr,existingKeys){
+  // Try to get a date from the period string
+  const parts=periodStr.split(/[→~]/);
+  let date=null;
+  for(const p of parts){date=parsePeriodDate(p.trim());if(date)break;}
+  if(!date)return periodStr; // fallback: use as-is
+
+  const monday=getPeriodMonday(date);
+  if(!monday)return periodStr;
+  const normalKey=formatPeriodKey(monday);
+
+  // Check if any existing key falls in the same 2-week window
+  for(const ek of existingKeys){
+    const ekParts=ek.split(/[→~]/);
+    for(const ep of ekParts){
+      const ed=parsePeriodDate(ep.trim());
+      if(!ed)continue;
+      const eMonday=getPeriodMonday(ed);
+      if(eMonday&&eMonday.getTime()===monday.getTime())return ek; // use existing key
+    }
+  }
+  return normalKey;
 }
 
 function saveCurrentResult(){
   if(!lastCalcResults)return;
   const records=getSavedRecords();
-  const periodKey=lastCalcResults.periods;
+  const rawPeriod=lastCalcResults.periods;
+  const periodKey=findMatchingPeriodKey(rawPeriod,Object.keys(records));
+
   if(!records[periodKey])records[periodKey]=[];
-  // Check if this employee already saved in this period — update if so
   const idx=records[periodKey].findIndex(r=>r.employee===lastCalcResults.employee);
   const entry={
     employee:lastCalcResults.employee,
