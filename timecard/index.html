@@ -312,6 +312,8 @@
 
 <script>
 let capturedBase64=null;
+const DEFAULT_WORKER_URL='https://fashionq-api.dkimhome.workers.dev';
+function getWorkerUrl(){return localStorage.getItem('tc_worker_url')||DEFAULT_WORKER_URL;}
 function getUsers(){return JSON.parse(localStorage.getItem('tc_users')||'{"0000":"1234"}');}
 function saveUsers(u){localStorage.setItem('tc_users',JSON.stringify(u));}
 function formatHM(m){return (m/60).toFixed(2)+' hrs';}
@@ -323,7 +325,7 @@ if(sessionStorage.getItem('tc_logged_in'))document.getElementById('loginOverlay'
 document.getElementById('loginPin').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginEmp').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPin').focus();});
 
-function openSettings(){document.getElementById('workerUrlInput').value=localStorage.getItem('tc_worker_url')||'';document.getElementById('gvKeyInput').value=localStorage.getItem('tc_gv_key')||'';document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
+function openSettings(){document.getElementById('workerUrlInput').value=localStorage.getItem('tc_worker_url')||DEFAULT_WORKER_URL;document.getElementById('gvKeyInput').value=localStorage.getItem('tc_gv_key')||'';document.getElementById('apiKeyInput').value=localStorage.getItem('tc_api_key')||'';document.getElementById('storeNumInput').value=localStorage.getItem('tc_store')||'7747';renderUserList();document.getElementById('settingsModal').classList.remove('hidden');}
 function closeSettings(){document.getElementById('settingsModal').classList.add('hidden');}
 function saveSettings(){const w=document.getElementById('workerUrlInput').value.trim().replace(/\/$/,''),g=document.getElementById('gvKeyInput').value.trim(),k=document.getElementById('apiKeyInput').value.trim(),s=document.getElementById('storeNumInput').value.trim();if(w)localStorage.setItem('tc_worker_url',w);else localStorage.removeItem('tc_worker_url');if(g)localStorage.setItem('tc_gv_key',g);if(k)localStorage.setItem('tc_api_key',k);if(s)localStorage.setItem('tc_store',s);closeSettings();}
 function addUser(){const e=document.getElementById('newEmpNum').value.trim(),p=document.getElementById('newEmpPin').value.trim();if(!e||p.length!==4){alert('Enter valid employee # and 4-digit PIN');return;}const u=getUsers();u[e]=p;saveUsers(u);document.getElementById('newEmpNum').value='';document.getElementById('newEmpPin').value='';renderUserList();}
@@ -368,7 +370,7 @@ function compressImage(base64,maxBytes){
 // STEP 1: GOOGLE VISION OCR
 // ══════════════════════════════════════
 async function callGoogleVision(imageBase64){
-  const workerUrl=localStorage.getItem('tc_worker_url');
+  const workerUrl=getWorkerUrl();
   const gvKey=localStorage.getItem('tc_gv_key');
   if(!workerUrl&&!gvKey)throw new Error('No API configured. Go to Settings (⚙) and enter a Proxy URL or Google Vision API key.');
 
@@ -394,7 +396,7 @@ async function callGoogleVision(imageBase64){
 // STEP 2: CLAUDE STRUCTURES THE OCR TEXT
 // ══════════════════════════════════════
 async function callClaude(ocrText,imageBase64){
-  const workerUrl=localStorage.getItem('tc_worker_url');
+  const workerUrl=getWorkerUrl();
   const apiKey=localStorage.getItem('tc_api_key');
   if(!workerUrl&&!apiKey)throw new Error('No API configured. Go to Settings (⚙) and enter a Proxy URL or Claude API key.');
 
