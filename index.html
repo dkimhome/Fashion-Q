@@ -552,39 +552,24 @@ function renderStaff(){
 // ================================================================
 function lookupBarcode(code){
   code=code.trim().replace(/\s/g,'');
-  // Direct match
+  // 1. Direct match
   var f=db.find(function(i){return i.barcode===code;});if(f)return f;
-  // Core logic: extract 8-digit DB key from various barcode lengths
-  var try8=[];
-  if(code.length===12){
-    // UPC-A: 1 system + 10 actual + 1 check → middle 10 → drop last 2 → 8 digits
-    var mid10=code.substring(1,11);
-    try8.push(mid10.substring(0,8));
-    // Also try: just drop first and last → 10 digits → drop last 2
-    try8.push(code.substring(1,9));
-    // Fallback: drop last 2 from 12 → 10, then drop last 2 → 8
-    try8.push(code.substring(0,8));
-  } else if(code.length===13){
-    // EAN-13: similar logic
-    var inner10=code.substring(1,11);
-    try8.push(inner10.substring(0,8));
-    try8.push(code.substring(1,9));
-    try8.push(code.substring(0,8));
-  } else if(code.length===10){
-    // 10 digits → drop last 2 → 8 (original design)
-    try8.push(code.substring(0,8));
-  } else if(code.length===8){
-    try8.push(code);
+  // 2. Primary rule: take first 8 digits (works for 10, 11, 12, 13 digit scans)
+  // Scanner may strip leading zeros: 012801403133→12801403133, 009930143911→9930143911
+  // IV_STYLEID is always the first 8 digits of what scanner outputs
+  if(code.length>=8){
+    var first8=code.substring(0,8);
+    f=db.find(function(i){return i.barcode===first8;});if(f)return f;
+    // Try with leading zeros stripped on both sides
+    var s8=first8.replace(/^0+/,'');
+    f=db.find(function(i){return i.barcode.replace(/^0+/,'')===s8;});if(f)return f;
   }
-  // Try each 8-digit candidate
-  for(var j=0;j<try8.length;j++){
-    f=db.find(function(i){return i.barcode===try8[j];});if(f)return f;
-    // Also try with leading zeros stripped
-    var stripped=try8[j].replace(/^0+/,'');
-    f=db.find(function(i){return i.barcode.replace(/^0+/,'')===stripped;});if(f)return f;
+  // 3. Fallback: try full code without leading zeros
+  var s=code.replace(/^0+/,'');
+  if(s.length>=8){
+    var sf8=s.substring(0,8);
+    f=db.find(function(i){return i.barcode===sf8;});if(f)return f;
   }
-  // Last resort: strip last 2 from any length
-  if(code.length>8){var t=code.substring(0,code.length-2);f=db.find(function(i){return i.barcode===t;});if(f)return f;}
   return null;
 }
 
@@ -671,7 +656,7 @@ function startCamera(){
   }).catch(err=>{showCamErr(err.name==='NotAllowedError'?'Camera permission required':err.message);});
 }
 function stopCamera(){if(scanInterval){clearInterval(scanInterval);scanInterval=null;}if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}document.getElementById('cameraOff').classList.remove('hidden');document.getElementById('cameraOn').classList.add('hidden');document.getElementById('liveBadge').classList.add('hidden');document.getElementById('detectedMsg').classList.add('hidden');lastDetected='';}
-function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');var dbKey='';if(code.length===12){dbKey=code.substring(1,11).substring(0,8);}else if(code.length===10){dbKey=code.substring(0,8);}else{dbKey=code;}msg.textContent='✓ '+code+' ('+code.length+'digits) → DB lookup: '+dbKey;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else{addScannedItem('⚠️ '+code,'','','(Not in DB)',code);showToast('BC '+code+' saved (not in DB)','warning');}if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
+function processBarcode(code){if(!code||code===lastDetected)return;lastDetected=code;document.getElementById('barcodeInput').value=code;const msg=document.getElementById('detectedMsg');var dbKey=code.length>=8?code.substring(0,8):code;msg.textContent='✓ '+code+' ('+code.length+'digits) → first 8: '+dbKey;msg.classList.remove('hidden');const f=lookupBarcode(code);if(f)addScannedItem(f.style,f.color,f.vendor,f.name,f.barcode);else{addScannedItem('⚠️ '+code,'','','(Not in DB)',code);showToast('BC '+code+' saved (not in DB)','warning');}if(navigator.vibrate)navigator.vibrate(100);setTimeout(()=>{lastDetected='';},1500);}
 function showCamErr(m){const e=document.getElementById('cameraError');e.textContent=m;e.classList.remove('hidden');}
 
 // ================================================================
