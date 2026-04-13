@@ -729,7 +729,49 @@ function applyAI(){
   invoicePages.push(page);renderPages();renderRV();updateInvBadge();saveData();
   showToast(`Page added: ${page.items.length}items (${page.date})`,'success');
   document.getElementById('aiResult').innerHTML='<div style="text-align:center;padding:10px;color:var(--success);font-weight:700">✓ Added!</div>';
-  document.getElementById('photoPreview').classList.add('hidden');window._aiP=null;window._aiT=null;
+  document.getElementById('photoPreview').classList.add('hidden');
+  // Upload to Google Sheet
+  uploadInvoiceToSheet(page);
+  window._aiP=null;window._aiT=null;
+}
+
+function formatInvTabName(dateStr){
+  // Parse dates like "4/7/26", "04/07/26", "2/23/26", "02-23-2026", etc. → "040726 I"
+  if(!dateStr)return '';
+  var parts=dateStr.replace(/-/g,'/').split('/');
+  if(parts.length<3)return '';
+  var m=parseInt(parts[0])||0;
+  var d=parseInt(parts[1])||0;
+  var y=parts[2].trim();
+  if(y.length===4)y=y.substring(2);// 2026→26
+  if(m<1||m>12||d<1||d>31)return '';
+  return String(m).padStart(2,'0')+String(d).padStart(2,'0')+y+' I';
+}
+
+function makePageId(page){
+  // Unique ID: date + sorted items summary
+  var sig=page.date+'|';
+  page.items.forEach(function(i){sig+=i.vendor+':'+i.style+':'+i.color+':'+i.qty+',';});
+  // Simple hash
+  var h=0;for(var i=0;i<sig.length;i++){h=((h<<5)-h)+sig.charCodeAt(i);h=h&h;}
+  return 'INV'+Math.abs(h);
+}
+
+async function uploadInvoiceToSheet(page){
+  if(!sheetUrl||!page.items.length)return;
+  var tabName=formatInvTabName(page.date);
+  if(!tabName){showToast('Could not parse invoice date for Sheet tab','warning');return;}
+  var pageId=makePageId(page);
+  try{
+    var resp=await fetch(sheetUrl,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'uploadInvoice',tabName:tabName,pageId:pageId,
+        employee:currentUser?currentUser.name:'Unknown',store:storeNo,invoiceDate:page.date,
+        items:page.items.map(function(i){return{vendor:i.vendor,style:i.style,color:i.color,qty:i.qty};})
+      })});
+    var data=await resp.json();
+    if(data&&data.status==='duplicate'){showToast('Invoice already uploaded (skipped)','info');}
+    else{showToast('Invoice → Sheet tab '+tabName,'success');}
+  }catch(err){console.warn('Invoice upload error:',err);}
 }
 
 // ================================================================
