@@ -232,6 +232,16 @@ input::placeholder{color:#8B8B9E66}
       </div>
       <div id="sheetUrlStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
     </div>
+    <!-- Invoice Sheet -->
+    <div class="card">
+      <div class="card-title">📋 Invoice Sheet (separate)</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px;line-height:1.5">Separate Google Sheet for invoice data. Auto-uploads when you tap "Add to Invoice".</div>
+      <div class="input-row">
+        <input type="text" id="invSheetUrlInput" placeholder="https://script.google.com/macros/s/..." style="flex:1;font-size:11px">
+        <button class="btn" onclick="saveInvSheetUrl()">Save</button>
+      </div>
+      <div id="invSheetUrlStatus" style="font-size:11px;margin-top:4px;min-height:16px"></div>
+    </div>
     <!-- API Key Setting -->
     <div class="card">
       <div class="card-title">🔑 AI Settings (Invoice Recognition)</div>
@@ -287,6 +297,7 @@ let apiKey='';
 let storeNo='7747';
 let dbUrl='';
 let sheetUrl='';
+let invSheetUrl='';
 
 // Load saved users (ensure default admin always exists)
 try{const saved=localStorage.getItem('fq_users');if(saved){const parsed=JSON.parse(saved);if(Array.isArray(parsed)&&parsed.length>0){users=parsed;if(!users.find(u=>u.empNo==='0000'))users.unshift({empNo:'0000',name:'Admin',pin:'1234',role:'admin'});}}}catch(e){}
@@ -297,6 +308,7 @@ try{apiKey=localStorage.getItem('fq_apikey')||'';}catch(e){}
 try{storeNo=localStorage.getItem('fq_storeno')||'7747';}catch(e){}
 try{dbUrl=localStorage.getItem('fq_dburl')||'';}catch(e){}
 try{sheetUrl=localStorage.getItem('fq_sheeturl')||'';}catch(e){}
+try{invSheetUrl=localStorage.getItem('fq_invsheeturl')||'';}catch(e){}
 
 // Load saved scan/invoice data
 try{var sd=localStorage.getItem('fq_scanned');if(sd){scannedItems=JSON.parse(sd)||[];}}catch(e){}
@@ -404,6 +416,17 @@ function loadSheetUrlDisplay(){
   if(el)el.value=sheetUrl;
   if(st)st.innerHTML=sheetUrl?'<span style="color:var(--success)">✓ Connected</span>':'<span style="color:var(--dim)">Not set. Scans saved locally only.</span>';
 }
+function saveInvSheetUrl(){
+  var v=document.getElementById('invSheetUrlInput').value.trim();
+  invSheetUrl=v;try{localStorage.setItem('fq_invsheeturl',v);}catch(e){}
+  document.getElementById('invSheetUrlStatus').innerHTML=v?'<span style="color:var(--success)">✓ Invoice Sheet set.</span>':'<span style="color:var(--dim)">Not set.</span>';
+  showToast('Invoice Sheet URL saved','success');
+}
+function loadInvSheetUrlDisplay(){
+  var el=document.getElementById('invSheetUrlInput');var st=document.getElementById('invSheetUrlStatus');
+  if(el)el.value=invSheetUrl;
+  if(st)st.innerHTML=invSheetUrl?'<span style="color:var(--success)">✓ Connected</span>':'<span style="color:var(--dim)">Not set. Invoices saved locally only.</span>';
+}
 async function uploadShared(){
   if(!sheetUrl){showToast('Set Sheet URL in Settings tab first','warning');return;}
   if(!scannedItems.length){showToast('No scans to upload','warning');return;}
@@ -506,7 +529,7 @@ function switchTab(id){
   document.getElementById('tab-'+id).classList.add('active');
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector(`.tab-btn[data-tab="${id}"]`)?.classList.add('active');
-  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db'){renderDB();loadApiKeyDisplay();loadStoreNoDisplay();loadDbUrlDisplay();loadSheetUrlDisplay();}if(id==='staff')renderStaff();
+  if(id!=='scan')stopCamera();if(id==='match')renderMatch();if(id==='db'){renderDB();loadApiKeyDisplay();loadStoreNoDisplay();loadDbUrlDisplay();loadSheetUrlDisplay();loadInvSheetUrlDisplay();}if(id==='staff')renderStaff();
 }
 
 // ================================================================
@@ -758,12 +781,12 @@ function makePageId(page){
 }
 
 async function uploadInvoiceToSheet(page){
-  if(!sheetUrl||!page.items.length)return;
+  if(!invSheetUrl||!page.items.length)return;
   var tabName=formatInvTabName(page.date);
   if(!tabName){showToast('Could not parse invoice date for Sheet tab','warning');return;}
   var pageId=makePageId(page);
   try{
-    var resp=await fetch(sheetUrl,{method:'POST',headers:{'Content-Type':'text/plain'},
+    var resp=await fetch(invSheetUrl,{method:'POST',headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({action:'uploadInvoice',tabName:tabName,pageId:pageId,
         employee:currentUser?currentUser.name:'Unknown',store:storeNo,invoiceDate:page.date,
         items:page.items.map(function(i){return{vendor:i.vendor,style:i.style,color:i.color,qty:i.qty};})
